@@ -4,6 +4,16 @@ A modified version of [Sachet](https://github.com/wyvern1723/sachet) for Xiangta
 
 [简体中文](README.md) · [Build guide](README_DEV.md) · [MIT license](LICENSE) · [Third-party notices](THIRD_PARTY_NOTICES.md)
 
+## Downloads
+
+[Latest release](https://github.com/Pluvist/sachet-next/releases/latest)
+
+- [ARM64 v8a](https://github.com/Pluvist/sachet-next/releases/download/v0.10.1-next.1/sachet-next-v0.10.1-next.1-arm64-v8a.apk): most modern Android phones, including Xiaomi 17.
+- [ARM v7a](https://github.com/Pluvist/sachet-next/releases/download/v0.10.1-next.1/sachet-next-v0.10.1-next.1-armeabi-v7a.apk): 32-bit ARM devices.
+- [x86_64](https://github.com/Pluvist/sachet-next/releases/download/v0.10.1-next.1/sachet-next-v0.10.1-next.1-x86_64.apk): compatible 64-bit x86 Android devices/emulators.
+
+The first public release uses release/AOT compilation with package ID `io.github.wyvern1723.sachet.localtest` and the existing local development signing key. It can update earlier builds signed with that same key and installs separately from upstream Sachet. This is a development signature, not an upstream or dedicated production signature. CI test APK signatures can differ. SHA-256 checksums are provided with the release.
+
 ## Changes from upstream
 
 - Building-aware schedules: daytime lessons in Yifu Building and the Information Technology Building start 10 minutes later than ordinary buildings; evening lessons share the same times. Per-course overrides are supported.

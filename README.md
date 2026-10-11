@@ -12,7 +12,7 @@
 
 | Android 架构 | 适用设备 | 下载 |
 | --- | --- | --- |
-| arm64-v8a | 多数现代安卓手机，小米 17 选择此版本 | [ARM64 APK](https://github.com/Pluvist/sachet-next/releases/download/v0.10.1-next.1/sachet-next-v0.10.1-next.1-arm64-v8a.apk) |
+| arm64-v8a | 多数现代安卓手机选择此版本 | [ARM64 APK](https://github.com/Pluvist/sachet-next/releases/download/v0.10.1-next.1/sachet-next-v0.10.1-next.1-arm64-v8a.apk) |
 | armeabi-v7a | 32 位 ARM 安卓设备 | [ARM v7a APK](https://github.com/Pluvist/sachet-next/releases/download/v0.10.1-next.1/sachet-next-v0.10.1-next.1-armeabi-v7a.apk) |
 | x86_64 | 64 位 x86 安卓设备或兼容模拟器 | [x86_64 APK](https://github.com/Pluvist/sachet-next/releases/download/v0.10.1-next.1/sachet-next-v0.10.1-next.1-x86_64.apk) |
 

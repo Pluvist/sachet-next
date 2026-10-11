@@ -16,7 +16,7 @@
 | armeabi-v7a | 32 位 ARM 安卓设备 | [ARM v7a APK](https://github.com/Pluvist/sachet-next/releases/download/v0.10.1-next.1/sachet-next-v0.10.1-next.1-armeabi-v7a.apk) |
 | x86_64 | 64 位 x86 安卓设备或兼容模拟器 | [x86_64 APK](https://github.com/Pluvist/sachet-next/releases/download/v0.10.1-next.1/sachet-next-v0.10.1-next.1-x86_64.apk) |
 
-首个公开版本采用 release/AOT 编译，包名为 `io.github.wyvern1723.sachet.localtest`，沿用现有本机开发签名，能够覆盖同签名测试版；与上游应用分开安装。此签名属于开发签名，不是上游官方签名或独立生产签名。GitHub Actions 生成的测试 APK 使用运行环境签名，不能保证直接覆盖此 Release。各文件的 SHA-256 校验值随 Release 提供。
+首个公开版本采用 release/AOT 编译，包名为 `io.github.wyvern1723.sachet.localtest`，沿用现有本机开发签名，能够覆盖同签名测试版；与上游应用分开安装。此签名属于开发签名，不是上游官方签名或独立生产签名。
 
 ## 相比上游的主要变化
 

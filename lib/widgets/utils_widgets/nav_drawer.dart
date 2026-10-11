@@ -28,7 +28,7 @@ const List<NavDestination> navDrawerDestinations = <NavDestination>[
       page: ClassPage(),
       routeName: '/class'),
   NavDestination(
-      label: 'Home',
+      label: '主页',
       // icon: Icon(Icons.category_outlined),
       // selectedIcon: Icon(Icons.category),
       icon: Icon(Icons.apps_outlined),

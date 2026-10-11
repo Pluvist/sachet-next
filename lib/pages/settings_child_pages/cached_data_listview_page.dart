@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/settingspage_widgets/miuix_settings_list.dart';
 import 'dart:io';
 
 import 'package:intl/intl.dart';
@@ -134,7 +135,7 @@ class _CachedDataListviewPageState extends State<CachedDataListviewPage> {
       appBar: AppBar(
         title: const Text("缓存数据查看"),
       ),
-      body: ListView(
+      body: MiuixSettingsList(
         children: [
           /// 强智教务系统的缓存
           _buildHeader('强智教务系统缓存 (${AppFolder.cachedData.name}/)'),

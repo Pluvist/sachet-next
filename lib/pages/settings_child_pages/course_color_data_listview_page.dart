@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/settingspage_widgets/miuix_settings_list.dart';
 import 'dart:async';
 import 'dart:io';
 
@@ -120,7 +121,7 @@ class _CourseColorDataListviewPageState
 
     return Scaffold(
       appBar: AppBar(title: const Text('课程颜色数据查看')),
-      body: ListView(
+      body: MiuixSettingsList(
         children: [
           Padding(
             padding:

@@ -19,8 +19,9 @@ class UsernameFormField extends StatelessWidget {
       maxLengthEnforcement: MaxLengthEnforcement.none,
       keyboardType: TextInputType.number,
       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-      decoration:
-          const InputDecoration(labelText: '学号', border: OutlineInputBorder()),
+      decoration: const InputDecoration(
+        labelText: '学号',
+      ),
       validator: (value) {
         if (value == null || value.isEmpty) {
           return '请填入您的学号';

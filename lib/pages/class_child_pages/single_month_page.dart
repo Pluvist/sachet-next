@@ -4,6 +4,7 @@ import 'package:sachet/utils/time_manager.dart';
 import 'package:sachet/providers/settings_provider.dart';
 import 'package:sachet/utils/transform.dart';
 import 'package:sachet/widgets/classpage_widgets/course_card.dart';
+import 'package:sachet/widgets/classpage_widgets/course_section_dividers.dart';
 
 class SingleMonthPage extends StatefulWidget {
   /// 为每月创建一个 SingleMonthPage
@@ -243,20 +244,24 @@ class _SingleMonthPageState extends State<SingleMonthPage> {
                       return SizedBox();
                     }
                   }
-                  return SizedBox(
-                    height: isNightCourse
-                        ? (widget.cardHeight * courseLength)
-                        : (widget.cardHeight * 2),
-                    child: OverflowBox(
-                      alignment: Alignment.topCenter,
-                      maxHeight: (widget.cardHeight) * 11,
-                      child: CourseCard.compact(
-                        cardHeight: widget.cardHeight,
-                        weekCount: weekCount,
-                        weekday: date.weekday,
-                        classCount: classCount,
-                        courseScheduleItems: courseScheduleItems,
-                        courseColorData: widget.courseColorData,
+                  return CourseSectionDividers(
+                    sectionHeight: widget.cardHeight,
+                    firstSection: classCount * 2 + 1,
+                    child: SizedBox(
+                      height: isNightCourse
+                          ? (widget.cardHeight * courseLength)
+                          : (widget.cardHeight * 2),
+                      child: OverflowBox(
+                        alignment: Alignment.topCenter,
+                        maxHeight: (widget.cardHeight) * 11,
+                        child: CourseCard.compact(
+                          cardHeight: widget.cardHeight,
+                          weekCount: weekCount,
+                          weekday: date.weekday,
+                          classCount: classCount,
+                          courseScheduleItems: courseScheduleItems,
+                          courseColorData: widget.courseColorData,
+                        ),
                       ),
                     ),
                   );

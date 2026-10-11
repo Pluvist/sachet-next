@@ -50,3 +50,17 @@ app.*.map.json
 /scripts/local.signing.env
 /scripts/build-release-apks.sh
 /scripts/deploy/
+
+# Local delivery files and non-redistributable font experiments
+/启动真机测试.cmd
+/真机验证说明.md
+/修改说明.md
+assets/fonts/Anthropic*
+*.apk
+*.aab
+*.jks
+*.keystore
+key.properties
+.env
+.env.*
+!.env.example

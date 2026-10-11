@@ -19,8 +19,6 @@ class _PasswordFormFieldState extends State<PasswordFormField> {
       // 设定输入类型为 TextInputType.visiblePassword，使输入法启用数字和英文输入（而不是中文）
       keyboardType: TextInputType.visiblePassword,
       decoration: InputDecoration(
-        border: const OutlineInputBorder(),
-        filled: false,
         labelText: '密码',
         suffixIcon: IconButton(
           onPressed: () {

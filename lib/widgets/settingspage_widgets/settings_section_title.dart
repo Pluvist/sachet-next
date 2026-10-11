@@ -11,19 +11,21 @@ class SettingsSectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = Theme.of(context).colorScheme.primary;
+    final primaryColor = Theme.of(context).colorScheme.onSurfaceVariant;
 
     if (iconData == null) {
       return Text(
         title,
-        style: TextStyle(color: primaryColor, fontSize: 16),
+        style: TextStyle(
+            color: primaryColor, fontSize: 13, fontWeight: FontWeight.w500),
       );
     } else {
       return Row(
         children: [
           Text(
             title,
-            style: TextStyle(fontSize: 16, color: primaryColor),
+            style: TextStyle(
+                fontSize: 13, fontWeight: FontWeight.w500, color: primaryColor),
           ),
           const SizedBox(width: 4),
           Icon(iconData, color: primaryColor, size: 20),

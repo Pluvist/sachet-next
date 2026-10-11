@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "wyvern1723" "\0"
-            VALUE "FileDescription", "Sachet" "\0"
+            VALUE "CompanyName", "Pluvist" "\0"
+            VALUE "FileDescription", "Sachet Next" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "io.github.wyvern1723.sachet" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2023 wyvern1723. All rights reserved." "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 Pluvist. Upstream copyright (C) 2025 wyvern1723." "\0"
             VALUE "OriginalFilename", "sachet.exe" "\0"
-            VALUE "ProductName", "Sachet" "\0"
+            VALUE "ProductName", "Sachet Next" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

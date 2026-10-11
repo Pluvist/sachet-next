@@ -1,11 +1,10 @@
+import 'package:sachet/widgets/settingspage_widgets/miuix_settings_list.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sachet/constants/app_info_constants.dart';
 import 'package:sachet/providers/settings_provider.dart';
-import 'package:sachet/services/check_update.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sachet/utils/utils_functions.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({super.key});
@@ -63,6 +62,7 @@ class _AboutPageState extends State<AboutPage> {
   Future getAppVersion() async {
     // 获取 App 当前版本
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    if (!mounted) return;
     setState(() {
       appVersion = packageInfo.version;
       appBuildNumber = packageInfo.buildNumber;
@@ -71,7 +71,7 @@ class _AboutPageState extends State<AboutPage> {
 
   void showAboutAppDialog(BuildContext context) {
     showAboutDialog(
-      applicationName: 'Sachet',
+      applicationName: appName,
       applicationVersion: appVersion,
       applicationIcon: SizedBox(
         width: 74,
@@ -92,10 +92,11 @@ class _AboutPageState extends State<AboutPage> {
           ),
         ),
       ),
-      applicationLegalese: '©2025 Wyvern1723',
+      applicationLegalese: '©2026 Pluvist\n上游版权：©2025 wyvern1723',
       children: [
-        const Text(
-            "Sachet is a FREE software published under MIT License and comes with ABSOLUTELY NO WARRANTY.")
+        const Text(upstreamAcknowledgement),
+        const SizedBox(height: 12),
+        const Text('Sachet Next 遵循 MIT 许可证，以免费软件形式提供，不作任何担保。'),
       ],
       context: context,
     );
@@ -114,7 +115,7 @@ class _AboutPageState extends State<AboutPage> {
       appBar: AppBar(
         title: const Text('关于'),
       ),
-      body: ListView(
+      body: MiuixSettingsList(
         children: [
           const SizedBox(height: 40),
           Row(
@@ -140,16 +141,34 @@ class _AboutPageState extends State<AboutPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'Sachet',
+                appName,
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
               ),
             ],
           ),
           const SizedBox(height: 30),
+          const ListTile(
+            leading: Icon(Icons.person_outline),
+            title: Text('作者'),
+            subtitle: Text(authorName),
+          ),
+          const ListTile(
+            leading: Icon(Icons.favorite_outline),
+            title: Text('开源来源与鸣谢'),
+            subtitle: Text(upstreamAcknowledgement),
+          ),
           ListTile(
             leading: const Icon(Icons.info),
             title: const Text('关于应用'),
             onTap: () => showAboutAppDialog(context),
+          ),
+          ListTile(
+            leading: const Icon(Icons.code),
+            title: const Text('Sachet Next 源代码'),
+            subtitle: const Text(sachetNextRepoUrl),
+            onTap: () => openLink(sachetNextRepoUrl),
+            onLongPress: () =>
+                copyToClipboard(context, sachetNextRepoUrl, prefix: '链接'),
           ),
           ListTile(
             leading: const Align(
@@ -162,7 +181,7 @@ class _AboutPageState extends State<AboutPage> {
                 // Icons.link,
               ),
             ),
-            title: const Text('官网'),
+            title: const Text('上游 Sachet 官网'),
             subtitle: const Text(appOfficialWebsiteUrl),
             onTap: () => openLink(appOfficialWebsiteUrl),
             onLongPress: () =>
@@ -174,8 +193,8 @@ class _AboutPageState extends State<AboutPage> {
               alignment: Alignment.centerLeft,
               child: Icon(Icons.person),
             ),
-            title: const Text('开发者'),
-            subtitle: const Text(authorName),
+            title: const Text('上游作者'),
+            subtitle: const Text(upstreamAuthorName),
             onTap: () => openLink(appDeveloperProfileUrl),
           ),
           ListTile(
@@ -184,7 +203,7 @@ class _AboutPageState extends State<AboutPage> {
               alignment: Alignment.centerLeft,
               child: Icon(Icons.code),
             ),
-            title: Text('源代码'),
+            title: Text('上游 Sachet 源代码'),
             subtitle: Text(appRepoUrl),
             onTap: () => openLink(appRepoUrl),
             onLongPress: () =>
@@ -197,37 +216,8 @@ class _AboutPageState extends State<AboutPage> {
               child: Icon(Icons.android),
             ),
             title: Text('当前版本'),
-            trailing: TextButton(
-                onPressed: () async {
-                  await checkUpdate(isShowDetails: true);
-                },
-                child: Text('检查更新')),
             subtitle: Text('v$appVersion ($appBuildNumber)  $abi'),
             onTap: () => _hitDev(context),
-          ),
-          ListTile(
-            leading: Align(
-              widthFactor: 1,
-              alignment: Alignment.centerLeft,
-              child: Icon(Icons.get_app),
-            ),
-            title: Text('最新版下载'),
-            subtitle: Text(appReleaseUrl),
-            onTap: () => openLink(appReleaseUrl),
-            onLongPress: () =>
-                copyToClipboard(context, appReleaseUrl, prefix: '链接'),
-          ),
-          ListTile(
-            leading: Align(
-              widthFactor: 1,
-              alignment: Alignment.centerLeft,
-              child: Icon(Icons.email),
-            ),
-            title: Text('反馈'),
-            subtitle: Text(authorMail),
-            onTap: () => launchUrl(Uri.parse("mailto:$authorMail")),
-            onLongPress: () =>
-                copyToClipboard(context, authorMail, prefix: '邮箱地址'),
           ),
         ],
       ),

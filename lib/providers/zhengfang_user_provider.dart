@@ -16,7 +16,9 @@ class ZhengFangUserProvider extends ChangeNotifier {
   bool get isLogin => _user.cookie != null;
 
   /// 从 SecureStorage 获取储存的 学号和密码
-  Future init() async {
+  Future<void>? _initialization;
+  Future<void> init() => _initialization ??= _initialize();
+  Future<void> _initialize() async {
     // 如果还没有删除过强智教务系统的用户信息，则删除强智教务系统的用户信息
     if (AppGlobal.appSettings.isDeleteQZJwxtUserInfo != true) {
       await deleteQiangZhiUserInfo();

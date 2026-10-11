@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/settingspage_widgets/miuix_settings_list.dart';
 import 'package:flutter/material.dart';
 import 'package:sachet/providers/course_card_settings_provider.dart';
 import 'package:sachet/widgets/settingspage_widgets/customize_settings_widgets/set_double_value_dialog.dart';
@@ -22,7 +23,7 @@ class CustomizeSettingsPage extends StatelessWidget {
         //   )
         // ],
       ),
-      body: ListView(
+      body: MiuixSettingsList(
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(16.0, 20.0, 16.0, 8.0),

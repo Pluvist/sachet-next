@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:collection/collection.dart';
 
 import 'package:flutter/material.dart';
@@ -26,18 +24,17 @@ class ClassPageProvider extends ChangeNotifier {
   // int get todayWeekCount => _todayWeekCount;
 
   // 当前页面周次（显示的周次，会随着页面的变化变化）
-  int _currentWeekCount = min(
-      weekCountOfToday(SettingsProvider.semesterStartDateDateTime),
-      20); // 如果当前周次超过最大周次，使用最大周次(防止超出 List length,虽然实际上完全不会报错)
+  int _currentWeekCount =
+      weekCountOfToday(SettingsProvider.semesterStartDateDateTime)
+          .clamp(1, 20); // 如果当前周次超过最大周次，使用最大周次(防止超出 List length,虽然实际上完全不会报错)
   int get currentWeekCount => _currentWeekCount;
 
   int _currentMonth = DateTime.now().month;
   int get currentMonth => _currentMonth;
 
   PageController _pageController = PageController(
-      initialPage: min(
-              weekCountOfToday(SettingsProvider.semesterStartDateDateTime),
-              20) -
+      initialPage: weekCountOfToday(SettingsProvider.semesterStartDateDateTime)
+              .clamp(1, 20) -
           1);
   PageController get pageController => _pageController;
 
@@ -91,7 +88,8 @@ class ClassPageProvider extends ChangeNotifier {
   // 更新当前周次
   void resetCurrentWeekCount() {
     _currentWeekCount =
-        weekCountOfToday(SettingsProvider.semesterStartDateDateTime);
+        weekCountOfToday(SettingsProvider.semesterStartDateDateTime)
+            .clamp(1, 20);
     notifyListeners();
   }
 
@@ -116,8 +114,16 @@ class ClassPageProvider extends ChangeNotifier {
   }
 
   void updatePageController(int index) {
+    final previous = _pageController;
     _pageController = PageController(initialPage: index - 1);
+    WidgetsBinding.instance.addPostFrameCallback((_) => previous.dispose());
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 
   // 更新当前月份

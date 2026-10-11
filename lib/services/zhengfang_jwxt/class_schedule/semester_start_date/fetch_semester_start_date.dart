@@ -1,7 +1,12 @@
 import 'package:dio/dio.dart';
 
 Future fetchSemesterStartDate({required String cookie}) async {
-  final dio = Dio(BaseOptions(validateStatus: (_) => true));
+  final dio = Dio(BaseOptions(
+      connectTimeout: const Duration(seconds: 10),
+      receiveTimeout: const Duration(seconds: 15),
+      sendTimeout: const Duration(seconds: 10),
+      validateStatus: (_) => true,
+      followRedirects: false));
   try {
     Response response = await dio.get(
       'https://jw.xtu.edu.cn/jwglxt/xtgl/index_cxAreaFive.html?localeKey=zh_CN&gnmkdm=index',

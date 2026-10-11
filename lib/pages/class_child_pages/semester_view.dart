@@ -4,6 +4,7 @@ import 'package:sachet/models/course_schedule.dart';
 import 'package:sachet/providers/settings_provider.dart';
 import 'package:sachet/utils/time_manager.dart';
 import 'package:sachet/widgets/classpage_widgets/course_card.dart';
+import 'package:sachet/widgets/classpage_widgets/course_section_dividers.dart';
 
 class SemesterView extends StatefulWidget {
   final List<List<CourseSchedule>>? courseScheduleItemsList;
@@ -246,19 +247,23 @@ class _HeatmapCell extends StatelessWidget {
                               courseScheduleItemsList[item];
                           final cardHeight = 10.0;
 
-                          return SizedBox(
-                            height: (cardHeight) * 2,
-                            child: OverflowBox(
-                              alignment: Alignment.topCenter,
-                              maxHeight: (cardHeight) * 11,
-                              child: CourseCard.compact(
-                                cardHeight: cardHeight,
-                                cardBorderRadius: 4.0,
-                                weekCount: weekCount,
-                                weekday: weekday,
-                                classCount: classCount,
-                                courseScheduleItems: courseScheduleItems,
-                                courseColorData: courseColorData,
+                          return CourseSectionDividers(
+                            sectionHeight: cardHeight,
+                            firstSection: classCount * 2 + 1,
+                            child: SizedBox(
+                              height: (cardHeight) * 2,
+                              child: OverflowBox(
+                                alignment: Alignment.topCenter,
+                                maxHeight: (cardHeight) * 11,
+                                child: CourseCard.compact(
+                                  cardHeight: cardHeight,
+                                  cardBorderRadius: 4.0,
+                                  weekCount: weekCount,
+                                  weekday: weekday,
+                                  classCount: classCount,
+                                  courseScheduleItems: courseScheduleItems,
+                                  courseColorData: courseColorData,
+                                ),
                               ),
                             ),
                           );

@@ -17,7 +17,11 @@ Future<Map> fetchClassScheduleZF({
   //   '3': '16',
   // };
   final dio = Dio(BaseOptions(
+    connectTimeout: const Duration(seconds: 10),
+    receiveTimeout: const Duration(seconds: 15),
+    sendTimeout: const Duration(seconds: 10),
     validateStatus: (_) => true,
+    followRedirects: false,
   ));
   try {
     Response response = await dio.post(

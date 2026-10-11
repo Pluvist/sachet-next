@@ -1,7 +1,5 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sachet/models/app_settings.dart';
-import 'package:sachet/models/enums/page_transitions_type.dart';
 import 'package:sachet/utils/app_global.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
@@ -15,25 +13,9 @@ class ThemeProvider extends ChangeNotifier {
       colorFromHex(_appSettings.themeColor ?? "#FF64C564") ?? Color(0xFF64C564);
   bool get isPredictiveBack => _appSettings.isPredictiveBack ?? true;
 
-  String get pageTransition => _appSettings.pageTransition ?? "zoom";
-  PageTransitionsBuilder get _transitionBuilder =>
-      (PageTransitionsType.fromStorageValue(pageTransition) ??
-              (PageTransitionsType.zoom))
-          .transitionBuilder;
-  PageTransitionsBuilder get transitionBuilder {
-    switch (defaultTargetPlatform) {
-      case TargetPlatform.android:
-        return (_transitionBuilder ==
-                    PageTransitionsType.zoom.transitionBuilder &&
-                isPredictiveBack)
-            ? PageTransitionsType.predictiveBack.transitionBuilder
-            : _transitionBuilder;
-      default:
-        return _transitionBuilder;
-    }
-  }
-
-  double get appTextScale => _appSettings.appTextScale ?? 1.00;
+  String get pageTransition => 'cupertino';
+  PageTransitionsBuilder get transitionBuilder =>
+      const CupertinoPageTransitionsBuilder();
 
   void setIsMD3(bool ismd3) {
     if (ismd3 != isMD3) {
@@ -78,14 +60,6 @@ class ThemeProvider extends ChangeNotifier {
   void setPredictiveBack(bool value) {
     if (isPredictiveBack != value) {
       _appSettings.isPredictiveBack = value;
-      AppGlobal.saveAppSettings();
-      notifyListeners();
-    }
-  }
-
-  void setAppTextScale(double value) {
-    if (appTextScale != value) {
-      _appSettings.appTextScale = value;
       AppGlobal.saveAppSettings();
       notifyListeners();
     }

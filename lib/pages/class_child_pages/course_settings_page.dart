@@ -16,6 +16,16 @@ class CourseSettingsPage extends StatelessWidget {
       appBar: AppBar(title: Text('课表设置')),
       body: ListView(
         children: [
+          const ListTile(
+            leading: Icon(Icons.schedule_outlined),
+            title: Text('时间栏'),
+            subtitle: Text('始终显示：左侧普通作息、右侧错峰作息'),
+          ),
+          const ListTile(
+              title: Text('错峰作息'),
+              subtitle:
+                  Text('逸夫楼、信息科技大楼第 1–8 节晚 10 分钟；点击课程可纠正作息。午休与晚间休息压缩显示。')),
+
           Padding(
             padding: const EdgeInsets.all(16),
             child: Text(

@@ -44,7 +44,7 @@ class _IntroWelcomeScreenState extends State<IntroWelcomeScreen> {
                     ),
                     Text(
                       '你好👋\n'
-                      '欢迎使用 Sachet🍃',
+                      '欢迎使用 Sachet Next🍃',
                       style: Theme.of(context).textTheme.headlineMedium,
                     ),
                   ],

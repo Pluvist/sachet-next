@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/settingspage_widgets/miuix_settings_list.dart';
 import 'dart:io';
 
 import 'package:intl/intl.dart';
@@ -53,7 +54,7 @@ class _OtherMiscDataListviewPageState extends State<OtherMiscDataListviewPage> {
       appBar: AppBar(
         title: const Text("其他数据查看"),
       ),
-      body: ListView(
+      body: MiuixSettingsList(
         children: [
           Padding(
             padding:

@@ -4,8 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sachet/models/app_settings.dart';
 import 'package:sachet/models/course_card_settings.dart';
-import 'package:sachet/services/check_update.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sachet/services/course_widget_bridge.dart';
 
 class AppGlobal {
   static late SharedPreferences _prefs;
@@ -37,12 +37,12 @@ class AppGlobal {
 
     startupPage = appSettings.startupPage ?? '/class';
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (appSettings.isAutoCheckUpdate == true) {
-        autoCheckUpdate();
-      }
-    });
-    initCourseCardSettings();
+    if (appSettings.pageTransition != 'cupertino') {
+      appSettings.pageTransition = 'cupertino';
+      await _prefs.setString('appSettings', jsonEncode(appSettings.toJson()));
+    }
+    await initCourseCardSettings();
+    CourseWidgetBridge.sync(appSettings);
   }
 
   static Future initCourseCardSettings() async {
@@ -67,8 +67,16 @@ class AppGlobal {
   }
 
   // 持久化应用设置
-  static void saveAppSettings() =>
-      _prefs.setString("appSettings", jsonEncode(appSettings.toJson()));
+  static void saveAppSettings() {
+    persistAppSettings();
+  }
+
+  static Future<void> persistAppSettings() async {
+    final saved =
+        await _prefs.setString("appSettings", jsonEncode(appSettings.toJson()));
+    if (!saved) throw StateError('无法保存应用设置');
+    CourseWidgetBridge.sync(appSettings);
+  }
 
   // 持久化课程卡片设置
   static void saveCourseCardSettings() => _prefs.setString(
@@ -81,12 +89,12 @@ const defaultAppSettingsConfig = {
   "themeMode": 0, // 主题模式（0: system, 1: light, 2: dark）
   "themeColor": "#FF64C564", // 主题色(ARGB)
   "startupPage": "/class", // 启动页
-  "isAutoCheckUpdate": true, // 是否自动检查更新
+  "isAutoCheckUpdate": false, // Sachet Next 不使用上游更新渠道
   "isShowAllCheckUpdateResult": false, // 是否显示检查更新所有结果（检查更新失败和已是最新版）
   "isShowPageTurnArrow": true, // 是否显示课程表上一周下一周的翻页箭头
   "classScheduleFilePath": "", // 当前使用的课程表文件路径
   "courseColorFilePath": "", // 当前使用的课程配色文件路径
-  "semesterStartDate": "2026-08-31", // 学期开始日期
+  "semesterStartDate": "2026-03-02", // 学期开始日期
   "curveDuration ": 1500, // 课表翻页动画时长
   "curveType": "Easing.standard", // 课表翻页动画类型（动画曲线）
   "isEnableDevMode": false, // 是否启用开发者模式
@@ -104,7 +112,7 @@ const defaultAppSettingsConfig = {
   "isUsingDynamicColors": false,
   // 页面过渡动画 (PageTransitionsBuilder)
   // TODO: iOS 和 MacOS 改为默认 "cupertino"
-  "pageTransition": "zoom",
+  "pageTransition": "cupertino",
   // 是否启用预测性返回手势
   // [添加对预测性返回手势的支持  |  App architecture  |  Android Developers](https://developer.android.com/guide/navigation/custom-back/predictive-back-gesture?hl=zh-cn)
   "isPredictiveBack": true,
@@ -121,23 +129,22 @@ const defaultAppSettingsConfig = {
   "isShowExamTimeCountdown": true, // 是否显示考试时间倒计时
   "isDeleteQZJwxtUserInfo": false, // 是否删除了旧教务系统（强智教务系统）的用户信息（cookie，学号，姓名，密码）
   "appUpdateChannel":
-      "update.sachet.wyvernlab.com", // 应用检查更新的渠道，可选 "update.sachet.wyvernlab.com" / "api.github.com"
-  "appTextScale": 1.00 // 应用内文字大小缩放
+      "update.sachet.wyvernlab.com" // 应用检查更新的渠道，可选 "update.sachet.wyvernlab.com" / "api.github.com"
 };
 
 // 默认课程卡片外观设置
 const defaultCourseCardSettingsConfig = {
-  "cardHeight": 65.0, // 卡片高度（每一小节， 1 / 11 ）
+  "cardHeight": 50.0, // 卡片高度（每一小节， 1 / 11 ）
   "cardBorderRadius": 6.0, // 卡片圆角大小
   "cardMargin": 2.0, // 卡片间距
-  "titleFontSize": 12.0, // 课程名称字体大小
-  "placeFontSize": 11.0, // 上课地点字体大小
-  "instructorFontSize": 11.0, // 授课教师字体大小
-  "titleFontWeight": 7, // 课程名称字重
+  "titleFontSize": 13.0, // 课程名称字体大小
+  "placeFontSize": 9.0, // 上课地点字体大小
+  "instructorFontSize": 8.0, // 授课教师字体大小
+  "titleFontWeight": 8, // 课程名称字重
   "placeFontWeight": 4, // 上课地点字重
-  "instructorFontWeight": 4, // 授课教师字重
+  "instructorFontWeight": 2, // 授课教师字重
   "titleMaxLines": 3, // 课程名称最大显示行数
-  "placeMaxLines": 2, // 上课地点最大显示行数
+  "placeMaxLines": 5, // 上课地点最大显示行数
   "instructorMaxLines": 2, // 授课教师最大显示行数
   "titleTextColor": "#F2FFFFFF", // 课程名称字体颜色 (ARGB)
   "placeTextColor":

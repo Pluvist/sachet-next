@@ -1,118 +1,65 @@
-# Sachet
+# Sachet Next
 
-<p align='center'>
-  <img alt='Sachet app icon' src='./assets/icon/icon.png' width='25%' style="border-radius:14%;"/>
-</p>
+基于 [Sachet](https://github.com/wyvern1723/sachet) 二次开发的湘潭大学教务应用，由 **Pluvist** 修改与维护。感谢上游作者 **wyvern1723** 的开发与开源贡献。
 
-<div align="center">
-  <a href="https://github.com/wyvern1723/sachet/actions"><img src="https://github.com/wyvern1723/sachet/actions/workflows/build.yml/badge.svg?branch=main" alt="GitHub Workflow Status" /></a>
-  <a href="https://github.com/wyvern1723/sachet/releases"><img src="https://img.shields.io/github/release/wyvern1723/sachet.svg?label=release" alt="Release" /></a>
-  <a href="https://flutter.dev/"><img src="https://img.shields.io/badge/Flutter-3.24.5-027DFD?logo=flutter" alt="Flutter Version 3.24.5" /></a>
-</div>
+本项目是独立修改版本。上游提供的教务系统接入、课程表、成绩与空闲教室查询等功能构成了本项目的基础。应用目前主要针对 Android 开发和验证。
 
-<p align="center">
-  <a href="./README.md">简体中文</a> • <a href="./README_EN.md">English</a>
-</p>
+[English](README_EN.md) · [构建说明](README_DEV.md) · [MIT 许可证](LICENSE) · [第三方资源说明](THIRD_PARTY_NOTICES.md)
 
-<p align="center">
-  🔗 官网：<a href="https://sachet.wyvernlab.com">https://sachet.wyvernlab.com</a>
-</p>
+## 相比上游的主要变化
 
-## 介绍
-
-Sachet 是一款使用 Flutter 构建的应用，旨在为湘潭大学学生提供轻快流畅的课程表，便捷的空闲教室查询，以及直观全面的成绩信息等核心教务功能以及其他便捷服务
-
-**核心功能：**
-
-- 课程表查看
-
-- 空闲教室查询
-
-- 考试时间查询
-
-- 成绩查询
-
-- 聚合校内常用链接
-
-**特性：**
-
-- 启动速度快，秒开看课表
-
-- 免费开源
-
-- 遵循 Material Design 设计规范，支持动态取色与预测性返回手势
-
-- 用户信息只发送到教务系统的服务器，严格保护隐私
-
-- 支持将课程表导出为 .ics 文件，可导入各类日历应用
-
-- 相比教务系统，查询空闲教室更直观、更高效
-
-- 跨平台（支持 Android、Windows、Linux，目前仅发布 Android 版本，如需 Windows 或 Linux 版本欢迎 [联系我](#contact) 或提交 [Issue](https://github.com/wyvern1723/sachet/issues) 反馈。[README_DEV.md](./README_DEV.md) 提供了各平台的构建指南，有兴趣的开发者也可自行构建）
-
-## 应用截图
-
-<p align='center'>
-  <img src='docs/app-screenshots/class_schedule.png' alt='课程表页面截图' width='23%'/>
-  <img src='docs/app-screenshots/cultivate_plan.png' alt='培养方案页面截图' width='23%'/>
-  <img src='docs/app-screenshots/free_classroom_page.png' alt='空闲教室页面截图' width='23%'/>
-  <img src='docs/app-screenshots/free_classroom_filter.png' alt='空闲教室页面（筛选功能展示）截图' width='23%'/>
-</p>
-
-<p align='center'>
-  <img src='docs/app-screenshots/grade_page.png' alt='成绩查询页面截图' width='23%'/>
-  <img src='docs/app-screenshots/grade_page_details.png' alt='成绩查询页面（显示详细信息）截图' width='23%'/>
-  <img src='docs/app-screenshots/exam_time_page.png' alt='考试时间页面截图' width='23%'/>
-  <img src='docs/app-screenshots/login_page.png' alt='登录页面截图' width='23%'/>
-</p>
-
-## 下载
-
-| 平台 | 安装包 |
+| 部分 | Sachet Next 的修改 |
 | --- | --- |
-| Android（安卓） | [APK(arm64-v8a)](https://github.com/wyvern1723/sachet/releases/download/v0.11.0/sachet-v0.11.0-arm64-v8a.apk) |
+| 教学楼作息 | 根据地点自动识别逸夫楼、信息科技大楼，白天第 1–8 节采用比普通教学楼晚 10 分钟的作息；第 9–11 节时间一致。支持按课程手动纠正。 |
+| 周课表 | 始终显示左侧普通、右侧错峰两条时间轴；课程卡片按实际时间定位，错峰卡片使用与右侧时间轴一致的主题色描边。午休、晚休缩短显示长度，保留名称。普通课程开始线与双节课结束分割线更清楚。 |
+| 课程时间一致性 | 课程详情、主页状态、桌面组件、日历导出与新生成的课程提醒共用作息规则。课程卡片另有少量视觉下移，不参与真实时间、提醒或倒计时计算。 |
+| 默认课表外观 | 卡片高度 50、圆角 6、边距 2；课程名称字号 13、地点 9、教师 8。已有个人配置保留。 |
+| 主页课程状态 | 空闲教室上方增加课程状态卡片：上课时显示课程、地点、下课倒计时和下一节；课前/课间显示下一节；无课及全部结束时显示对应提示。 |
+| 主页入口 | 馆藏检索、大物实验、校园网认证进入上方九宫格功能区；校历、新闻、邮箱进入下方校园服务列表。 |
+| 页面与导航 | 参考 Miuix 的视觉思路，在 Flutter 中实现圆角分组和按压反馈。悬浮胶囊仅保留左侧主页、右侧课程表；个人页面改由主页右上角按钮打开。底部渐变遮罩随亮暗模式切换，胶囊增加细灰色边框，浅色未激活区域为白色。 |
+| Android 桌面组件 | 新增“今日课程”组件，默认 2×2；显示日期、周次、课程、时间、地点、状态和剩余课程数量，共享主页的课程匹配逻辑。支持尺寸调整和亮暗模式；紧凑布局四周留白 20dp，大尺寸布局 40dp。 |
+| 页面性能 | 保留已访问标签页与周课表的状态、按需创建周页面、复用课程缓存，减少切换和普通单指触摸造成的重建；双指缩放、翻周和返回交互继续保留。页面过渡统一为 iOS 风格并移除对应设置项。 |
+| 自动更新课表 | 冷启动及从后台恢复时先显示本地缓存，再尝试更新当前学期；未登录、断网、超时或响应异常时保留缓存。相同课表不重复写入，更新保留配色、作息修正和同学期手工日期；已开启的课程提醒随更新重新安排。 |
+| 品牌与更新入口 | 显示名称改为 Sachet Next，修改作者标注为 Pluvist，并保留上游鸣谢。移除上游版本的自动更新检查及相关设置，避免把上游发布当作本项目更新。 |
 
-[查看所有版本(Releases)](https://github.com/wyvern1723/sachet/releases/latest) · [更新日志(CHANGELOG)](./CHANGELOG.md)
+作息依据为学校提供的《错峰上课试行时间表》。未识别的楼名默认采用普通作息；地点缩写或教学安排不符时，可在课程详情中手动选择作息。
 
-> 本项目 [正式版发布](https://github.com/wyvern1723/sachet/releases) 频率较低。如需体验最新功能，可前往 [Actions](https://github.com/wyvern1723/sachet/actions) 下载最新构建版本（需登录 Github 账号）。
+## 保留的上游功能
 
-## Contact
+课程表导入与查看、空闲教室查询、培养方案、教材预订、考试时间、成绩查询、绩点排名、成绩单、校园常用链接及日历导出等教务功能仍以 Sachet 的实现为基础。实际可用性取决于学校教务系统与账号状态。
 
-✉️ emaiI: `wyvern1723(AT)outlook[dot]com`
+## Android 桌面组件
 
-如您有以下需求，欢迎通过以上邮箱联系我（熟悉 Github 的用户也可提交 [Issue](https://github.com/wyvern1723/sachet/issues) ）：
+在个人页面选择桌面课程小组件，或通过桌面的小组件列表添加 **Sachet Next · 今日课程**。组件使用应用中选中的课表，无需单独导入。
 
-- 反馈 Bug 或使用问题
+默认新组件为 2×2，已有组件可手动调整大小。上课时按分钟显示倒计时，并在课程边界和日期变化时刷新；系统省电策略及闹钟权限可能影响刷新时机，点击状态图标可手动刷新。点击卡片打开应用。
 
-- 提出功能建议
+## 构建与验证
 
-- 咨询开发环境搭建
+开发环境：Flutter **3.24.5** / Dart **3.5.4**、JDK **17**、Android SDK **35**。详细操作见 [README_DEV.md](README_DEV.md)。
 
-## 给开发者
+```sh
+flutter pub get
+flutter analyze
+flutter test
+flutter build apk --release --target-platform android-arm64
+```
 
-Flutter version: 3.24.5
+保留上游内部包标识与本地数据结构；测试构建可设置 `SACHET_LOCAL_TEST=1`，使用 `io.github.wyvern1723.sachet.localtest`，与上游应用分开安装。发布构建应使用维护者自己的签名；没有签名配置时构建脚本使用开发签名。不同签名的安装包不能直接相互覆盖。
 
-湘潭大学在 `2024-2025 学年 第 2 学期` 之前使用 [强智教务系统](https://jwxt.xtu.edu.cn/jsxsd/)，自 `2025-2026 学年 第 1 学期` 起切换至 [正方教务系统(版本V-9.0)](https://jw.xtu.edu.cn/jwglxt/)
+已进行自动测试、静态分析和 Android ARM64 release 构建，并在小米 17 上验证安装和主要显示效果。需要真实账号的联网测试默认跳过；未提供量化帧率对比，也不保证学校接口变更后的持续可用性。仓库保留其他平台的工程文件，新增 Android 小组件仅适用于 Android。
 
-- 正方教务系统相关核心代码: [lib/services/zhengfang_jwxt/](./lib/services/zhengfang_jwxt/) (目前已实现：登录、获取个人课表、培养方案、空闲教室、考试成绩、考试时间、绩点排名、成绩单 PDF、预订教材信息)
+仓库提供手动触发的 GitHub Actions 构建与 PR 检查；生成的 APK 是测试构建。不会自动发布正式版本，也不依赖上游的签名密钥。
 
-> [!NOTE]
-> 当前代码已移除强智教务系统相关文件。如需查看历史代码，可通过以下方式：
->
-> - 访问 [v0.4.0 版本代码](https://github.com/wyvern1723/sachet/tree/v0.4.0)
-> - 或克隆仓库后执行： `git checkout v0.4.0`
+## 许可证与鸣谢
 
-- 强智教务系统相关核心代码: [lib/services/qiangzhi_jwxt/ (v0.4.0)](https://github.com/wyvern1723/sachet/tree/v0.4.0/lib/services/qiangzhi_jwxt/) （实现功能：登录、获取个人课表、培养方案、空闲教室、考试成绩、考试时间）
+本项目代码沿用上游的 [MIT License](LICENSE)：保留 **Copyright (c) 2025 wyvern1723** 与完整许可文本，并新增 **Copyright (c) 2026 Pluvist (Sachet Next modifications)**。复制、修改或分发本项目时，请保留这些版权及许可声明。
 
-- 强智教务系统登录的图片验证码自动识别：
-  - 模型文件: [assets/models/captcha_model.tflite (v0.4.0)](https://github.com/wyvern1723/sachet/blob/v0.4.0/assets/models/captcha_model.tflite) （使用 TensorFlow v2.15.0 训练生成，基于 1748 张验证码图片数据集。在 80%/20% 划分的训练/测试集上，测试准确率达到 100%。最终模型使用全部数据集重新训练生成）
+- 上游项目：[wyvern1723/sachet](https://github.com/wyvern1723/sachet)
+- 上游作者：[wyvern1723](https://github.com/wyvern1723)
+- 本修改版本作者：**Pluvist**
+- 标题衬线字体：Noto Serif SC，遵循独立的 SIL Open Font License 1.1；详见 [第三方资源说明](THIRD_PARTY_NOTICES.md)。
 
-  - 调用代码: [lib/services/qiangzhi_jwxt/login/captcha_recognizer.dart (v0.4.0)](https://github.com/wyvern1723/sachet/blob/v0.4.0/lib/services/qiangzhi_jwxt/login/captcha_recognizer.dart)
+公开版本不包含 Anthropic 专有字体；可选衬线标题使用 Noto Serif SC，默认标题继续使用系统无衬线字体。
 
-开发环境配置和项目构建：
-
-- [README_DEV](./README_DEV.md)
-
-## License （许可证）
-
-[MIT License](./LICENSE)
+本修改版本的问题请在本仓库 Issues 中反馈。上游仓库、官网和联系方式属于 Sachet 原项目，不作为本修改版本的发布或支持渠道。

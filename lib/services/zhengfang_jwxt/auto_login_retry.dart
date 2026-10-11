@@ -37,6 +37,7 @@ Future<T> withAutoLoginRetry<T>({
   bool Function(Object error) isSessionExpired = _defaultSessionCheck,
   required Future<T> Function(String activeCookie) action,
 }) async {
+  final requestedAccount = zhengFangUserProvider?.user.studentID;
   try {
     // 首次尝试：使用初始 Cookie 发起请求
     return await action(initialCookie);
@@ -46,6 +47,10 @@ Future<T> withAutoLoginRetry<T>({
 
     // 检查是否具备自动登录的条件
     if (zhengFangUserProvider == null) rethrow;
+    if (!zhengFangUserProvider.isLogin ||
+        zhengFangUserProvider.user.studentID != requestedAccount) {
+      rethrow;
+    }
 
     final studentID = zhengFangUserProvider.user.studentID;
     if (studentID == null) rethrow;
@@ -60,6 +65,10 @@ Future<T> withAutoLoginRetry<T>({
         username: studentID,
         password: password,
       );
+      if (!zhengFangUserProvider.isLogin ||
+          zhengFangUserProvider.user.studentID != requestedAccount) {
+        throw StateError('登录账号已变化');
+      }
       await zhengFangUserProvider.setCookie(zhengFangLoginService.cookie);
     } catch (reLoginError) {
       if (kDebugMode) {

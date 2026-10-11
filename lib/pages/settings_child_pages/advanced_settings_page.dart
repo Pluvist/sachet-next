@@ -1,15 +1,13 @@
+import 'package:sachet/widgets/settingspage_widgets/miuix_settings_list.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:sachet/models/enums/page_transitions_type.dart';
 import 'package:sachet/providers/settings_provider.dart';
-import 'package:sachet/providers/theme_provider.dart';
 import 'package:sachet/widgets/settingspage_widgets/advanced_settings_widgets/delete_cached_data_dialog.dart';
-import 'package:sachet/widgets/settingspage_widgets/advanced_settings_widgets/page_transitions_dropdownmenu.dart';
 import 'package:sachet/widgets/settingspage_widgets/advanced_settings_widgets/set_curve_duration_dialog.dart';
 import 'package:sachet/widgets/settingspage_widgets/advanced_settings_widgets/set_curve_type_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:sachet/widgets/settingspage_widgets/advanced_settings_widgets/set_free_classroom_sections_dialog.dart';
-import 'package:sachet/widgets/settingspage_widgets/advanced_settings_widgets/app_update_channel_dropdownmenu.dart';
+
 import 'package:sachet/widgets/settingspage_widgets/settings_section_title.dart';
 
 class AdvancedSettingsPage extends StatefulWidget {
@@ -50,102 +48,8 @@ class _AdvancedSettingsPageState extends State<AdvancedSettingsPage> {
       appBar: AppBar(
         title: const Text("高级设置"),
       ),
-      body: ListView(
+      body: MiuixSettingsList(
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16.0, 20.0, 16.0, 8.0),
-            child: SettingsSectionTitle(
-              title: '应用文字大小',
-              iconData: Icons.text_fields_outlined,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('小', style: Theme.of(context).textTheme.titleSmall),
-                Flexible(
-                  child: Selector<ThemeProvider, double>(
-                    selector: (_, themeProvider) => themeProvider.appTextScale,
-                    builder: (_, appTextScale, __) {
-                      final appTextScaleInt = (appTextScale * 100).round();
-                      return Slider(
-                        value: appTextScaleInt.toDouble(),
-                        min: 50,
-                        max: 150,
-                        divisions: 100,
-                        label: appTextScale.toStringAsFixed(2),
-                        onChanged: (value) {
-                          context
-                              .read<ThemeProvider>()
-                              .setAppTextScale(value.round() / 100);
-                        },
-                      );
-                    },
-                  ),
-                ),
-                Text('大', style: Theme.of(context).textTheme.titleLarge),
-              ],
-            ),
-          ),
-
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16.0, 20.0, 16.0, 8.0),
-            child: SettingsSectionTitle(
-              title: '应用动画',
-              iconData: Icons.animation_outlined,
-            ),
-          ),
-
-          // 页面过渡动画设置
-          ListTile(
-            leading: Align(
-              widthFactor: 1,
-              alignment: Alignment.centerLeft,
-              // child: Icon(Icons.web_stories_outlined),
-              // TODO: 寻找更合适的 Icon
-              child: Icon(Icons.animation_outlined),
-            ),
-            title: Text('页面过渡'), // PageTransition
-            subtitle: Text('页面过渡动画'),
-            trailing: PageTransitionsDropdownmenu(),
-          ),
-
-          // 预测性返回开关
-          if (defaultTargetPlatform == TargetPlatform.android)
-            Selector<ThemeProvider, String>(
-                selector: (_, themeProvider) => themeProvider.pageTransition,
-                builder: (_, pageTransition, __) {
-                  return Offstage(
-                    offstage:
-                        pageTransition != PageTransitionsType.zoom.storageValue,
-                    child: ListTile(
-                      leading: Align(
-                        widthFactor: 1,
-                        alignment: Alignment.centerLeft,
-                        // child: Icon(Icons.fiber_smart_record_outlined)
-                        // TODO: 寻找更合适的 Icon
-                        child: Icon(Icons.toll_outlined),
-                      ),
-                      title: Text('预测性返回'),
-                      subtitle: Text('启用预测性返回（预见式返回）手势 (Android 14+)'),
-                      trailing: Selector<ThemeProvider, bool>(
-                          selector: (_, themeProvider) =>
-                              themeProvider.isPredictiveBack,
-                          builder: (_, isPredictiveBack, __) {
-                            return Switch(
-                              value: isPredictiveBack,
-                              onChanged: (value) {
-                                context
-                                    .read<ThemeProvider>()
-                                    .setPredictiveBack(value);
-                              },
-                            );
-                          }),
-                    ),
-                  );
-                }),
           Padding(
             padding: const EdgeInsets.fromLTRB(16.0, 20.0, 16.0, 8.0),
             child: SettingsSectionTitle(
@@ -250,115 +154,6 @@ class _AdvancedSettingsPageState extends State<AdvancedSettingsPage> {
               iconData: Icons.app_settings_alt,
             ),
           ),
-          Selector<SettingsProvider, bool>(
-              selector: (_, settingsProvider) =>
-                  SettingsProvider.isAutoCheckUpdate,
-              builder: (_, isAutoCheckUpdate, __) {
-                return ListTile(
-                  leading: Align(
-                    widthFactor: 1,
-                    alignment: Alignment.centerLeft,
-                    child: isAutoCheckUpdate
-                        ? const Icon(Icons.update_outlined)
-                        : const Icon(Icons.update_disabled_outlined),
-                  ),
-                  title: const Text('自动检查更新'),
-                  subtitle: const Text('应用启动时自动检查更新'),
-                  trailing: Switch(
-                    value: isAutoCheckUpdate,
-                    onChanged: (value) {
-                      context
-                          .read<SettingsProvider>()
-                          .setIsAutoCheckUpdate(value);
-                    },
-                  ),
-                );
-              }),
-
-          Selector<SettingsProvider,
-                  ({bool isAutoCheckUpdate, String appUpdateChannel})>(
-              selector: (_, settingsProvider) => (
-                    isAutoCheckUpdate: SettingsProvider.isAutoCheckUpdate,
-                    appUpdateChannel: SettingsProvider.appUpdateChannel,
-                  ),
-              builder: (_, data, __) {
-                return Offstage(
-                  offstage: !data.isAutoCheckUpdate,
-                  child: ListTile(
-                    leading: const Align(
-                      widthFactor: 1,
-                      alignment: Alignment.centerLeft,
-                      child: Icon(Icons.cloud_download_outlined),
-                    ),
-                    title: const Text('首选更新渠道'),
-                    subtitle: const Text('失败时自动使用其余更新渠道'),
-                    subtitleTextStyle: Theme.of(context).textTheme.bodySmall,
-                    trailing: AppUpdateChannelDropdownMenu(),
-                  ),
-                );
-              }),
-
-          // AnimatedOpacity(
-          //   opacity: _isAutoCheckUpdate ? 1 : 0,
-          //   duration: const Duration(milliseconds: 200),
-          //   child: ListTile(
-          //     leading: const Align(
-          //       widthFactor: 1,
-          //       alignment: Alignment.centerLeft,
-          //       // child: isAutoCheckUpdate
-          //       //     ? const Icon(Icons.sms_failed_outlined)
-          //       //     : const Icon(Icons.do_not_disturb_outlined),
-          //       child: Icon(Icons.disabled_by_default_outlined),
-          //     ),
-          //     title: const Text('显示所有检查更新结果'),
-          //     // 大多数用户可能链接到 Github 困难，每次打开应用都弹出检查失败的信息不太好，默认为不显示检查失败的信息。
-          //     subtitle: const Text('显示「已是最新版」和「检查更新失败」，而不是仅会显示「有新版本可用」'),
-          //     trailing: Switch(
-          //       value: isShowResult,
-          //       onChanged: (value) {
-          //         setState(() {
-          //           // isShowResult = value;
-          //           setIsShowResult(value);
-          //         });
-          //       },
-          //     ),
-          //   ),
-          // ),
-
-          // 方案二，如果下面还有其他 ListTile 的话。
-          Selector<SettingsProvider,
-                  ({bool isAutoCheckUpdate, bool isShowAllCheckUpdateResult})>(
-              selector: (_, settingsProvider) => (
-                    isAutoCheckUpdate: SettingsProvider.isAutoCheckUpdate,
-                    isShowAllCheckUpdateResult:
-                        SettingsProvider.isShowAllCheckUpdateResult
-                  ),
-              builder: (_, data, __) {
-                return Offstage(
-                  offstage: !data.isAutoCheckUpdate,
-                  child: ListTile(
-                    leading: Align(
-                      widthFactor: 1,
-                      alignment: Alignment.centerLeft,
-                      child: data.isShowAllCheckUpdateResult
-                          ? const Icon(Icons.report_outlined)
-                          : const Icon(Icons.report_off_outlined),
-                    ),
-                    title: const Text('显示所有检查更新结果'),
-                    subtitle: const Text('显示「已是最新版」和「检查更新失败」，而不是仅会显示「有新版本可用」'),
-                    subtitleTextStyle: Theme.of(context).textTheme.bodySmall,
-                    trailing: Switch(
-                      value: data.isShowAllCheckUpdateResult,
-                      onChanged: (value) {
-                        context
-                            .read<SettingsProvider>()
-                            .setIsShowUpdateFailedResult(value);
-                      },
-                    ),
-                  ),
-                );
-              }),
-
           // 是否在外部浏览器打开链接开关
           if (defaultTargetPlatform == TargetPlatform.android)
             Selector<SettingsProvider, bool>(

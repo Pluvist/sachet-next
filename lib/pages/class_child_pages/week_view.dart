@@ -31,10 +31,19 @@ class _WeekViewState extends State<WeekView> {
   double _baseCardHeight = 65.0;
   int _pointerCount = 0;
 
+  void _changePointers(int delta) {
+    final wasScaling = _pointerCount >= 2;
+    _pointerCount = (_pointerCount + delta).clamp(0, 10);
+    // Single-finger taps and page swipes do not change any rendered geometry.
+    if (wasScaling != (_pointerCount >= 2)) setState(() {});
+  }
+
   @override
   void initState() {
     _cardHeight = context.read<CourseCardSettingsProvider>().cardHeight;
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted ||
+          !context.read<ClassPageProvider>().pageController.hasClients) return;
       context
           .read<ClassPageProvider>()
           .pageController
@@ -60,9 +69,9 @@ class _WeekViewState extends State<WeekView> {
     }
 
     return Listener(
-      onPointerDown: (event) => setState(() => _pointerCount++),
-      onPointerUp: (event) => setState(() => _pointerCount--),
-      onPointerCancel: (event) => setState(() => _pointerCount--),
+      onPointerDown: (event) => _changePointers(1),
+      onPointerUp: (event) => _changePointers(-1),
+      onPointerCancel: (event) => _changePointers(-1),
       child: GestureDetector(
         onScaleStart: (details) {
           _baseCardHeight = _cardHeight;
@@ -77,7 +86,7 @@ class _WeekViewState extends State<WeekView> {
         onScaleEnd: (details) {
           context.read<CourseCardSettingsProvider>().setCardHeight(_cardHeight);
         },
-        child: PageView(
+        child: PageView.builder(
             controller: context.read<ClassPageProvider>().pageController,
             onPageChanged: (value) {
               context
@@ -88,18 +97,21 @@ class _WeekViewState extends State<WeekView> {
                 ? const NeverScrollableScrollPhysics()
                 : const AlwaysScrollableScrollPhysics(),
             allowImplicitScrolling: true,
-            children: [
-              for (int i = 1; i < 21; i++)
-                SingleWeekPage(
-                  weekCount: i,
-                  courseScheduleItemsList: widget.courseScheduleItemsList,
-                  courseColorData: widget.courseColorData,
-                  classSessionSummerDataList: widget.classSessionSummerDataList,
-                  classSessionWinterDataList: widget.classSessionWinterDataList,
-                  cardHeight: _cardHeight,
-                  pointerCount: _pointerCount,
-                ),
-            ]),
+            itemCount: 20,
+            itemBuilder: (context, index) => RepaintBoundary(
+                  child: SingleWeekPage(
+                    key: ValueKey(index),
+                    weekCount: index + 1,
+                    courseScheduleItemsList: widget.courseScheduleItemsList,
+                    courseColorData: widget.courseColorData,
+                    classSessionSummerDataList:
+                        widget.classSessionSummerDataList,
+                    classSessionWinterDataList:
+                        widget.classSessionWinterDataList,
+                    cardHeight: _cardHeight,
+                    pointerCount: _pointerCount >= 2 ? 2 : 0,
+                  ),
+                )),
       ),
     );
   }

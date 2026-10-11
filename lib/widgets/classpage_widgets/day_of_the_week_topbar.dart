@@ -4,30 +4,33 @@ import 'package:sachet/utils/time_manager.dart';
 import '../../utils/transform.dart';
 
 class DayOfTheWeekTopBar extends StatelessWidget {
+  final double? timeRailWidth;
+  final double rightTimeRailWidth;
   final int weekCount;
   final DateTime semesterStartDate;
   const DayOfTheWeekTopBar({
     super.key,
+    this.timeRailWidth,
+    this.rightTimeRailWidth = 0,
     required this.weekCount,
     required this.semesterStartDate,
   });
+
+  Widget _monthLabel() =>
+      Text("${getTheMondayDateOfTheWeek(semesterStartDate, weekCount).month}月",
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+          textAlign: TextAlign.center);
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        // 几月
-        Expanded(
-          flex: 4,
-          child: Text(
-            "${getTheMondayDateOfTheWeek(semesterStartDate, weekCount).month}月",
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ),
+        if (timeRailWidth != null)
+          SizedBox(
+              width: timeRailWidth,
+              child: timeRailWidth! > 0 ? _monthLabel() : null)
+        else
+          Expanded(flex: 4, child: _monthLabel()),
         // 周几几号
         for (int weekday = 1; weekday <= DateTime.daysPerWeek; weekday++)
           Expanded(
@@ -38,6 +41,10 @@ class DayOfTheWeekTopBar extends StatelessWidget {
               semesterStartDate: semesterStartDate,
             ),
           ),
+        if (rightTimeRailWidth > 0)
+          SizedBox(
+              width: rightTimeRailWidth,
+              child: timeRailWidth == 0 ? _monthLabel() : null),
       ],
     );
   }

@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_press.dart';
 import 'package:flutter/material.dart';
 import 'package:sachet/utils/utils_functions.dart';
 
@@ -14,7 +15,11 @@ class CardLinkWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return MiuixPress(
+        child: Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
       clipBehavior: Clip.hardEdge,
       child: InkWell(
         onTap: () => openLink(link),
@@ -40,6 +45,6 @@ class CardLinkWidget extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ));
   }
 }

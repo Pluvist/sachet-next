@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/settingspage_widgets/miuix_settings_list.dart';
 import 'package:flutter/material.dart';
 import 'package:sachet/models/enums/app_folder.dart';
 import 'package:sachet/providers/settings_provider.dart';
@@ -159,7 +160,7 @@ class _ColorSettingsPageState extends State<ColorSettingsPage> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('配色调整')),
-      body: ListView(
+      body: MiuixSettingsList(
         children: [
           SizedBox(height: 10),
           ListTile(

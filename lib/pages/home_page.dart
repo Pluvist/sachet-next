@@ -14,8 +14,11 @@ import 'package:sachet/providers/settings_provider.dart';
 import 'package:sachet/utils/utils_functions.dart';
 import 'package:sachet/widgets/homepage_widgets/card_widget.dart';
 import 'package:sachet/widgets/utils_widgets/nav_drawer.dart';
-import 'package:sachet/widgets/homepage_widgets/card_link_widget.dart';
 import 'package:provider/provider.dart';
+import 'package:sachet/widgets/utils_widgets/page_heading.dart';
+import 'package:sachet/utils/home_design.dart';
+import 'package:sachet/widgets/homepage_widgets/home_course_status_card.dart';
+import 'package:sachet/pages/profile_page.dart';
 
 class OpenLinkListTile {
   String title;
@@ -33,19 +36,66 @@ class OpenLinkListTile {
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
+  Widget _buildFeatureCards() {
+    final cards = <Widget>[
+      CardWidget(
+          title: '培养方案',
+          icon: Icons.school_rounded,
+          page: CultivationPlanPageZF()),
+      CardWidget(
+          title: '教材预订', icon: Icons.book, page: ReserveTextbookPageZF()),
+      CardWidget(
+          title: '考试时间', icon: Icons.schedule_rounded, page: ExamTimePageZF()),
+      CardWidget(
+          title: '成绩查询', icon: Icons.history_edu_outlined, page: GradePageZF()),
+      CardWidget(
+          title: '绩点排名', icon: Icons.leaderboard_rounded, page: GPAPageZF()),
+      CardWidget(
+          title: '成绩单',
+          icon: Icons.description_rounded,
+          page: ScorePdfPageZF()),
+      CardWidget(
+          title: '馆藏检索', icon: Icons.local_library, link: libraryLookUpUrl),
+      const CardWidget(
+          title: '大物实验',
+          icon: Icons.science,
+          link: collegePhysicsExperimentUrl),
+      const CardWidget(
+          title: '校园网认证', icon: Icons.wifi, link: campusNetworkAuthUrl),
+    ];
+    return Column(
+      children: [
+        for (int start = 0;
+            start < cards.length;
+            start += HomeDesign.columns) ...[
+          if (start > 0) const SizedBox(height: HomeDesign.gap),
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (int column = 0; column < HomeDesign.columns; column++) ...[
+                  if (column > 0) const SizedBox(width: HomeDesign.gap),
+                  Expanded(
+                      child: start + column < cards.length
+                          ? cards[start + column]
+                          : const SizedBox()),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    return _buildContent(context);
+  }
+
+  Widget _buildContent(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final primaryColor = colorScheme.primary;
-    OpenLinkListTile campusNetworkAuth = OpenLinkListTile(
-      title: '校园网认证',
-      subtitle: '打开校园网认证的网页',
-      //  icon: Icons.travel_explore_outlined,
-      //  Material Symbol 的 captive_portal 完美契合，但 Material Symbol 还不支持 Flutter
-      // icon: Icons.signal_wifi_statusbar_connected_no_internet_4_outlined,
-      icon: Icons.wifi,
-      link: campusNetworkAuthUrl,
-    );
     OpenLinkListTile campusNetworkSelfService = OpenLinkListTile(
       title: '校园网自助服务系统',
       subtitle: '踢出占线设备',
@@ -70,11 +120,25 @@ class HomePage extends StatelessWidget {
     OpenLinkListTile jwxt = OpenLinkListTile(
       title: '旧教务系统',
       subtitle: jwxtBaseUrlHttps,
-      icon: Icons.work,
+      icon: Icons.domain_outlined,
       link: jwxtBaseUrlHttps,
     );
     List<OpenLinkListTile> openLinkListTileList = [
-      campusNetworkAuth,
+      OpenLinkListTile(
+          title: '湘大校历',
+          subtitle: '查看学校校历',
+          icon: Icons.date_range,
+          link: xtuSchoolCalendarUrl),
+      OpenLinkListTile(
+          title: '湘大新闻',
+          subtitle: '浏览校园新闻',
+          icon: Icons.newspaper,
+          link: xtuNewsUrl),
+      OpenLinkListTile(
+          title: '湘大邮箱',
+          subtitle: '打开学校邮箱',
+          icon: Icons.email,
+          link: xtuMailUrl),
       campusNetworkSelfService,
       xinXiMenHu,
       newJwxt,
@@ -82,9 +146,9 @@ class HomePage extends StatelessWidget {
     ];
 
     return PopScope(
-      canPop: AppGlobal.startupPage == '/home',
+      canPop: !TickerMode.of(context) || AppGlobal.startupPage == '/home',
       onPopInvokedWithResult: (bool didPop, Object? result) {
-        if (didPop) {
+        if (didPop || !TickerMode.of(context)) {
           return;
         }
         if (SettingsProvider.navigationType == NavType.navigationDrawer.type) {
@@ -100,22 +164,43 @@ class HomePage extends StatelessWidget {
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
             SliverAppBar(
-              title: const Text('Home'),
+              toolbarHeight: HomeDesign.headingHeight,
+              title: const ConfiguredPageHeading(HomeDesign.title),
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.only(right: HomeDesign.padding),
+                  child: IconButton.filledTonal(
+                    key: const ValueKey('homeProfileButton'),
+                    tooltip: '个人中心',
+                    iconSize: 28,
+                    icon: const Icon(Icons.person_outline_rounded),
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const ProfilePage(openedFromHome: true),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
               // floating: true, // 上滑隐藏，下滑立即出现
             ),
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+                padding: const EdgeInsets.fromLTRB(
+                    HomeDesign.padding, 8, HomeDesign.padding, 110),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    const HomeCourseStatusCard(),
+                    const SizedBox(height: 10),
                     Card(
-                      elevation: 4,
+                      key: const ValueKey('homeHeroCard'),
+                      elevation: 0,
                       shadowColor: primaryColor.withOpacity(0.4),
                       clipBehavior: Clip.hardEdge,
                       color: primaryColor,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24),
+                        borderRadius: BorderRadius.circular(16),
                       ),
                       child: InkWell(
                         onTap: () => Navigator.push(
@@ -124,103 +209,54 @@ class HomePage extends StatelessWidget {
                             builder: (context) => FreeClassroomPageZF(),
                           ),
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(24.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    '空闲教室',
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                      color: colorScheme.onPrimary,
-                                    ),
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(
+                              minHeight: HomeDesign.heroHeight),
+                          child: Padding(
+                            padding: const EdgeInsets.all(24.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '空闲教室',
+                                        style: TextStyle(
+                                          fontSize: HomeDesign.heroSize,
+                                          fontWeight: FontWeight.bold,
+                                          color: colorScheme.onPrimary,
+                                        ),
+                                      ),
+                                      SizedBox(height: 4),
+                                      Text(
+                                        '快速查询自习室',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: colorScheme.onPrimary,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  SizedBox(height: 4),
-                                  Text(
-                                    '快速查询自习室',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: colorScheme.onPrimary,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Icon(
-                                Icons.meeting_room_rounded,
-                                size: 44,
-                                color: colorScheme.onPrimary,
-                              ),
-                            ],
+                                ),
+                                const SizedBox(width: 12),
+                                Icon(
+                                  Icons.meeting_room_rounded,
+                                  size: 44,
+                                  color: colorScheme.onPrimary,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
                     ),
                     const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: CardWidget(
-                            title: '培养方案',
-                            icon: Icons.school_rounded,
-                            page: CultivationPlanPageZF(),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: CardWidget(
-                            title: '教材预订',
-                            icon: Icons.book,
-                            page: ReserveTextbookPageZF(),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: CardWidget(
-                            title: '考试时间',
-                            icon: Icons.schedule_rounded,
-                            page: ExamTimePageZF(),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    IntrinsicHeight(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Expanded(
-                            child: CardWidget(
-                              title: '成绩查询',
-                              // icon: Icons.emoji_events_outlined,
-                              icon: Icons.history_edu_outlined,
-                              // icon: Icons.analytics_rounded,
-                              page: GradePageZF(),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: CardWidget(
-                              title: '绩点排名',
-                              icon: Icons.leaderboard_rounded,
-                              page: GPAPageZF(),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: CardWidget(
-                              title: '成绩单',
-                              // icon: Icons.picture_as_pdf,
-                              icon: Icons.description_rounded,
-                              page: ScorePdfPageZF(),
-                            ),
-                          ),
-                        ],
-                      ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: _buildFeatureCards(),
                     ),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(4.0, 24.0, 4.0, 12.0),
@@ -246,52 +282,10 @@ class HomePage extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Row(children: [
-                      Expanded(
-                        child: CardLinkWidget(
-                          title: '馆藏检索',
-                          icon: Icons.local_library,
-                          link: libraryLookUpUrl,
-                        ),
-                      ),
-                      Expanded(
-                        child: CardLinkWidget(
-                          title: '大物实验',
-                          icon: Icons.science,
-                          link: collegePhysicsExperimentUrl,
-                        ),
-                      ),
-                    ]),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: CardLinkWidget(
-                            title: '湘大校历',
-                            icon: Icons.date_range,
-                            link: xtuSchoolCalendarUrl,
-                          ),
-                        ),
-                        Expanded(
-                          child: CardLinkWidget(
-                            title: '湘大新闻',
-                            icon: Icons.newspaper,
-                            link: xtuNewsUrl,
-                          ),
-                        ),
-                        Expanded(
-                          child: CardLinkWidget(
-                            title: '湘大邮箱',
-                            // icon: Icons.email_outlined,
-                            icon: Icons.email,
-                            link: xtuMailUrl,
-                          ),
-                        )
-                      ],
-                    ),
                     SizedBox(height: 6),
                     Card(
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24),
+                        borderRadius: BorderRadius.circular(16),
                       ),
                       clipBehavior: Clip.hardEdge,
                       child: Column(
@@ -320,13 +314,13 @@ class HomePage extends StatelessWidget {
                                   openLinkListTileList[index].subtitle,
                                   style: TextStyle(
                                     fontSize: 12,
-                                    color: colorScheme.outline,
+                                    color: colorScheme.onSurfaceVariant,
                                   ),
                                 ),
                                 trailing: Icon(
                                   // Icons.chevron_right,
-                                  Icons.launch_outlined,
-                                  color: colorScheme.outline,
+                                  Icons.chevron_right_rounded,
+                                  color: colorScheme.onSurfaceVariant,
                                 ),
                                 onTap: () =>
                                     openLink(openLinkListTileList[index].link),

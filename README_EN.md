@@ -1,15 +1,43 @@
-# Sachet
+# Sachet Next
 
-<p align='center'>
- <img alt='Sachet app icon' src='./assets/icon/icon.png' width='25%' style="border-radius:14%;"/>
-</p>
+A modified version of [Sachet](https://github.com/wyvern1723/sachet) for Xiangtan University, maintained by **Pluvist**. Thanks to **wyvern1723** for developing and open-sourcing the upstream application.
 
-[简体中文](./README.md) | [English](./README_EN.md)
+[简体中文](README.md) · [Build guide](README_DEV.md) · [MIT license](LICENSE) · [Third-party notices](THIRD_PARTY_NOTICES.md)
 
-## Intro
+## Changes from upstream
 
-Sachet is an app designed for Xiangtan University students, offering easy-to-use course schedules, convenient free-classrooms search, clear exam information, and other features.
+- Building-aware schedules: daytime lessons in Yifu Building and the Information Technology Building start 10 minutes later than ordinary buildings; evening lessons share the same times. Per-course overrides are supported.
+- Two persistent time rails, time-based weekly card placement, staggered-course outlines, and compressed lunch/evening breaks. Details, calendar exports, reminders, home status and widgets share the actual timing rules. A small visual offset does not change actual course times.
+- A home course-status card with current/next lesson, location and countdown; reorganized campus service shortcuts.
+- Rounded Flutter interfaces inspired by Miuix, a two-item floating navigation capsule, profile access from the home header, and a theme-aware bottom gradient. Light-mode inactive navigation is white; both themes have a thin gray outline.
+- An Android home-screen course widget, defaulting to 2×2, with adaptive layouts, dark/light themes and the same course matching rules as the home page. Compact padding is 20dp; larger layouts use 40dp.
+- Retained tab/week state, lazy week creation, shared cached reads and fewer touch-triggered rebuilds. iOS-style page transitions are fixed as the default.
+- Automatic timetable refresh on cold start and foreground resume, showing cached data first and retaining it on failures. Updates preserve colors and applicable manual settings and reschedule enabled course reminders.
+- Sachet Next branding and Pluvist credits, with explicit upstream acknowledgment. Upstream update checks and related settings were removed.
 
-## Development Environment
+Upstream academic features remain the foundation: timetable, free classrooms, curriculum, textbooks, exams, grades, GPA ranking, transcripts, campus links and calendar export.
 
-Flutter version: 3.24.5
+## Build and verification
+
+Use Flutter 3.24.5 / Dart 3.5.4, JDK 17 and Android SDK 35. See [README_DEV.md](README_DEV.md).
+
+```sh
+flutter pub get
+flutter analyze
+flutter test
+flutter build apk --release --target-platform android-arm64
+```
+
+Set `SACHET_LOCAL_TEST=1` for an isolated Android test package (`io.github.wyvern1723.sachet.localtest`). Internal upstream identifiers remain for compatibility. Configure your own signing key for releases; builds without a key use a development signature. Different signing keys prevent in-place updates.
+
+Automated tests, static analysis and Android ARM64 release builds have been exercised, with installation/display checks on a Xiaomi 17. Real-account network tests are skipped by default. No measured frame-rate improvement is claimed. The new widget is Android-only; other platform project files are retained.
+
+The GitHub Actions workflow provides manual/PR checks and a test APK, without upstream signing secrets or automatic releases.
+
+## License and attribution
+
+Code is distributed under the [MIT license](LICENSE), preserving `Copyright (c) 2025 wyvern1723` and adding `Copyright (c) 2026 Pluvist (Sachet Next modifications)`. Preserve the copyright and permission notices when redistributing.
+
+Noto Serif SC is separately licensed under SIL OFL 1.1. Proprietary Anthropic fonts are excluded from this public version; optional serif headings use Noto Serif SC, while default headings use the system sans-serif font. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+Report issues with this modified version in this repository. Upstream websites, releases and contact information belong to Sachet and are not support channels for Sachet Next.

@@ -70,7 +70,13 @@ android {
     }
 
     buildTypes {
+        debug {
+            applicationIdSuffix ".localtest"
+        }
         release {
+            if (System.getenv("SACHET_LOCAL_TEST") == "1") {
+                applicationIdSuffix ".localtest"
+            }
             // 如果配置了 key.properties 文件，使用配置的方法签名
             if (keystorePropertiesFile.exists()) {
                 signingConfig = signingConfigs.release

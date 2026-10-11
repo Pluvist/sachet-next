@@ -6,7 +6,13 @@ import 'package:sachet/utils/abi_utils.dart';
 const String appOfficialWebsiteUrl = "https://sachet.wyvernlab.com";
 
 /// 作者名称
-const String authorName = "wyvern1723";
+const String appName = 'Sachet Next';
+const String authorName = 'Pluvist';
+const String upstreamAuthorName = 'wyvern1723';
+const String sachetNextRepoUrl = 'https://github.com/Pluvist/sachet-next';
+const String upstreamAcknowledgement =
+    'Sachet Next 基于开源上游项目 Sachet 二次修改，由 Pluvist 开发与维护。'
+    '感谢上游作者 wyvern1723 的开发与开源贡献。';
 
 /// 作者邮箱（关于页面的反馈邮箱）
 const String authorMail = "wyvern1723@outlook.com";

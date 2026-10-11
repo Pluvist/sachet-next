@@ -1,15 +1,23 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:sachet/constants/app_info_constants.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sachet/models/enums/app_folder.dart';
 import 'package:path/path.dart' as path;
+import 'package:sachet/services/course_widget_bridge.dart';
 
 /// 本地缓存数据存储工具类
 class CachedDataStorage {
   CachedDataStorage._();
+  static final _changes = StreamController<String>.broadcast();
+  static Stream<String> get changes => _changes.stream;
+  static void _changed(String filePath) {
+    _changes.add(filePath);
+    CourseWidgetBridge.refreshIfSelected(filePath);
+  }
 
   static Future<String> get _localPath async {
     final directory = await getApplicationSupportDirectory();
@@ -125,14 +133,20 @@ class CachedDataStorage {
   /// 重新写入（覆盖原有内容）
   static Future<File> reWriteData(String value, String fileName) async {
     final file = await _localFile(fileName);
-    return file.writeAsString(value, encoding: utf8, mode: FileMode.write);
+    final written =
+        await file.writeAsString(value, encoding: utf8, mode: FileMode.write);
+    _changed(file.path);
+    return written;
   }
 
   /// 重新写入（覆盖原有内容）(绝对路径)
   static Future<File> reWriteDataByFilePath(
       String value, String filePath) async {
     final file = File(filePath);
-    return file.writeAsString(value, encoding: utf8, mode: FileMode.write);
+    final written =
+        await file.writeAsString(value, encoding: utf8, mode: FileMode.write);
+    _changed(file.path);
+    return written;
   }
 
   /// 写入文件到 ApplicationSupportDirectory (AppSupportDir 的相对路径)
@@ -148,7 +162,10 @@ class CachedDataStorage {
 
     await file.create(recursive: true);
 
-    return file.writeAsString(value, encoding: utf8, mode: FileMode.write);
+    final written =
+        await file.writeAsString(value, encoding: utf8, mode: FileMode.write);
+    _changed(file.path);
+    return written;
   }
 
   /// 获取对文件 jsonDecode 的数据，如果不能 decode, 返回 {};
@@ -183,6 +200,7 @@ class CachedDataStorage {
     final file = await getFile(folder, fileName);
     if (await file.exists()) {
       await file.delete();
+      _changed(file.path);
     }
   }
 

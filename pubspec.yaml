@@ -4,10 +4,10 @@ description: "An app designed for Xiangtan University students, offering easy-to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 0.11.0+18
+version: 0.10.1+17
 
-homepage: https://github.com/wyvern1723/sachet
-repository: https://github.com/wyvern1723/sachet
+homepage: https://github.com/Pluvist/sachet-next
+repository: https://github.com/Pluvist/sachet-next
 
 environment:
   sdk: '>=3.2.2 <4.0.0'
@@ -98,7 +98,14 @@ flutter_native_splash:
 
 flutter:
   uses-material-design: true
+  fonts:
+    - family: Noto Serif SC Titles
+      fonts:
+        - asset: assets/fonts/NotoSerifSC-Titles.ttf
   assets:
+    - LICENSE
+    - THIRD_PARTY_NOTICES.md
+    - assets/fonts/NotoSerifSC-LICENSE.txt
     - assets/
     - assets/icon/
     - assets/json/

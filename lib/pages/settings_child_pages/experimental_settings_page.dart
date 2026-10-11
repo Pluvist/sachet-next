@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/settingspage_widgets/miuix_settings_list.dart';
 import 'dart:async';
 
 import 'package:app_settings/app_settings.dart';
@@ -1071,7 +1072,7 @@ class _ExperimentalSettingsPageState extends State<ExperimentalSettingsPage> {
 
     return Scaffold(
       appBar: AppBar(title: const Text("实验性功能")),
-      body: ListView(
+      body: MiuixSettingsList(
         children: [
           if (defaultTargetPlatform == TargetPlatform.android) ...[
             MaterialBanner(

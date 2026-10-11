@@ -21,9 +21,9 @@ class ClassPage extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => ClassPageProvider(),
       child: PopScope(
-        canPop: AppGlobal.startupPage == '/class',
+        canPop: !TickerMode.of(context) || AppGlobal.startupPage == '/class',
         onPopInvokedWithResult: (bool didPop, Object? result) {
-          if (didPop) {
+          if (didPop || !TickerMode.of(context)) {
             return;
           }
           if (SettingsProvider.navigationType ==
@@ -38,10 +38,11 @@ class ClassPage extends StatelessWidget {
                   ? myNavDrawer
                   : null,
           appBar: ClassPageAppBar(),
-          body: Selector<SettingsProvider, (String, Map?)>(
+          body: Selector<SettingsProvider, (String, Map?, int)>(
               selector: (_, settingsProvider) => (
                     settingsProvider.classScheduleFilePath,
                     settingsProvider.courseColorData,
+                    settingsProvider.courseRevision,
                   ),
               builder: (_, __, ___) {
                 return FutureBuilder(
@@ -49,7 +50,8 @@ class ClassPage extends StatelessWidget {
                         .read<SettingsProvider>()
                         .loadCourseScheduleData(),
                     builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.done) {
+                      if (snapshot.hasData ||
+                          snapshot.connectionState == ConnectionState.done) {
                         if (snapshot.hasError) {
                           if (kDebugMode) {
                             print(snapshot.error);

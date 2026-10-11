@@ -5,34 +5,26 @@ import 'package:sachet/models/nav_destination.dart';
 import 'package:sachet/pages/class_page.dart';
 import 'package:sachet/pages/home_page.dart';
 import 'package:sachet/pages/profile_page.dart';
-import 'package:sachet/pages/settings_page.dart';
 import 'package:sachet/providers/screen_nav_provider.dart';
 import 'package:sachet/widgets/utils_widgets/nav_bottom.dart';
 import 'package:sachet/widgets/utils_widgets/nav_side.dart';
+import 'package:sachet/widgets/utils_widgets/retained_tab_body.dart';
 
-const List<String> _routeNames = ['/class', '/home', '/profile'];
+const List<String> _routeNames = ['/home', '/class'];
 
 const List<NavDestination> _destinations = <NavDestination>[
+  NavDestination(
+      label: '主页',
+      icon: Icon(Icons.apps_outlined),
+      selectedIcon: Icon(Icons.apps_outlined),
+      page: HomePage(),
+      routeName: '/home'),
   NavDestination(
       label: '课程表',
       icon: Icon(Icons.calendar_month_outlined),
       selectedIcon: Icon(Icons.calendar_month),
       page: ClassPage(),
       routeName: '/class'),
-  NavDestination(
-      label: 'Home',
-      // icon: Icon(Icons.category_outlined),
-      // selectedIcon: Icon(Icons.category),
-      icon: Icon(Icons.apps_outlined),
-      selectedIcon: Icon(Icons.apps_outlined),
-      page: HomePage(),
-      routeName: '/home'),
-  NavDestination(
-      label: '我',
-      icon: Icon(Icons.person_outlined),
-      selectedIcon: Icon(Icons.person),
-      page: SettingsPage(),
-      routeName: '/profile'),
 ];
 
 class WithNavigationBarView extends StatefulWidget {
@@ -57,7 +49,7 @@ class _WithNavigationBarViewState extends State<WithNavigationBarView> {
 
     // 课程表水平滑动翻页时隐藏 NavBottom, 翻页结束显示 NavBottom
     if (notification.metrics.axis == Axis.horizontal) {
-      if (currentPageIndex == 0) {
+      if (currentPageIndex == 1) {
         if (notification is ScrollStartNotification) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) context.read<ScreenNavProvider>().hideNavBottom();
@@ -139,9 +131,11 @@ class _WithNavigationBarViewState extends State<WithNavigationBarView> {
       final bool isWideScreenMode = (constraints.maxWidth > 600 &&
           Theme.of(context).useMaterial3 == true);
       return Scaffold(
+        // Let page content paint through the transparent space around the pill.
+        extendBody: !isWideScreenMode && Theme.of(context).useMaterial3,
         body: Row(
           children: [
-            if (isWideScreenMode)
+            if (isWideScreenMode && currentPageIndex >= 0)
               SafeArea(
                 child: NavSide(
                   destinations: _destinations,
@@ -153,16 +147,17 @@ class _WithNavigationBarViewState extends State<WithNavigationBarView> {
               child: NotificationListener<ScrollNotification>(
                 onNotification: (notification) => _onScrollNotification(
                     notification, isWideScreenMode, currentPageIndex),
-                child: [
-                  ClassPage(),
-                  HomePage(),
-                  ProfilePage(),
-                ][currentPageIndex],
+                child: currentPageIndex < 0
+                    ? const ProfilePage()
+                    : RetainedTabBody(
+                        index: currentPageIndex,
+                        children: const [HomePage(), ClassPage()],
+                      ),
               ),
             ),
           ],
         ),
-        bottomNavigationBar: !isWideScreenMode
+        bottomNavigationBar: !isWideScreenMode && currentPageIndex >= 0
             ? Selector<ScreenNavProvider, bool>(
                 selector: (_, provider) => provider.isNavBottomVisible,
                 builder: (_, isNavBottomVisible, __) {
@@ -171,7 +166,9 @@ class _WithNavigationBarViewState extends State<WithNavigationBarView> {
                       begin: 0.0,
                       end: isNavBottomVisible ? 1.0 : 0.0,
                     ),
-                    duration: const Duration(milliseconds: 200),
+                    duration: MediaQuery.disableAnimationsOf(context)
+                        ? Duration.zero
+                        : const Duration(milliseconds: 300),
                     curve: Curves.easeOutCubic,
                     child: NavBottom(
                       destinations: _destinations,

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sachet/constants/app_constants.dart';
@@ -19,9 +20,22 @@ import 'package:sachet/services/check_update.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:dynamic_color/dynamic_color.dart';
+import 'package:sachet/utils/expressive_theme.dart';
+import 'package:sachet/widgets/utils_widgets/course_refresh_coordinator.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+
+  LicenseRegistry.addLicense(() async* {
+    yield LicenseEntryWithLineBreaks(
+      ['Sachet', 'Sachet Next'],
+      await rootBundle.loadString('LICENSE'),
+    );
+    yield LicenseEntryWithLineBreaks(
+      ['Noto Serif SC Titles'],
+      await rootBundle.loadString('assets/fonts/NotoSerifSC-LICENSE.txt'),
+    );
+  });
 
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
@@ -47,7 +61,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => CourseCardSettingsProvider()),
         ChangeNotifierProvider(create: (_) => ScreenNavProvider()),
       ],
-      child: Builder(builder: (context) {
+      child: CourseRefreshCoordinator(child: Builder(builder: (context) {
         // 强制初始化所有需要提前加载的 Provider
         context.read<ZhengFangUserProvider>();
         return Consumer<ThemeProvider>(
@@ -113,7 +127,7 @@ class MyApp extends StatelessWidget {
             }
           },
         );
-      }),
+      })),
     );
   }
 
@@ -124,17 +138,7 @@ class MyApp extends StatelessWidget {
     required ThemeProvider themeProvider,
   }) {
     return MaterialApp(
-      builder: (context, child) {
-        final systemTextScaler = MediaQuery.of(context).textScaler;
-        return MediaQuery(
-          data: MediaQuery.of(context).copyWith(
-            textScaler: TextScaler.linear(
-                systemTextScaler.scale(1.0) * themeProvider.appTextScale),
-          ),
-          child: child!,
-        );
-      },
-      title: 'Sachet',
+      title: 'Sachet Next',
       scaffoldMessengerKey: SnackbarGlobal.key,
       navigatorKey: NavigatorGlobal.navigatorKey,
       localizationsDelegates: const [
@@ -172,7 +176,7 @@ class MyApp extends StatelessWidget {
     required Brightness brightness,
     required ThemeProvider themeProvider,
   }) {
-    return ThemeData(
+    return applyExpressiveTheme(ThemeData(
       colorSchemeSeed: themeProvider.themeColor,
       brightness: brightness,
       useMaterial3: themeProvider.isMD3,
@@ -186,14 +190,14 @@ class MyApp extends StatelessWidget {
           TargetPlatform.fuchsia: themeProvider.transitionBuilder,
         },
       ),
-    );
+    ));
   }
 
   ThemeData _buildThemeDataFromColorScheme({
     required ColorScheme colorScheme,
     required ThemeProvider themeProvider,
   }) {
-    return ThemeData(
+    return applyExpressiveTheme(ThemeData(
       colorScheme: colorScheme,
       useMaterial3: themeProvider.isMD3,
       pageTransitionsTheme: PageTransitionsTheme(
@@ -206,6 +210,6 @@ class MyApp extends StatelessWidget {
           TargetPlatform.fuchsia: themeProvider.transitionBuilder,
         },
       ),
-    );
+    ));
   }
 }

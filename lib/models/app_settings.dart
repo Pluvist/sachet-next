@@ -1,4 +1,6 @@
 class AppSettings {
+  String? timeRailMode;
+  Map<String, String>? courseRoutineOverrides;
   bool? isMD3;
   int? themeMode;
   String? themeColor;
@@ -25,9 +27,10 @@ class AppSettings {
   bool? isShowExamTimeCountdown;
   bool? isDeleteQZJwxtUserInfo;
   String? appUpdateChannel;
-  double? appTextScale;
 
   AppSettings({
+    this.timeRailMode,
+    this.courseRoutineOverrides,
     this.isMD3,
     this.themeMode,
     this.themeColor,
@@ -54,10 +57,12 @@ class AppSettings {
     this.isShowExamTimeCountdown,
     this.isDeleteQZJwxtUserInfo,
     this.appUpdateChannel,
-    this.appTextScale,
   });
 
   AppSettings.fromJson(Map<String, dynamic> json) {
+    timeRailMode = json['timeRailMode'];
+    courseRoutineOverrides = (json['courseRoutineOverrides'] as Map?)
+        ?.map((key, value) => MapEntry(key.toString(), value.toString()));
     isMD3 = json['isMD3'];
     themeMode = json['themeMode'];
     themeColor = json['themeColor'];
@@ -84,11 +89,12 @@ class AppSettings {
     isShowExamTimeCountdown = json['isShowExamTimeCountdown'];
     isDeleteQZJwxtUserInfo = json['isDeleteQZJwxtUserInfo'];
     appUpdateChannel = json['appUpdateChannel'];
-    appTextScale = json['appTextScale'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
+    data['timeRailMode'] = timeRailMode;
+    data['courseRoutineOverrides'] = courseRoutineOverrides;
     data['isMD3'] = isMD3;
     data['themeMode'] = themeMode;
     data['themeColor'] = themeColor;
@@ -115,7 +121,6 @@ class AppSettings {
     data['isShowExamTimeCountdown'] = isShowExamTimeCountdown;
     data['isDeleteQZJwxtUserInfo'] = isDeleteQZJwxtUserInfo;
     data['appUpdateChannel'] = appUpdateChannel;
-    data['appTextScale'] = appTextScale;
     return data;
   }
 }

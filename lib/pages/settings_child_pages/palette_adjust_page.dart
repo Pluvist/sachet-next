@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/settingspage_widgets/miuix_settings_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:provider/provider.dart';
@@ -97,7 +98,7 @@ class _PaletteAdjustPageState extends State<PaletteAdjustPage> {
       appBar: AppBar(
         title: const Text('配色调整'),
       ),
-      body: ListView(
+      body: MiuixSettingsList(
         children: [
           SizedBox(height: 10),
           ListView.separated(

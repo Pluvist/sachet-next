@@ -1,4 +1,6 @@
+import 'package:sachet/utils/building_schedule.dart';
 import 'dart:convert';
+import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -13,8 +15,93 @@ import 'package:sachet/utils/time_manager.dart';
 import 'package:sachet/utils/app_global.dart';
 import 'package:sachet/utils/storage/path_provider_utils.dart';
 
+typedef CourseScheduleData = ({
+  List<List<CourseSchedule>>? courseScheduleItemsList,
+  Map courseColorData,
+  List classSessionSummerDataList,
+  List classSessionWinterDataList,
+});
+
 class SettingsProvider extends ChangeNotifier {
+  late final StreamSubscription<String> _storageChanges;
+  SettingsProvider() {
+    _storageChanges = CachedDataStorage.changes.listen((filePath) {
+      if (filePath == classScheduleFilePath) invalidateCourseData();
+      if (filePath == courseColorFilePath) {
+        courseColorData = null;
+        invalidateCourseData();
+      }
+    });
+  }
+  @override
+  void dispose() {
+    _storageChanges.cancel();
+    super.dispose();
+  }
+
+  int _courseRevision = 0;
+  int get courseRevision => _courseRevision;
+  Future<CourseScheduleData>? _loadedSchedule;
+  String? _loadedKey;
+
+  void invalidateCourseData() {
+    _loadedSchedule = null;
+    _courseRevision++;
+    notifyListeners();
+  }
+
+  Future<void> applyRefreshedSchedule({
+    required String schedulePath,
+    required String colorPath,
+    required Map colors,
+    String? semesterStart,
+  }) async {
+    final previousPath = classScheduleFilePath;
+    final previousColorPath = courseColorFilePath;
+    final previousDate = _appSettings.semesterStartDate;
+    final previousColors = courseColorData;
+    _appSettings.classScheduleFilePath = schedulePath;
+    _appSettings.courseColorFilePath = colorPath;
+    if (semesterStart != null) _appSettings.semesterStartDate = semesterStart;
+    courseColorData = colors;
+    _loadedSchedule = null;
+    _courseRevision++;
+    try {
+      await AppGlobal.persistAppSettings();
+    } catch (_) {
+      _appSettings.classScheduleFilePath = previousPath;
+      _appSettings.courseColorFilePath = previousColorPath;
+      _appSettings.semesterStartDate = previousDate;
+      courseColorData = previousColors;
+      rethrow;
+    }
+    notifyListeners();
+  }
+
   static AppSettings get _appSettings => AppGlobal.appSettings;
+  TimeRailMode get timeRailMode => TimeRailMode.values.firstWhere(
+      (mode) => mode.name == _appSettings.timeRailMode,
+      orElse: () => TimeRailMode.auto);
+  Map<String, String> get courseRoutineOverrides =>
+      Map.unmodifiable(_appSettings.courseRoutineOverrides ?? {});
+  void setTimeRailMode(TimeRailMode value) {
+    _appSettings.timeRailMode = value.name;
+    AppGlobal.saveAppSettings();
+    notifyListeners();
+  }
+
+  void setCourseRoutine(CourseSchedule course, int item, String value) {
+    final map = Map<String, String>.of(courseRoutineOverrides);
+    final key = BuildingSchedule.overrideKey(course, item);
+    if (value == 'auto') {
+      map.remove(key);
+    } else if (value == 'normal' || value == 'staggered') {
+      map[key] = value;
+    }
+    _appSettings.courseRoutineOverrides = map;
+    AppGlobal.saveAppSettings();
+    notifyListeners();
+  }
 
   String get startupPage => _appSettings.startupPage ?? '/class';
   static bool get isAutoCheckUpdate => _appSettings.isAutoCheckUpdate ?? true;
@@ -100,6 +187,8 @@ class SettingsProvider extends ChangeNotifier {
   void setClassScheduleFilePath(String value) {
     if (value != classScheduleFilePath) {
       _appSettings.classScheduleFilePath = value;
+      _loadedSchedule = null;
+      _courseRevision++;
       AppGlobal.saveAppSettings();
       notifyListeners();
     }
@@ -220,6 +309,8 @@ class SettingsProvider extends ChangeNotifier {
     courseColorData = await CachedDataStorage.getDecodedMap(
       courseColorFilePath,
     );
+    _loadedSchedule = null;
+    _courseRevision++;
     notifyListeners();
   }
 
@@ -239,13 +330,16 @@ class SettingsProvider extends ChangeNotifier {
     return listData;
   }
 
-  Future<
-      ({
-        List<List<CourseSchedule>>? courseScheduleItemsList,
-        Map courseColorData,
-        List classSessionSummerDataList,
-        List classSessionWinterDataList
-      })> loadCourseScheduleData() async {
+  Future<CourseScheduleData> loadCourseScheduleData() {
+    final key = '$classScheduleFilePath|$courseColorFilePath|$_courseRevision';
+    if (_loadedKey != key) {
+      _loadedKey = key;
+      _loadedSchedule = null;
+    }
+    return _loadedSchedule ??= _readCourseScheduleData();
+  }
+
+  Future<CourseScheduleData> _readCourseScheduleData() async {
     List<List<CourseSchedule>>? courseScheduleItemsList;
     final jsonData = await CachedDataStorage.getDecodedList(
       classScheduleFilePath,
@@ -329,40 +423,12 @@ class SettingsProvider extends ChangeNotifier {
               weekday: courseWeekday,
             );
 
-            String courseStartTimeStr = '';
-            String courseEndTimeStr = '';
-
-            /// 是否是夏令时
-            final bool isSummerRountine =
-                courseDate.month > 4 && courseDate.month < 10;
-            if (isSummerRountine) {
-              courseStartTimeStr =
-                  classSessionSummerRoutineStartTime[courseStartSession - 1];
-              courseEndTimeStr = classSessionSummerRoutineEndTime[
-                  courseStartSession - 1 + courseLength - 1];
-            } else {
-              /// 这节课的上课地点是否属于需要错峰上课（延迟上课时间）的教学楼
-              final bool isStaggeredPlace = (coursePlace.contains('逸夫楼') ||
-                  coursePlace.contains('信息科技大楼'));
-
-              /// 这节课是否错峰上课（延迟上课时间）
-              /// 因为不会发送课程开始时间在用户开启课程通知（当前）之前的通知，而新版本发布时，所有未实行错峰课程的课程都已经上过
-              /// 所以无需判断此时是否实行错峰上课
-              final bool isStaggered = isStaggeredPlace;
-
-              if (isStaggered) {
-                courseStartTimeStr =
-                    classSessionWinterRoutineStaggeredStartTime[
-                        courseStartSession - 1];
-                courseEndTimeStr = classSessionWinterRoutineStaggeredEndTime[
-                    courseStartSession - 1 + courseLength - 1];
-              } else {
-                courseStartTimeStr =
-                    classSessionWinterRoutineRegularStartTime[courseStartSession - 1];
-                courseEndTimeStr = classSessionWinterRoutineRegularEndTime[
-                    courseStartSession - 1 + courseLength - 1];
-              }
-            }
+            final routine = BuildingSchedule.resolve(
+                courseSchedule, courseItem, courseRoutineOverrides);
+            final actual = BuildingSchedule.course(
+                courseStartSession, courseLength, routine);
+            final courseStartTimeStr = formatMinute(actual.start);
+            final courseEndTimeStr = formatMinute(actual.end);
 
             /// 这节课的开始日期和时间（如 2025-09-08 08:00:00，日期精确，时间精确）
             final DateTime courseStartDateTime = courseDate.add(

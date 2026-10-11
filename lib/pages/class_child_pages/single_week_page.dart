@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sachet/models/course_schedule.dart';
-import 'package:sachet/utils/time_manager.dart';
+import 'package:sachet/utils/building_schedule.dart';
+import 'package:sachet/widgets/classpage_widgets/school_time_rail.dart';
 import 'package:sachet/providers/settings_provider.dart';
-import 'package:sachet/widgets/classpage_widgets/class_session_routine_column.dart';
 import 'package:sachet/widgets/classpage_widgets/course_card.dart';
 import 'package:sachet/widgets/classpage_widgets/day_of_the_week_topbar.dart';
 
@@ -30,105 +30,146 @@ class SingleWeekPage extends StatefulWidget {
   State<SingleWeekPage> createState() => _SingleWeekPageState();
 }
 
-class _SingleWeekPageState extends State<SingleWeekPage> {
+class _SingleWeekPageState extends State<SingleWeekPage>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
   @override
   Widget build(BuildContext context) {
-    // 判断日期，如果在 5/1 - 9/30 采用夏季作息时间，其他的采用冬季作息时间
-    // 夏季作息 (5.1 - 9.30) 下午2点半上课
-    // 冬季作息 (10.1 - 4.30) 下午2点上课
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        // 顶部显示课程表的日期和星期
-        Selector<SettingsProvider, String>(
-            selector: (_, settingsProvider) =>
-                SettingsProvider.semesterStartDate,
-            builder: (_, semesterStartDate, __) {
-              return DayOfTheWeekTopBar(
-                weekCount: widget.weekCount,
-                semesterStartDate: SettingsProvider.semesterStartDateDateTime,
-              );
-            }),
-        // 下方是课程表主体
-        Expanded(
+    super.build(context);
+    final settings = context.watch<SettingsProvider>();
+    final overrides = settings.courseRoutineOverrides;
+    final axis = SchoolTimeAxis(widget.cardHeight);
+    final active = <({int item, CourseSchedule course})>[];
+    final lists = widget.courseScheduleItemsList ?? [];
+    for (int item = 0; item < lists.length && item < 35; item++) {
+      final index = lists[item].indexWhere((course) =>
+          (course.weeks ?? []).contains(widget.weekCount) &&
+          (course.title ?? '').isNotEmpty);
+      if (index >= 0) active.add((item: item, course: lists[item][index]));
+    }
+    const routines = {BuildingRoutine.normal, BuildingRoutine.staggered};
+    final sideWidth = routines.length == 2 ? 46.0 : 52.0;
+    final leftWidth =
+        routines.contains(BuildingRoutine.normal) ? sideWidth : 0.0;
+    final rightWidth =
+        routines.contains(BuildingRoutine.staggered) ? sideWidth : 0.0;
+    Widget railHeading(BuildingRoutine routine) => SizedBox(
+          width: sideWidth,
+          height: 30,
+          child: InkWell(
+            onTap: () => showDialog<void>(
+                context: context,
+                builder: (context) => const AlertDialog(
+                      title: Text('教学楼作息'),
+                      content: Text(
+                          '左侧普通：其他教学楼。\n右侧错峰：逸夫楼、信息科技大楼，第 1–8 节晚 10 分钟。\n第 9–11 节两侧时间一致。\n两侧时间栏始终显示，可在课程详情中手动纠正作息。'),
+                    )),
+            child: Center(
+                child: Text(routine == BuildingRoutine.normal ? '普通' : '错峰',
+                    style: TextStyle(
+                        fontSize: 11,
+                        color: routine == BuildingRoutine.staggered
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).colorScheme.onSurfaceVariant))),
+          ),
+        );
+    return Column(children: [
+      DayOfTheWeekTopBar(
+          weekCount: widget.weekCount,
+          semesterStartDate: SettingsProvider.semesterStartDateDateTime,
+          timeRailWidth: leftWidth,
+          rightTimeRailWidth: rightWidth),
+      Row(children: [
+        if (leftWidth > 0) railHeading(BuildingRoutine.normal),
+        const Expanded(child: SizedBox(height: 30)),
+        if (rightWidth > 0) railHeading(BuildingRoutine.staggered),
+      ]),
+      Expanded(
           child: SingleChildScrollView(
-            physics: widget.pointerCount >= 2
-                ? const NeverScrollableScrollPhysics()
-                : const AlwaysScrollableScrollPhysics(),
-            padding: EdgeInsets.only(bottom: 40),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 左侧显示课程的节次和时间
-                Expanded(
-                  flex: 4,
-                  child: Selector<SettingsProvider, String>(
-                      selector: (_, settingsProvider) =>
-                          SettingsProvider.semesterStartDate,
-                      builder: (_, semesterStartDate, __) {
-                        int thisMonth = getTheMondayDateOfTheWeek(
-                                SettingsProvider.semesterStartDateDateTime,
-                                widget.weekCount)
-                            .month;
-                        bool isSummerRountine = thisMonth > 4 && thisMonth < 10;
-                        return ClassSessionRoutineColumn(
-                          weekCount: widget.weekCount,
-                          routinedata: isSummerRountine
-                              ? widget.classSessionSummerDataList
-                              : widget.classSessionWinterDataList,
-                          cardHeight: widget.cardHeight,
-                        );
-                      }),
-                ),
-
-                // 右侧是课程表的卡片区域
-                for (int weekday = 1;
-                    weekday <= DateTime.daysPerWeek;
-                    weekday++)
-                  Expanded(
-                    flex: 5,
-                    // 这里是一星期的每一天
-                    child: widget.courseScheduleItemsList != null
-                        ? Column(
-                            children: [
-                              for (int classCount = 0;
-                                  classCount < 5;
-                                  classCount++)
-                                Builder(builder: (context) {
-                                  int item = (weekday - 1) * 5 + classCount;
-                                  List<CourseSchedule> courseScheduleItems =
-                                      widget.courseScheduleItemsList![item];
-                                  return Padding(
-                                    padding: EdgeInsets.only(
-                                        bottom: 0.05 * widget.cardHeight),
-                                    child: SizedBox(
-                                      height: (widget.cardHeight) * 2,
-                                      child: OverflowBox(
-                                        alignment: Alignment.topCenter,
-                                        maxHeight: (widget.cardHeight) * 11,
-                                        child: CourseCard(
+        physics: widget.pointerCount >= 2
+            ? const NeverScrollableScrollPhysics()
+            : const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.only(bottom: 110),
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          if (leftWidth > 0)
+            SizedBox(
+                width: leftWidth,
+                child: SchoolTimeRail(
+                    key: const ValueKey('normalTimeRail'),
+                    axis: axis,
+                    routines: const {BuildingRoutine.normal})),
+          Expanded(
+              child: SchoolTimeGrid(
+            axis: axis,
+            showStaggered: routines.contains(BuildingRoutine.staggered),
+            child: SizedBox(
+                height: axis.height,
+                child: Stack(children: [
+                  for (final gap in SchoolTimeAxis.breaks)
+                    Positioned(
+                        top: axis.y(gap.start),
+                        left: 0,
+                        right: 0,
+                        height: axis.y(gap.end) - axis.y(gap.start),
+                        child: IgnorePointer(
+                            child: Center(
+                                child: Text(gap.start == 730 ? '午休' : '晚休',
+                                    style: TextStyle(
+                                        fontSize: 10,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurfaceVariant))))),
+                  Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    for (int weekday = 1; weekday <= 7; weekday++)
+                      Expanded(
+                          child: SizedBox(
+                              height: axis.height,
+                              child: Stack(children: [
+                                for (final entry in active
+                                    .where((e) => e.item ~/ 5 + 1 == weekday))
+                                  Builder(builder: (context) {
+                                    final routine = BuildingSchedule.resolve(
+                                        entry.course, entry.item, overrides);
+                                    final time = BuildingSchedule.course(
+                                        entry.item % 5 * 2 + 1,
+                                        entry.course.length ?? 2,
+                                        routine);
+                                    return Positioned(
+                                      key: ValueKey(
+                                          'timed-course-${widget.weekCount}-${entry.item}'),
+                                      top: axis.displayY(time.start, routine),
+                                      left: 0,
+                                      right: 0,
+                                      height: axis.displayCourseHeight(
+                                          time, routine),
+                                      child: CourseCard(
                                           cardHeight: widget.cardHeight,
+                                          displayHeight:
+                                              axis.displayCourseHeight(
+                                                  time, routine),
                                           weekCount: widget.weekCount,
                                           weekday: weekday,
-                                          classCount: classCount,
+                                          classCount: entry.item % 5,
                                           courseScheduleItems:
-                                              courseScheduleItems,
+                                              lists[entry.item],
                                           courseColorData:
-                                              widget.courseColorData,
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                }),
-                            ],
-                          )
-                        : SizedBox(),
-                  ),
-              ],
-            ),
-          ),
-        )
-      ],
-    );
+                                              widget.courseColorData),
+                                    );
+                                  }),
+                              ]))),
+                  ]),
+                ])),
+          )),
+          if (rightWidth > 0)
+            SizedBox(
+                width: rightWidth,
+                child: SchoolTimeRail(
+                    key: const ValueKey('staggeredTimeRail'),
+                    axis: axis,
+                    routines: const {BuildingRoutine.staggered})),
+        ]),
+      )),
+    ]);
   }
 }

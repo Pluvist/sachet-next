@@ -5,18 +5,18 @@ import 'package:sachet/utils/app_global.dart';
 class CourseCardSettingsProvider extends ChangeNotifier {
   CourseCardSettings get _courseCardSettings => AppGlobal.courseCardSettings;
 
-  double get cardHeight => _courseCardSettings.cardHeight ?? 65;
+  double get cardHeight => _courseCardSettings.cardHeight ?? 50;
   double get cardBorderRadius => _courseCardSettings.cardBorderRadius ?? 6.0;
   double get cardMargin => _courseCardSettings.cardMargin ?? 2.0;
-  double get titleFontSize => _courseCardSettings.titleFontSize ?? 12.0;
-  double get placeFontSize => _courseCardSettings.placeFontSize ?? 11.0;
+  double get titleFontSize => _courseCardSettings.titleFontSize ?? 13.0;
+  double get placeFontSize => _courseCardSettings.placeFontSize ?? 9.0;
   double get instructorFontSize =>
-      _courseCardSettings.instructorFontSize ?? 11.0;
-  int get titleFontWeight => _courseCardSettings.titleFontWeight ?? 7;
+      _courseCardSettings.instructorFontSize ?? 8.0;
+  int get titleFontWeight => _courseCardSettings.titleFontWeight ?? 8;
   int get placeFontWeight => _courseCardSettings.placeFontWeight ?? 4;
-  int get instructorFontWeight => _courseCardSettings.instructorFontWeight ?? 4;
+  int get instructorFontWeight => _courseCardSettings.instructorFontWeight ?? 2;
   int get titleMaxLines => _courseCardSettings.titleMaxLines ?? 3;
-  int get placeMaxLines => _courseCardSettings.placeMaxLines ?? 2;
+  int get placeMaxLines => _courseCardSettings.placeMaxLines ?? 5;
   int get instructorMaxLines => _courseCardSettings.instructorMaxLines ?? 2;
   String get titleTextColor =>
       _courseCardSettings.titleTextColor ?? "#F2FFFFFF";
@@ -49,24 +49,24 @@ class CourseCardSettingsProvider extends ChangeNotifier {
     }
   }
 
-  void setTitleFontSize(double? value) {
-    if (value != null && value != _courseCardSettings.titleFontSize) {
+  void setTitleFontSize(double value) {
+    if (value != _courseCardSettings.titleFontSize) {
       _courseCardSettings.titleFontSize = value;
       AppGlobal.saveCourseCardSettings();
       notifyListeners();
     }
   }
 
-  void setPlaceFontSize(double? value) {
-    if (value != null && value != _courseCardSettings.placeFontSize) {
+  void setPlaceFontSize(double value) {
+    if (value != _courseCardSettings.placeFontSize) {
       _courseCardSettings.placeFontSize = value;
       AppGlobal.saveCourseCardSettings();
       notifyListeners();
     }
   }
 
-  void setInstructorFontSize(double? value) {
-    if (value != null && value != _courseCardSettings.instructorFontSize) {
+  void setInstructorFontSize(double value) {
+    if (value != _courseCardSettings.instructorFontSize) {
       _courseCardSettings.instructorFontSize = value;
       AppGlobal.saveCourseCardSettings();
       notifyListeners();

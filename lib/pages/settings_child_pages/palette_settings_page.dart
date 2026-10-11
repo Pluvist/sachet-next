@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/settingspage_widgets/miuix_settings_list.dart';
 import 'package:flutter/material.dart';
 import 'package:sachet/constants/app_constants.dart';
 import 'package:sachet/models/enums/app_folder.dart';
@@ -85,7 +86,7 @@ class _PaletteSettingsPageState extends State<PaletteSettingsPage> {
       appBar: AppBar(
         title: const Text('配色管理'),
       ),
-      body: ListView(
+      body: MiuixSettingsList(
         children: [
           // Padding(
           //   padding: EdgeInsets.fromLTRB(16.0, 20.0, 16.0, 20.0),

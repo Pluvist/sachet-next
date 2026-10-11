@@ -4,6 +4,9 @@ import 'package:sachet/utils/transform.dart';
 
 Future fetchClassScheduleSemetersZF({required String cookie}) async {
   final dio = Dio(BaseOptions(
+    connectTimeout: const Duration(seconds: 10),
+    receiveTimeout: const Duration(seconds: 15),
+    sendTimeout: const Duration(seconds: 10),
     validateStatus: (_) => true,
     followRedirects: false,
   ));

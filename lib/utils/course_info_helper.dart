@@ -23,7 +23,7 @@ class CourseInfoHelper {
     }
   }
 
-  static List<int> getLengths({
+  static List getLengths({
     required String title,
     required List<CourseSchedule> courseScheduleItems,
   }) {
@@ -32,13 +32,10 @@ class CourseInfoHelper {
     if (elementList.isEmpty) {
       return [];
     } else {
-      List<int> lengthList = [];
+      List lengthList = [];
       elementList.forEach((element) {
-        final int? length = element.length;
-        if (!lengthList.contains(length)) {
-          if (length != null) {
-            lengthList.add(length);
-          }
+        if (!lengthList.contains(element.length)) {
+          lengthList.add(element.length);
         }
       });
 

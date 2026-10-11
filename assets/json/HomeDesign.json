@@ -1,0 +1,170 @@
+{
+  "version": 1,
+  "kind": "sachet-home-design",
+  "title": "Sachet Next",
+  "headingSize": 44,
+  "headingHeight": 167,
+  "headingFont": "sans",
+  "padding": 18,
+  "gap": 13,
+  "columns": 3,
+  "cardHeight": 114,
+  "cardRadius": 28,
+  "cardSize": 12,
+  "iconSize": 29,
+  "iconRadius": 21,
+  "heroHeight": 109,
+  "heroRadius": 32,
+  "heroSize": 20,
+  "navDarken": 20,
+  "navRadius": 100,
+  "navBottom": 20,
+  "notes": "",
+  "colors": {
+    "surface": "#101619",
+    "text": "#e0e3e5",
+    "muted": "#859296",
+    "primary": "#8bd0ed",
+    "onPrimary": "#003544",
+    "card": "#171d20",
+    "secondary": "#334c56",
+    "onSecondary": "#cce5ef",
+    "navContainer": "#004c61",
+    "navText": "#b5e5fa",
+    "divider": "#3e484d"
+  },
+  "items": [
+    {
+      "id": "hero",
+      "group": "hero",
+      "title": "空闲教室",
+      "subtitle": "快速查询自习室",
+      "icon": "door",
+      "visible": true
+    },
+    {
+      "id": "plan",
+      "group": "features",
+      "title": "培养方案",
+      "icon": "school",
+      "visible": true
+    },
+    {
+      "id": "book",
+      "group": "features",
+      "title": "教材预订",
+      "icon": "book",
+      "visible": true
+    },
+    {
+      "id": "exam",
+      "group": "features",
+      "title": "考试时间",
+      "icon": "clock",
+      "visible": true
+    },
+    {
+      "id": "grade",
+      "group": "features",
+      "title": "成绩查询",
+      "icon": "pen",
+      "visible": true
+    },
+    {
+      "id": "gpa",
+      "group": "features",
+      "title": "绩点排名",
+      "icon": "chart",
+      "visible": true
+    },
+    {
+      "id": "pdf",
+      "group": "features",
+      "title": "成绩单",
+      "icon": "document",
+      "visible": true
+    },
+    {
+      "id": "external",
+      "group": "section",
+      "title": "打开外部网站",
+      "visible": true
+    },
+    {
+      "id": "library",
+      "group": "links",
+      "title": "馆藏检索",
+      "icon": "library",
+      "visible": true
+    },
+    {
+      "id": "physics",
+      "group": "links",
+      "title": "大物实验",
+      "icon": "science",
+      "visible": true
+    },
+    {
+      "id": "calendar",
+      "group": "links",
+      "title": "湘大校历",
+      "icon": "calendar",
+      "visible": true
+    },
+    {
+      "id": "news",
+      "group": "links",
+      "title": "湘大新闻",
+      "icon": "news",
+      "visible": true
+    },
+    {
+      "id": "mail",
+      "group": "links",
+      "title": "湘大邮箱",
+      "icon": "mail",
+      "visible": true
+    },
+    {
+      "id": "network",
+      "group": "rows",
+      "title": "校园网认证",
+      "subtitle": "打开校园网认证的网页",
+      "icon": "wifi",
+      "visible": true
+    },
+    {
+      "id": "self",
+      "group": "rows",
+      "title": "校园网自助服务系统",
+      "subtitle": "踢出占线设备",
+      "icon": "devices",
+      "visible": true
+    },
+    {
+      "id": "portal",
+      "group": "rows",
+      "title": "信息门户",
+      "subtitle": "https://portal2020.xtu.edu.cn/cas/login",
+      "icon": "building",
+      "visible": true
+    },
+    {
+      "id": "jw",
+      "group": "rows",
+      "title": "新教务系统",
+      "subtitle": "https://jw.xtu.edu.cn/jwglxt/",
+      "icon": "globe",
+      "visible": true
+    },
+    {
+      "id": "oldjw",
+      "group": "rows",
+      "title": "旧教务系统",
+      "subtitle": "https://jwxt.xtu.edu.cn/jsxsd/",
+      "icon": "building",
+      "visible": true
+    }
+  ],
+  "headingOffset": 38
+}

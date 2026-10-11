@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/settingspage_widgets/miuix_settings_list.dart';
 import 'package:flutter/material.dart';
 import 'package:sachet/models/enums/nav_type.dart';
 import 'package:sachet/models/user.dart';
@@ -84,7 +85,7 @@ class _SettingsPageState extends State<SettingsPage> {
               },
               icon: Icon(Icons.arrow_back_outlined)),
         ),
-        body: ListView(
+        body: MiuixSettingsList(
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(16.0, 12.0, 16.0, 8.0),

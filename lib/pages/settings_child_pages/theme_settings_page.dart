@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/settingspage_widgets/miuix_settings_list.dart';
 import 'package:flutter/material.dart';
 import 'package:sachet/constants/app_constants.dart';
 import 'package:sachet/providers/theme_provider.dart';
@@ -16,101 +17,98 @@ class ThemeSettingsPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text("应用主题")),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // 选择主题模式(系统、明亮、黑暗)
-            Selector<ThemeProvider, int>(
-                selector: (_, themeProvider) => themeProvider.themeMode,
-                builder: (_, themeMode, __) {
-                  return ListTile(
-                    leading: Align(
-                      widthFactor: 1,
-                      alignment: Alignment.centerLeft,
-                      child: themeMode == 0
-                          ? const Icon(Icons.contrast)
-                          : themeMode == 1
-                              ? const Icon(Icons.light_mode_outlined)
-                              : const Icon(Icons.dark_mode),
-                    ),
-                    title: const Text('主题选择'),
-                    subtitle: const Text('明亮、黑暗、跟随系统'),
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) =>
-                            ChooseThemeModeDialog(themeMode: themeMode),
-                      );
-                    },
-                  );
+      body: MiuixSettingsList(
+        children: [
+          // 选择主题模式(系统、明亮、黑暗)
+          Selector<ThemeProvider, int>(
+              selector: (_, themeProvider) => themeProvider.themeMode,
+              builder: (_, themeMode, __) {
+                return ListTile(
+                  leading: Align(
+                    widthFactor: 1,
+                    alignment: Alignment.centerLeft,
+                    child: themeMode == 0
+                        ? const Icon(Icons.contrast)
+                        : themeMode == 1
+                            ? const Icon(Icons.light_mode_outlined)
+                            : const Icon(Icons.dark_mode),
+                  ),
+                  title: const Text('主题选择'),
+                  subtitle: const Text('明亮、黑暗、跟随系统'),
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) =>
+                          ChooseThemeModeDialog(themeMode: themeMode),
+                    );
+                  },
+                );
+              }),
+          // MD3 开关
+          ListTile(
+            leading: const Align(
+              widthFactor: 1,
+              alignment: Alignment.centerLeft,
+              child: Icon(Icons.fiber_new),
+            ),
+            title: const Text('Miuix 风格'),
+            subtitle: const Text('大标题、圆角分组与悬浮底栏'),
+            trailing: Switch(
+                value: themeProvider.isMD3,
+                onChanged: (value) {
+                  if (value == false) {
+                    showDialog(
+                      context: context,
+                      builder: (context) => SwitchToMD2ConfirmDialog(),
+                    );
+                  } else {
+                    // value == true
+                    context.read<ThemeProvider>().setIsMD3(value);
+                  }
                 }),
-            // MD3 开关
-            ListTile(
+          ),
+
+          // 动态取色开关
+          ListTile(
+            leading: Align(
+              widthFactor: 1,
+              alignment: Alignment.centerLeft,
+              child: Icon(
+                Icons.colorize,
+                color: themeProvider.isUsingDynamicColors
+                    ? Theme.of(context).colorScheme.primary
+                    : null,
+              ),
+            ),
+            title: const Text('动态取色'),
+            subtitle: const Text('从壁纸提取主题色'),
+            trailing: Switch(
+                value: themeProvider.isUsingDynamicColors,
+                onChanged: (value) {
+                  context.read<ThemeProvider>().setIsUsingDynamicColors(value);
+                }),
+          ),
+
+          // 如果启用动态取色，隐藏这个供用户自定义主题色的组件
+          Offstage(
+            offstage: themeProvider.isUsingDynamicColors,
+            // 可折叠（可展开）选择主题颜色 ListTile
+            child: ExpansionTile(
               leading: const Align(
                 widthFactor: 1,
                 alignment: Alignment.centerLeft,
-                child: Icon(Icons.fiber_new),
+                child: Icon(Icons.palette),
               ),
-              title: const Text('启用 Material Design 3'),
-              trailing: Switch(
-                  value: themeProvider.isMD3,
-                  onChanged: (value) {
-                    if (value == false) {
-                      showDialog(
-                        context: context,
-                        builder: (context) => SwitchToMD2ConfirmDialog(),
-                      );
-                    } else {
-                      // value == true
-                      context.read<ThemeProvider>().setIsMD3(value);
-                    }
-                  }),
+              title: const Text('选择主题颜色'),
+              subtitle: Text('0x${colorToHex(themeProvider.themeColor)}'),
+              children: const [
+                SizedBox(height: 10),
+                ChooseThemeColor(),
+                SizedBox(height: 20),
+              ],
             ),
-
-            // 动态取色开关
-            ListTile(
-              leading: Align(
-                widthFactor: 1,
-                alignment: Alignment.centerLeft,
-                child: Icon(
-                  Icons.colorize,
-                  color: themeProvider.isUsingDynamicColors
-                      ? Theme.of(context).colorScheme.primary
-                      : null,
-                ),
-              ),
-              title: const Text('动态取色'),
-              subtitle: const Text('从壁纸提取主题色'),
-              trailing: Switch(
-                  value: themeProvider.isUsingDynamicColors,
-                  onChanged: (value) {
-                    context
-                        .read<ThemeProvider>()
-                        .setIsUsingDynamicColors(value);
-                  }),
-            ),
-
-            // 如果启用动态取色，隐藏这个供用户自定义主题色的组件
-            Offstage(
-              offstage: themeProvider.isUsingDynamicColors,
-              // 可折叠（可展开）选择主题颜色 ListTile
-              child: ExpansionTile(
-                leading: const Align(
-                  widthFactor: 1,
-                  alignment: Alignment.centerLeft,
-                  child: Icon(Icons.palette),
-                ),
-                title: const Text('选择主题颜色'),
-                subtitle: Text('0x${colorToHex(themeProvider.themeColor)}'),
-                children: const [
-                  SizedBox(height: 10),
-                  ChooseThemeColor(),
-                  SizedBox(height: 20),
-                ],
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

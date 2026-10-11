@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/settingspage_widgets/miuix_settings_list.dart';
 import 'dart:io';
 import 'dart:ui' as ui;
 
@@ -149,7 +150,7 @@ Dart 版本: $dartVersion
       appBar: AppBar(
         title: const Text("开发者设置"),
       ),
-      body: ListView(
+      body: MiuixSettingsList(
         children: [
           Padding(
               padding:

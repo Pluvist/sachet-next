@@ -1,10 +1,10 @@
 // 管理时间
 
-import 'package:sachet/constants/app_constants.dart';
-import 'package:sachet/providers/settings_provider.dart';
-
 // 从周数推这一周第一天时间
 // 第 n 周的第一天（周一） = 学期第一周的第一天 + (n-1) * 7
+import 'package:sachet/utils/building_schedule.dart';
+import 'package:sachet/providers/settings_provider.dart';
+
 DateTime getTheMondayDateOfTheWeek(DateTime semesterStartDate, int weekCount) {
   final weekMonday = semesterStartDate.add(Duration(
       days:
@@ -96,11 +96,8 @@ bool isToday(DateTime thatDay) {
   required int item,
   required int week,
   required int courseLength,
-  required bool isStaggered,
+  BuildingRoutine routine = BuildingRoutine.normal,
   DateTime? semesterStartDate,
-
-  /// 此学期是否启用错峰上课的新时间表
-  required bool isUseStaggeredSchedule,
 }) {
   final result = getWeekdayAndSessionFromItem(item);
   final int courseWeekday = result.weekday;
@@ -116,51 +113,10 @@ bool isToday(DateTime thatDay) {
     weekday: courseWeekday,
   );
 
-  String courseStartTimeStr = '';
-  String courseEndTimeStr = '';
-
-  /// 是否是夏令时
-  final bool isSummerRountine = courseDate.month > 4 && courseDate.month < 10;
-  if (isSummerRountine) {
-    courseStartTimeStr =
-        classSessionSummerRoutineStartTime[courseStartSession - 1];
-    courseEndTimeStr = classSessionSummerRoutineEndTime[
-        courseStartSession - 1 + courseLength - 1];
-  } else {
-    if (!isUseStaggeredSchedule) {
-      courseStartTimeStr =
-          classSessionWinterRoutineOldStartTime[courseStartSession - 1];
-      courseEndTimeStr = classSessionWinterRoutineOldEndTime[
-          courseStartSession - 1 + courseLength - 1];
-    } else {
-      if (isStaggered) {
-        courseStartTimeStr =
-            classSessionWinterRoutineStaggeredStartTime[courseStartSession - 1];
-        courseEndTimeStr = classSessionWinterRoutineStaggeredEndTime[
-            courseStartSession - 1 + courseLength - 1];
-      } else {
-        courseStartTimeStr =
-            classSessionWinterRoutineRegularStartTime[courseStartSession - 1];
-        courseEndTimeStr = classSessionWinterRoutineRegularEndTime[
-            courseStartSession - 1 + courseLength - 1];
-      }
-    }
-  }
-
-  /// 这节课的开始日期和时间（如 2025-09-08 08:00:00，日期精确，时间精确）
-  final DateTime courseStartDateTime = courseDate.add(
-    Duration(
-      hours: int.parse(courseStartTimeStr.split(':')[0]),
-      minutes: int.parse(courseStartTimeStr.split(':')[1]),
-    ),
-  );
-
-  final DateTime courseEndDateTime = courseDate.add(
-    Duration(
-      hours: int.parse(courseEndTimeStr.split(':')[0]),
-      minutes: int.parse(courseEndTimeStr.split(':')[1]),
-    ),
-  );
+  final time =
+      BuildingSchedule.course(courseStartSession, courseLength, routine);
+  final courseStartDateTime = courseDate.add(Duration(minutes: time.start));
+  final courseEndDateTime = courseDate.add(Duration(minutes: time.end));
   return (startTime: courseStartDateTime, endTime: courseEndDateTime);
 }
 

@@ -27,7 +27,7 @@ import 'package:html/parser.dart';
     String semesterYearLabel = child.innerHtml;
     String? semesterYearValue = child.attributes['value'];
 
-    if ((child.attributes.containsValue('selected') == true)) {
+    if ((child.attributes.containsKey('selected') == true)) {
       currentSemesterYear = semesterYearValue;
     }
     if (semesterYearLabel != '' &&
@@ -54,7 +54,7 @@ import 'package:html/parser.dart';
         // String? semesterIndexLabel = child.innerHtml;
         String? semesterIndexValue = child.attributes['value'];
 
-        if ((child.attributes.containsValue('selected') == true)) {
+        if ((child.attributes.containsKey('selected') == true)) {
           currentSemesterIndex = semesterIndexValue;
         }
 

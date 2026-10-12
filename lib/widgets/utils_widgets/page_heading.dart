@@ -18,6 +18,7 @@ class PageHeading extends StatelessWidget {
       label,
       style: original.copyWith(
         fontSize: fontSize ?? HomeDesign.headingSize,
+        fontWeight: FontWeight.w400,
         fontFamily: HomeDesign.headingFont == 'serif'
             ? 'Noto Serif SC Titles'
             : original.fontFamily,

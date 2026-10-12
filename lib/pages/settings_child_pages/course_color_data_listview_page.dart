@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:sachet/widgets/settingspage_widgets/miuix_settings_list.dart';
 import 'dart:async';
 import 'dart:io';
@@ -120,7 +121,7 @@ class _CourseColorDataListviewPageState
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('课程颜色数据查看')),
+      appBar: MiuixAppBar(title: const Text('课程颜色数据查看')),
       body: MiuixSettingsList(
         children: [
           Padding(
@@ -139,7 +140,7 @@ class _CourseColorDataListviewPageState
           ),
           ...List.generate(
             filesPathList.length,
-            (index) => ListTile(
+            (index) => MiuixListTile(
               title: Text(path.basename(filesPathList[index].path)),
               subtitle: Text('${filesPathList[index].path}'
                   '\n'
@@ -160,7 +161,7 @@ class _CourseColorDataListviewPageState
               ),
             ),
           ),
-          // ListTile(
+          // MiuixListTile(
           //   title: const Row(
           //     mainAxisAlignment: MainAxisAlignment.center,
           //     crossAxisAlignment: CrossAxisAlignment.end,
@@ -174,7 +175,7 @@ class _CourseColorDataListviewPageState
           //   textColor: Theme.of(context).colorScheme.primary,
           //   onTap: () {},
           // ),
-          ListTile(
+          MiuixListTile(
             title: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.end,

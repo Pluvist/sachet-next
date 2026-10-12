@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:sachet/widgets/settingspage_widgets/miuix_settings_list.dart';
 import 'package:flutter/material.dart';
 import 'package:sachet/models/enums/app_folder.dart';
@@ -159,11 +160,11 @@ class _ColorSettingsPageState extends State<ColorSettingsPage> {
         (settingsModel) => settingsModel.courseColorFilePath);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('配色调整')),
+      appBar: MiuixAppBar(title: const Text('配色调整')),
       body: MiuixSettingsList(
         children: [
           SizedBox(height: 10),
-          ListTile(
+          MiuixListTile(
             leading: const Align(
               widthFactor: 1,
               alignment: Alignment.centerLeft,
@@ -183,7 +184,7 @@ class _ColorSettingsPageState extends State<ColorSettingsPage> {
           //   context: context,
           //   tiles: List.generate(
           //     _courseColorData.length,
-          //     (index) => ListTile(
+          //     (index) => MiuixListTile(
           //       title: Text(_courseColorData.keys.elementAt(index)),
           //       trailing: GestureDetector(
           //         onTap: () {
@@ -206,7 +207,7 @@ class _ColorSettingsPageState extends State<ColorSettingsPage> {
             itemCount: _courseColorData.length,
             physics: NeverScrollableScrollPhysics(),
             itemBuilder: (context, index) {
-              return ListTile(
+              return MiuixListTile(
                 title: Text(_courseColorData.keys.elementAt(index)),
                 trailing: GestureDetector(
                   onTap: () async {
@@ -234,7 +235,7 @@ class _ColorSettingsPageState extends State<ColorSettingsPage> {
           ),
           Padding(
             padding: EdgeInsets.symmetric(vertical: 8.0),
-            child: ListTile(
+            child: MiuixListTile(
               title: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 // TODO:让图标和文字对齐

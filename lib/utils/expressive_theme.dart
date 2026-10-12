@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 
 /// Miuix-inspired Flutter styling. Keeps the existing theme preferences.
 ThemeData applyExpressiveTheme(ThemeData theme) {
-  if (!theme.useMaterial3) return theme;
-
   final dark = theme.brightness == Brightness.dark;
-  final background = dark ? const Color(0xff101010) : const Color(0xfff5f5f5);
-  final panel = dark ? const Color(0xff202020) : Colors.white;
+  final background = dark ? Colors.black : const Color(0xfff5f5f5);
+  final panel = dark ? const Color(0xff222222) : Colors.white;
   final colors = theme.colorScheme.copyWith(
     surface: background,
     onSurface: dark ? const Color(0xffeeeeee) : const Color(0xff191919),
@@ -14,15 +12,21 @@ ThemeData applyExpressiveTheme(ThemeData theme) {
     surfaceContainerLow: panel,
     surfaceContainer: panel,
     surfaceContainerHigh:
-        dark ? const Color(0xff292929) : const Color(0xffeeeeee),
+        dark ? const Color(0xff303030) : const Color(0xffeeeeee),
+    surfaceContainerHighest:
+        dark ? const Color(0xff2a2a2a) : const Color(0xffe9e9e9),
+    secondaryContainer:
+        dark ? const Color(0xff303030) : const Color(0xffeeeeee),
+    onSecondaryContainer:
+        dark ? const Color(0xffeeeeee) : const Color(0xff191919),
     outlineVariant: dark ? const Color(0xff333333) : const Color(0xffe8e8e8),
   );
-  final roundedPanel = RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(16),
+  final roundedPanel = ContinuousRectangleBorder(
+    borderRadius: BorderRadius.circular(40),
   );
   final buttonStyle = ButtonStyle(
     shape: WidgetStatePropertyAll(
-        RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
+        ContinuousRectangleBorder(borderRadius: BorderRadius.circular(32))),
     minimumSize: const WidgetStatePropertyAll(Size(48, 48)),
     padding: const WidgetStatePropertyAll(
       EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -42,13 +46,15 @@ ThemeData applyExpressiveTheme(ThemeData theme) {
       minVerticalPadding: 12,
       iconColor: colors.onSurfaceVariant,
       textColor: colors.onSurface,
-      titleTextStyle: TextStyle(
-          fontSize: 16, fontWeight: FontWeight.w500, color: colors.onSurface),
-      subtitleTextStyle:
-          TextStyle(fontSize: 13, height: 1.4, color: colors.onSurfaceVariant),
+      titleTextStyle: theme.textTheme.bodyLarge?.copyWith(
+          fontSize: 17, fontWeight: FontWeight.w400, color: colors.onSurface),
+      subtitleTextStyle: theme.textTheme.bodyMedium?.copyWith(
+          fontSize: 13, height: 1.45, color: colors.onSurfaceVariant),
     ),
     dividerTheme: DividerThemeData(
-        color: colors.outlineVariant, thickness: 0.5, space: 1),
+        color: colors.outlineVariant.withOpacity(.35),
+        thickness: 0.5,
+        space: 1),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: panel,
@@ -70,11 +76,15 @@ ThemeData applyExpressiveTheme(ThemeData theme) {
               : colors.surfaceContainerHigh),
     ),
     textTheme: theme.textTheme.copyWith(
+      bodyLarge:
+          theme.textTheme.bodyLarge?.copyWith(fontSize: 16, height: 1.45),
+      bodyMedium:
+          theme.textTheme.bodyMedium?.copyWith(fontSize: 14, height: 1.45),
       headlineSmall: theme.textTheme.headlineSmall?.copyWith(
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w400,
       ),
       titleLarge: theme.textTheme.titleLarge?.copyWith(
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w500,
       ),
     ),
     appBarTheme: theme.appBarTheme.copyWith(
@@ -92,12 +102,86 @@ ThemeData applyExpressiveTheme(ThemeData theme) {
       elevation: 0,
       shape: roundedPanel,
     ),
+    dataTableTheme: DataTableThemeData(
+      headingRowColor: WidgetStatePropertyAll(colors.surfaceContainerLow),
+      dataRowColor: WidgetStatePropertyAll(colors.surfaceContainerLow),
+      headingTextStyle: theme.textTheme.bodyMedium
+          ?.copyWith(fontSize: 13, color: colors.onSurfaceVariant),
+      dataTextStyle: theme.textTheme.bodyMedium
+          ?.copyWith(fontSize: 14, color: colors.onSurface),
+      columnSpacing: 24,
+      horizontalMargin: 20,
+      dividerThickness: .4,
+      dataRowMinHeight: 52,
+      dataRowMaxHeight: 84,
+    ),
+    popupMenuTheme: PopupMenuThemeData(
+        color: panel,
+        elevation: 3,
+        shape: roundedPanel,
+        textStyle: TextStyle(fontSize: 15, color: colors.onSurface)),
+    chipTheme: theme.chipTheme.copyWith(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      side: BorderSide.none,
+      backgroundColor: colors.surfaceContainerLow,
+      selectedColor: colors.primary.withOpacity(.14),
+      labelStyle: TextStyle(fontSize: 13, color: colors.onSurface),
+    ),
+    tabBarTheme: TabBarTheme(
+        labelColor: colors.onSurface,
+        unselectedLabelColor: colors.onSurfaceVariant,
+        indicatorSize: TabBarIndicatorSize.tab,
+        indicator: BoxDecoration(
+            color: colors.surfaceContainerHigh,
+            borderRadius: BorderRadius.circular(16)),
+        dividerColor: Colors.transparent),
     filledButtonTheme: FilledButtonThemeData(style: buttonStyle),
-    elevatedButtonTheme: ElevatedButtonThemeData(style: buttonStyle),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+        style: buttonStyle.copyWith(
+            elevation: const WidgetStatePropertyAll(0),
+            shadowColor: const WidgetStatePropertyAll(Colors.transparent))),
     outlinedButtonTheme: OutlinedButtonThemeData(style: buttonStyle),
+    textButtonTheme: TextButtonThemeData(
+        style: buttonStyle.copyWith(
+      foregroundColor: WidgetStatePropertyAll(colors.onSurface),
+    )),
+    drawerTheme: DrawerThemeData(backgroundColor: panel, shape: roundedPanel),
+    navigationDrawerTheme: NavigationDrawerThemeData(
+        backgroundColor: panel,
+        indicatorColor: colors.surfaceContainerHigh,
+        indicatorShape: const StadiumBorder()),
+    navigationRailTheme: NavigationRailThemeData(
+        backgroundColor: colors.surface,
+        indicatorColor: colors.surfaceContainerHigh,
+        selectedIconTheme: IconThemeData(color: colors.onSurface),
+        unselectedIconTheme: IconThemeData(color: colors.onSurfaceVariant)),
     dialogTheme: DialogTheme(
       backgroundColor: panel,
       shape: roundedPanel,
+      titleTextStyle: TextStyle(
+          fontSize: 22, fontWeight: FontWeight.w500, color: colors.onSurface),
+      contentTextStyle:
+          TextStyle(fontSize: 15, height: 1.5, color: colors.onSurfaceVariant),
+    ),
+    datePickerTheme: DatePickerThemeData(
+      backgroundColor: panel,
+      shape: roundedPanel,
+      headerBackgroundColor: panel,
+      headerForegroundColor: colors.onSurface,
+      headerHeadlineStyle:
+          const TextStyle(fontSize: 30, fontWeight: FontWeight.w400),
+      dividerColor: Colors.transparent,
+    ),
+    timePickerTheme: TimePickerThemeData(
+        backgroundColor: panel,
+        shape: roundedPanel,
+        dialBackgroundColor: colors.surfaceContainerHigh,
+        hourMinuteColor: colors.surfaceContainerHigh),
+    dropdownMenuTheme: DropdownMenuThemeData(
+      textStyle: TextStyle(fontSize: 15, color: colors.onSurface),
+      menuStyle: MenuStyle(
+          backgroundColor: WidgetStatePropertyAll(panel),
+          shape: WidgetStatePropertyAll(roundedPanel)),
     ),
     bottomSheetTheme: BottomSheetThemeData(
       backgroundColor: colors.surfaceContainerLow,

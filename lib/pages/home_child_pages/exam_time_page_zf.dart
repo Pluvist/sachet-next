@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'dart:convert';
 import 'dart:io';
 
@@ -316,7 +317,7 @@ class _ExamTimePageZFState extends State<ExamTimePageZF> {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: MiuixAppBar(
         title: const Text('考试时间'),
         actions: [
           Selector<SettingsProvider, bool>(
@@ -620,7 +621,7 @@ class _ExamTimeViewZF extends StatelessWidget {
   }
 
   Widget _useCachedDataCard(ColorScheme colorScheme) {
-    return Card(
+    return MiuixCard(
       elevation: 0,
       clipBehavior: Clip.hardEdge,
       color: colorScheme.surfaceContainerHigh,

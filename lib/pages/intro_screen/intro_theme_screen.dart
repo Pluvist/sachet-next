@@ -1,10 +1,10 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:provider/provider.dart';
 import 'package:sachet/pages/settings_child_pages/theme_settings_page.dart';
 import 'package:sachet/providers/theme_provider.dart';
 import 'package:sachet/widgets/utils_widgets/section_card.dart';
-import 'package:sachet/widgets/utils_widgets/switch_to_md2_confirm_dialog.dart';
 
 class IntroThemeScreen extends StatefulWidget {
   /// 引导页：选择主题模式
@@ -15,24 +15,12 @@ class IntroThemeScreen extends StatefulWidget {
 }
 
 class _IntroThemeScreenState extends State<IntroThemeScreen> {
-  /// 生成预览用的 ThemeData
-  ThemeData _buildPreviewTheme({required bool useMaterial3}) {
-    return ThemeData(
-      useMaterial3: useMaterial3,
-      brightness: Theme.of(context).brightness,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: Theme.of(context).colorScheme.primary,
-        brightness: Theme.of(context).brightness,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     var themeProvider = context.watch<ThemeProvider>();
     return CustomScrollView(
       slivers: [
-        SliverAppBar.large(
+        MiuixSliverAppBar(
           pinned: true,
           snap: false,
           floating: false,
@@ -81,7 +69,7 @@ class _IntroThemeScreenState extends State<IntroThemeScreen> {
             child: Column(
               children: [
                 // 动态取色开关
-                ListTile(
+                MiuixListTile(
                   leading: Align(
                     widthFactor: 1,
                     alignment: Alignment.centerLeft,
@@ -126,83 +114,16 @@ class _IntroThemeScreenState extends State<IntroThemeScreen> {
             ),
           ),
           SizedBox(height: 8),
-          SectionCard(
-            title: 'Material Design',
-            childPadding: EdgeInsets.symmetric(horizontal: 8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Flexible(
-                  child: _buildThemeCard(
-                    title: 'Material Design 2',
-                    previewTheme: _buildPreviewTheme(useMaterial3: false),
-                    isSelected: !themeProvider.isMD3,
-                    onTap: () {
-                      if (!Theme.of(context).useMaterial3) return;
-                      showDialog(
-                        context: context,
-                        builder: (context) => SwitchToMD2ConfirmDialog(),
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Flexible(
-                  child: _buildThemeCard(
-                    title: 'Material Design 3',
-                    previewTheme: _buildPreviewTheme(useMaterial3: true),
-                    isSelected: themeProvider.isMD3,
-                    onTap: () => context.read<ThemeProvider>().setIsMD3(true),
-                  ),
-                ),
-              ],
-            ),
+          const SectionCard(
+            title: '界面风格',
+            child: MiuixListTile(
+                leading: Icon(Icons.auto_awesome_outlined),
+                title: Text('Miuix'),
+                subtitle: Text('统一的大标题、圆角卡片与轻量交互')),
           ),
           SizedBox(height: 80),
         ]),
       ],
-    );
-  }
-
-  Widget _buildThemeCard({
-    required String title,
-    required ThemeData previewTheme,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: isSelected
-                ? Theme.of(context).colorScheme.primary
-                : Theme.of(context).colorScheme.outlineVariant,
-            width: 4,
-          ),
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Theme(
-          data: previewTheme,
-          child: Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12.0),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Column(
-                children: [
-                  Text(title, style: previewTheme.textTheme.titleMedium),
-                  const SizedBox(height: 8),
-                  ElevatedButton(onPressed: () {}, child: Icon(Icons.search)),
-                  Switch(value: true, onChanged: (_) {}),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

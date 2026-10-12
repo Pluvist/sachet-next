@@ -1,4 +1,6 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:flutter/material.dart';
+import 'package:sachet/widgets/utils_widgets/miuix_glyph.dart';
 import 'package:sachet/constants/url_constants.dart';
 import 'package:sachet/models/enums/nav_type.dart';
 import 'package:sachet/pages/home_child_pages/cultivation_plan_page/cultivation_plan_page_zf.dart';
@@ -36,7 +38,7 @@ class OpenLinkListTile {
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
-  Widget _buildFeatureCards() {
+  Widget _buildFeatureCards(BuildContext context) {
     final cards = <Widget>[
       CardWidget(
           title: '培养方案',
@@ -63,17 +65,19 @@ class HomePage extends StatelessWidget {
       const CardWidget(
           title: '校园网认证', icon: Icons.wifi, link: campusNetworkAuthUrl),
     ];
+    final columns = MediaQuery.textScalerOf(context).scale(15) > 22 ||
+            MediaQuery.sizeOf(context).width < 350
+        ? 1
+        : HomeDesign.columns;
     return Column(
       children: [
-        for (int start = 0;
-            start < cards.length;
-            start += HomeDesign.columns) ...[
+        for (int start = 0; start < cards.length; start += columns) ...[
           if (start > 0) const SizedBox(height: HomeDesign.gap),
           IntrinsicHeight(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                for (int column = 0; column < HomeDesign.columns; column++) ...[
+                for (int column = 0; column < columns; column++) ...[
                   if (column > 0) const SizedBox(width: HomeDesign.gap),
                   Expanded(
                       child: start + column < cards.length
@@ -163,26 +167,44 @@ class HomePage extends StatelessWidget {
         body: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
-            SliverAppBar(
-              toolbarHeight: HomeDesign.headingHeight,
-              title: const ConfiguredPageHeading(HomeDesign.title),
+            MiuixSliverAppBar(
+              pinned: true,
+              expandedHeight: HomeDesign.headingHeight,
+              toolbarHeight: 56,
               actions: [
                 Padding(
-                  padding: const EdgeInsets.only(right: HomeDesign.padding),
-                  child: IconButton.filledTonal(
-                    key: const ValueKey('homeProfileButton'),
-                    tooltip: '个人中心',
-                    iconSize: 28,
-                    icon: const Icon(Icons.person_outline_rounded),
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => const ProfilePage(openedFromHome: true),
-                      ),
-                    ),
-                  ),
-                ),
+                    padding: const EdgeInsets.only(right: 16),
+                    child: IconButton(
+                      key: const ValueKey('homeProfileButton'),
+                      tooltip: '个人中心',
+                      iconSize: 26,
+                      icon: const MiuixGlyph(MiuixSymbol.person),
+                      onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                              builder: (_) =>
+                                  const ProfilePage(openedFromHome: true))),
+                    )),
               ],
-              // floating: true, // 上滑隐藏，下滑立即出现
+              flexibleSpace: LayoutBuilder(builder: (context, constraints) {
+                final top = MediaQuery.paddingOf(context).top;
+                final progress = ((constraints.maxHeight - top - 56) /
+                        (HomeDesign.headingHeight - 56))
+                    .clamp(0.0, 1.0);
+                return SafeArea(
+                    bottom: false,
+                    child: Align(
+                        alignment: Alignment.bottomLeft,
+                        child: Padding(
+                          padding:
+                              EdgeInsets.fromLTRB(26, 0, 72, 14 + progress * 4),
+                          child: MediaQuery.withClampedTextScaling(
+                              maxScaleFactor: 1.4,
+                              child: PageHeading(HomeDesign.title,
+                                  fontSize: 20 +
+                                      progress *
+                                          (HomeDesign.headingSize - 20))),
+                        )));
+              }),
             ),
             SliverToBoxAdapter(
               child: Padding(
@@ -193,12 +215,12 @@ class HomePage extends StatelessWidget {
                   children: [
                     const HomeCourseStatusCard(),
                     const SizedBox(height: 10),
-                    Card(
+                    MiuixCard(
                       key: const ValueKey('homeHeroCard'),
                       elevation: 0,
                       shadowColor: primaryColor.withOpacity(0.4),
                       clipBehavior: Clip.hardEdge,
-                      color: primaryColor,
+                      color: colorScheme.surfaceContainerLow,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
@@ -227,7 +249,7 @@ class HomePage extends StatelessWidget {
                                         style: TextStyle(
                                           fontSize: HomeDesign.heroSize,
                                           fontWeight: FontWeight.bold,
-                                          color: colorScheme.onPrimary,
+                                          color: colorScheme.onSurface,
                                         ),
                                       ),
                                       SizedBox(height: 4),
@@ -235,7 +257,7 @@ class HomePage extends StatelessWidget {
                                         '快速查询自习室',
                                         style: TextStyle(
                                           fontSize: 12,
-                                          color: colorScheme.onPrimary,
+                                          color: colorScheme.onSurface,
                                         ),
                                       ),
                                     ],
@@ -245,7 +267,7 @@ class HomePage extends StatelessWidget {
                                 Icon(
                                   Icons.meeting_room_rounded,
                                   size: 44,
-                                  color: colorScheme.onPrimary,
+                                  color: colorScheme.onSurface,
                                 ),
                               ],
                             ),
@@ -256,34 +278,16 @@ class HomePage extends StatelessWidget {
                     const SizedBox(height: 10),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: _buildFeatureCards(),
+                      child: _buildFeatureCards(context),
                     ),
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(4.0, 24.0, 4.0, 12.0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Container(
-                            width: 4,
-                            height: 16,
-                            decoration: BoxDecoration(
-                              color: primaryColor,
-                              borderRadius: BorderRadius.circular(2),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          const Text(
-                            '打开外部网站',
+                        padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+                        child: Text('打开外部网站',
                             style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                                fontSize: 13,
+                                color: colorScheme.onSurfaceVariant))),
                     SizedBox(height: 6),
-                    Card(
+                    MiuixCard(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
@@ -293,7 +297,7 @@ class HomePage extends StatelessWidget {
                             List.generate(openLinkListTileList.length, (index) {
                           return Column(
                             children: [
-                              ListTile(
+                              MiuixListTile(
                                 contentPadding: const EdgeInsets.symmetric(
                                   horizontal: 20,
                                   vertical: 4,

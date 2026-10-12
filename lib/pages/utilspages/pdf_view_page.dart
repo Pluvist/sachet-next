@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
@@ -117,7 +118,8 @@ class _PdfViewPageState extends State<PdfViewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: MiuixAppBar(
+        compact: true,
         title: Text(widget.fileName),
         actions: [
           IconButton(

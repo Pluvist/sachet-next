@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:flutter/material.dart';
 import 'package:sachet/utils/transform.dart';
 
@@ -71,7 +72,7 @@ class CourseDetailsBottomSheet extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      ListTile(
+                      MiuixListTile(
                         contentPadding:
                             const EdgeInsets.symmetric(horizontal: 24.0),
                         leading: Icon(
@@ -84,7 +85,7 @@ class CourseDetailsBottomSheet extends StatelessWidget {
                             style: textTheme.bodyLarge),
                         visualDensity: VisualDensity.compact,
                       ),
-                      ListTile(
+                      MiuixListTile(
                         contentPadding:
                             const EdgeInsets.symmetric(horizontal: 24.0),
                         leading: Icon(
@@ -97,7 +98,7 @@ class CourseDetailsBottomSheet extends StatelessWidget {
                             style: textTheme.bodyLarge),
                         visualDensity: VisualDensity.compact,
                       ),
-                      ListTile(
+                      MiuixListTile(
                         contentPadding:
                             const EdgeInsets.symmetric(horizontal: 24.0),
                         leading: Icon(

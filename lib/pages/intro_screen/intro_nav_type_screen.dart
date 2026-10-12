@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sachet/models/enums/nav_type.dart';
@@ -28,7 +29,7 @@ class _IntroNavTypeScreenState extends State<IntroNavTypeScreen> {
         (settngsProvider) => SettingsProvider.navigationType);
     return CustomScrollView(
       slivers: [
-        SliverAppBar.large(
+        MiuixSliverAppBar(
           pinned: true,
           snap: false,
           floating: false,
@@ -114,9 +115,9 @@ class _IntroNavTypeScreenState extends State<IntroNavTypeScreen> {
               color: isSelected
                   ? Theme.of(context).colorScheme.primary
                   : Theme.of(context).colorScheme.outlineVariant,
-              width: 3,
+              width: 1.5,
             ),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(24),
           ),
           child: Column(
             children: [
@@ -168,7 +169,7 @@ class _IntroNavTypeScreenState extends State<IntroNavTypeScreen> {
               _buildNavDrawerItem(
                   icon: Icons.calendar_month, label: '课程表', isSelected: true),
               _buildNavDrawerItem(
-                  icon: Icons.apps_outlined, label: 'Home', isSelected: false),
+                  icon: Icons.apps_outlined, label: '主页', isSelected: false),
               _buildNavDrawerItem(
                   icon: Icons.settings_outlined,
                   label: '设置',
@@ -250,23 +251,38 @@ class _IntroNavTypeScreenState extends State<IntroNavTypeScreen> {
           ),
         ),
 
-        // 分割线
-        Divider(height: 1.0),
-
-        // 底部导航栏区域
-        Container(
-          height: 40,
-          color: theme.colorScheme.surface,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Icon(Icons.calendar_month,
-                  size: 18, color: theme.colorScheme.primary),
-              Icon(Icons.apps_outlined, size: 18, color: Colors.grey),
-              Icon(Icons.person, size: 18, color: Colors.grey),
-            ],
-          ),
-        ),
+        Padding(
+            padding: const EdgeInsets.all(8),
+            child: Container(
+                padding: const EdgeInsets.all(5),
+                decoration: ShapeDecoration(
+                    shape: StadiumBorder(
+                        side: BorderSide(
+                            color: theme.colorScheme.outlineVariant,
+                            width: .5)),
+                    color: theme.colorScheme.surfaceContainerLow),
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.apps_outlined, size: 20),
+                                Text('主页', style: TextStyle(fontSize: 10))
+                              ])),
+                      Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: ShapeDecoration(
+                              shape: StadiumBorder(),
+                              color: theme.colorScheme.surfaceContainerHigh),
+                          child:
+                              Column(mainAxisSize: MainAxisSize.min, children: [
+                            Icon(Icons.calendar_month_outlined, size: 20),
+                            Text('课程表', style: TextStyle(fontSize: 10))
+                          ])),
+                    ]))),
       ],
     );
   }

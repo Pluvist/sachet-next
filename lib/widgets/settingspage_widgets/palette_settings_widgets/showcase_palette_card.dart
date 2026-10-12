@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as path;
 
@@ -13,7 +14,7 @@ class ShowcasePaletteCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return MiuixCard(
       margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       elevation: 2.0,
       child: Padding(

@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sachet/constants/url_constants.dart';
@@ -210,14 +211,14 @@ class _ZhengFangJwxtLoginPageViewState
     final TextTheme textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('登录')),
+      appBar: MiuixAppBar(title: const Text('登录')),
       body: Form(
         key: _loginFormKey,
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              MaterialBanner(
+              MiuixBanner(
                 forceActionsBelow: true,
                 content: Text('若您是使用初始密码首次登录，请先在浏览器登录教务系统后设置新密码'),
                 backgroundColor: colorScheme.primaryContainer,
@@ -226,7 +227,6 @@ class _ZhengFangJwxtLoginPageViewState
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      textStyle: TextStyle(fontSize: 12),
                     ),
                     child: Text('在浏览器打开教务系统'),
                     onPressed: () {
@@ -329,67 +329,30 @@ class _ZhengFangJwxtLoginPageViewState
                     }),
               ),
 
-              // 手动登录
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 0.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ZhengFangManualLoginPage(
-                              initialUrl: newJwxtBaseUrl,
-                            ),
-                          ),
-                        );
-                      },
-                      child: const Text('手动登录'),
-                    ),
-                  ],
-                ),
-              ),
-
-              // 从信息门户登录
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ZhengFangManualLoginPage(
-                              initialUrl: xinXiMenHuBaseUrl,
-                            ),
-                          ),
-                        );
-                      },
-                      child: const Text('从信息门户登录'),
-                    ),
-                  ],
-                ),
-              ),
-              // 使用 Cookie 登录
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton.icon(
-                      onPressed: () async {
-                        await _loginUseCookie(context);
-                      },
-                      label: const Text('使用 Cookie 登录'),
-                      icon: const Icon(Icons.cookie),
-                    )
-                  ],
-                ),
-              )
+              MiuixCard(
+                  margin: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                  child: Column(children: [
+                    MiuixListTile(
+                        leading: const Icon(Icons.open_in_browser),
+                        title: const Text('手动登录'),
+                        onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => ZhengFangManualLoginPage(
+                                    initialUrl: newJwxtBaseUrl)))),
+                    MiuixListTile(
+                        leading: const Icon(Icons.account_balance_outlined),
+                        title: const Text('从信息门户登录'),
+                        onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => ZhengFangManualLoginPage(
+                                    initialUrl: xinXiMenHuBaseUrl)))),
+                    MiuixListTile(
+                        leading: const Icon(Icons.cookie_outlined),
+                        title: const Text('使用 Cookie 登录'),
+                        onTap: () => _loginUseCookie(context)),
+                  ])),
             ],
           ),
         ),

@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -141,7 +142,7 @@ class _ReserveTextbookPageZFState extends State<ReserveTextbookPageZF> {
   }
 
   Widget _buildAppBar(BuildContext context) {
-    return SliverAppBar(
+    return MiuixSliverAppBar(
       title: const Text('教材预订'),
       actions: [
         IconButton(

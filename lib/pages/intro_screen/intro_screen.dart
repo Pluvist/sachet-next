@@ -68,25 +68,8 @@ class _IntroScreenState extends State<IntroScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: _currentPageIndex == 0
-            ? BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.centerRight,
-                  colors: Theme.of(context).brightness == Brightness.light
-                      ? [
-                          Color(0xFFA5D6A7).withAlpha(180),
-                          Color(0xFFA5D6A7).withAlpha(160),
-                          Color(0xFFA5D6A7).withAlpha(140),
-                        ]
-                      : [
-                          Color(0xff445844).withAlpha(120),
-                          Color(0xff445844).withAlpha(100),
-                          Color(0xff445844).withAlpha(80),
-                        ],
-                ),
-              )
-            : BoxDecoration(color: Theme.of(context).scaffoldBackgroundColor),
+        decoration:
+            BoxDecoration(color: Theme.of(context).scaffoldBackgroundColor),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

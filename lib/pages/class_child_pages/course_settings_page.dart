@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sachet/providers/settings_provider.dart';
@@ -13,15 +14,15 @@ class CourseSettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('课表设置')),
+      appBar: MiuixAppBar(title: Text('课表设置')),
       body: ListView(
         children: [
-          const ListTile(
+          const MiuixListTile(
             leading: Icon(Icons.schedule_outlined),
             title: Text('时间栏'),
             subtitle: Text('始终显示：左侧普通作息、右侧错峰作息'),
           ),
-          const ListTile(
+          const MiuixListTile(
               title: Text('错峰作息'),
               subtitle:
                   Text('逸夫楼、信息科技大楼第 1–8 节晚 10 分钟；点击课程可纠正作息。午休与晚间休息压缩显示。')),
@@ -33,7 +34,7 @@ class CourseSettingsPage extends StatelessWidget {
               style: TextStyle(color: Theme.of(context).colorScheme.primary),
             ),
           ),
-          ListTile(
+          MiuixListTile(
             leading: const Align(
                 widthFactor: 1,
                 alignment: Alignment.centerLeft,
@@ -58,7 +59,7 @@ class CourseSettingsPage extends StatelessWidget {
             ),
           ),
           // 课表外观
-          ListTile(
+          MiuixListTile(
             leading: const Align(
               widthFactor: 1,
               alignment: Alignment.centerLeft,
@@ -79,7 +80,7 @@ class CourseSettingsPage extends StatelessWidget {
             },
           ),
           // 配色管理
-          ListTile(
+          MiuixListTile(
             leading: const Align(
               widthFactor: 1,
               alignment: Alignment.centerLeft,
@@ -100,7 +101,7 @@ class CourseSettingsPage extends StatelessWidget {
             },
           ),
           // 配色管理
-          ListTile(
+          MiuixListTile(
             leading: const Align(
               widthFactor: 1,
               alignment: Alignment.centerLeft,

@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -19,7 +20,7 @@ class GPAPageZF extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => GPAPageZFProvider(),
       child: Scaffold(
-        appBar: AppBar(title: const Text('绩点排名')),
+        appBar: MiuixAppBar(title: const Text('绩点排名')),
         body: Selector<GPAPageZFProvider, bool>(
             selector: (_, provider) => provider.isSelectingSemester,
             builder: (context, isSelectingSemester, __) {

@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:sachet/widgets/utils_widgets/miuix_press.dart';
 import 'package:flutter/material.dart';
 import 'package:sachet/utils/utils_functions.dart';
@@ -16,7 +17,7 @@ class CardLinkWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MiuixPress(
-        child: Card(
+        child: MiuixCard(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),

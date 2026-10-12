@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:flutter/material.dart';
 import 'package:sachet/utils/storage/path_provider_utils.dart';
 import 'package:path/path.dart' as path;
@@ -134,7 +135,7 @@ class _ViewCachedDataPageState extends State<ViewCachedDataPage> {
         }
       },
       child: Scaffold(
-        appBar: AppBar(
+        appBar: MiuixAppBar(
           title: Text(changed
               ? '* ${path.basename(widget.filePath)}'
               : path.basename(widget.filePath)),

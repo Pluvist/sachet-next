@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:sachet/pages/settings_child_pages/palette_adjust_page.dart';
@@ -24,7 +25,7 @@ class PaletteCard extends StatelessWidget {
       }
     }
 
-    return Card(
+    return MiuixCard(
       margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       elevation: 2.0,
       child: Padding(

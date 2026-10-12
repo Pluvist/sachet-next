@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -30,7 +31,7 @@ class GradePageZF extends StatelessWidget {
             builder: (context, isSelectingSemester, __) {
               return CustomScrollView(
                 slivers: [
-                  SliverAppBar(
+                  MiuixSliverAppBar(
                     title: const Text('成绩查询'),
                     floating: false,
                     pinned: false,

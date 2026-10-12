@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:sachet/constants/app_constants.dart';
@@ -18,7 +19,7 @@ class _IntroWelcomeScreenState extends State<IntroWelcomeScreen> {
       child: Padding(
         padding: EdgeInsets.fromLTRB(
             16.0,
-            AppBar().preferredSize.height +
+            MiuixAppBar().preferredSize.height +
                 MediaQuery.of(context).viewPadding.top,
             16.0,
             0.0),

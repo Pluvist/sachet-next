@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:sachet/widgets/settingspage_widgets/miuix_settings_list.dart';
 import 'dart:io';
 
@@ -51,7 +52,7 @@ class _OtherMiscDataListviewPageState extends State<OtherMiscDataListviewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: MiuixAppBar(
         title: const Text("其他数据查看"),
       ),
       body: MiuixSettingsList(
@@ -80,7 +81,7 @@ class _OtherMiscDataListviewPageState extends State<OtherMiscDataListviewPage> {
           ),
           ...List.generate(
             filesPathList.length,
-            (index) => ListTile(
+            (index) => MiuixListTile(
               title: Text(path.basename(filesPathList[index].path)),
               subtitle: Text('${filesPathList[index].path}'
                   '\n'

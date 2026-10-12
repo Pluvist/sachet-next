@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:sachet/widgets/settingspage_widgets/miuix_settings_list.dart';
 import 'package:flutter/material.dart';
 import 'package:sachet/models/enums/nav_type.dart';
@@ -63,7 +64,7 @@ class _SettingsPageState extends State<SettingsPage> {
         }
       },
       child: Scaffold(
-        appBar: AppBar(
+        appBar: MiuixAppBar(
           title: const Text('设置'),
           leading: IconButton(
               onPressed: () {
@@ -86,6 +87,7 @@ class _SettingsPageState extends State<SettingsPage> {
               icon: Icon(Icons.arrow_back_outlined)),
         ),
         body: MiuixSettingsList(
+          searchable: true,
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(16.0, 12.0, 16.0, 8.0),
@@ -110,7 +112,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
 
             // 主题设置
-            ListTile(
+            MiuixListTile(
               leading: const Align(
                 widthFactor: 1,
                 alignment: Alignment.centerLeft,
@@ -128,7 +130,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
 
             // 外观设置
-            ListTile(
+            MiuixListTile(
               leading: const Align(
                 widthFactor: 1,
                 alignment: Alignment.centerLeft,
@@ -147,7 +149,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
 
             // 启动页设置
-            const ListTile(
+            const MiuixListTile(
               leading: Align(
                 widthFactor: 1,
                 alignment: Alignment.centerLeft,
@@ -161,7 +163,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
 
             // 应用导航方式设置
-            ListTile(
+            MiuixListTile(
               leading: Align(
                 widthFactor: 1,
                 alignment: Alignment.centerLeft,
@@ -177,7 +179,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
 
             // 高级设置
-            ListTile(
+            MiuixListTile(
               leading: const Align(
                 widthFactor: 1,
                 alignment: Alignment.centerLeft,
@@ -195,7 +197,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
 
             // 实验性功能 Experimental features
-            ListTile(
+            MiuixListTile(
               leading: const Align(
                 widthFactor: 1,
                 alignment: Alignment.centerLeft,
@@ -239,7 +241,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     settingsProvider.isEnableDevMode,
                 builder: (_, isEnableDevMode, __) {
                   if (isEnableDevMode) {
-                    return ListTile(
+                    return MiuixListTile(
                       leading: const Align(
                         widthFactor: 1,
                         alignment: Alignment.centerLeft,
@@ -265,7 +267,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   /// 已登录卡片
   Widget _buildLoggedInCard(ColorScheme colorScheme, TextTheme textTheme) {
-    return Card(
+    return MiuixCard(
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24),
@@ -352,7 +354,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   /// 未登录卡片
   Widget _buildLoggedOutCard(ColorScheme colorScheme, TextTheme textTheme) {
-    return Card(
+    return MiuixCard(
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(24),

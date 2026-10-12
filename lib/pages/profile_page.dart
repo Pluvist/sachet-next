@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:sachet/widgets/settingspage_widgets/miuix_settings_list.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -33,7 +34,7 @@ class _ProfilePageState extends State<ProfilePage> {
         context.read<ScreenNavProvider>().setCurrentPageToStartupPage();
       },
       child: Scaffold(
-        appBar: AppBar(
+        appBar: MiuixAppBar(
           leading: widget.openedFromHome ? const BackButton() : null,
           toolbarHeight: HomeDesign.headingHeight,
           title: const ConfiguredPageHeading('我'),
@@ -53,7 +54,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 id: zhengFangUserProvider.user.studentID ?? '点击登录'
               ),
               builder: (_, data, __) {
-                return ListTile(
+                return MiuixListTile(
                   leading: Align(
                     widthFactor: 1,
                     alignment: Alignment.centerLeft,
@@ -90,7 +91,7 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
 
             Divider(indent: 16, endIndent: 16),
-            ListTile(
+            MiuixListTile(
               leading: const Icon(Icons.widgets_outlined),
               title: const Text('桌面课程小组件'),
               subtitle: const Text('在桌面显示当前或下一节课程'),
@@ -105,7 +106,7 @@ class _ProfilePageState extends State<ProfilePage> {
               },
             ),
 
-            ListTile(
+            MiuixListTile(
               title: Text('设置'),
               subtitle: Text('主题、课表外观与偏好'),
               trailing: Icon(Icons.chevron_right_rounded),
@@ -117,7 +118,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
             ),
-            ListTile(
+            MiuixListTile(
               title: Text('关于'),
               subtitle: Text('版本与应用信息'),
               trailing: Icon(Icons.chevron_right_rounded),

@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:flutter/material.dart';
 
 class CheckListTile extends StatelessWidget {
@@ -18,7 +19,7 @@ class CheckListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
+    return MiuixListTile(
       title: Text(title),
       trailing: value
           ? Icon(Icons.done, color: Colors.green)

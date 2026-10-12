@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:flutter/material.dart';
 import 'package:sachet/models/nav_destination.dart';
 import 'package:sachet/providers/screen_nav_provider.dart';
@@ -43,7 +44,7 @@ class _NavDrawerMD2State extends State<NavDrawerMD2> {
       children: [
         ...navDrawerDestinations.map(
           (NavDestination destination) {
-            return ListTile(
+            return MiuixListTile(
               title: Text(destination.label),
               leading: destination.selectedIcon,
               selected: ScreenNavProvider.currentPage == destination.routeName,

@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -27,7 +28,7 @@ class ScorePdfPageZF extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => ScorePdfPageZFProvider(),
       child: Scaffold(
-        appBar: AppBar(title: const Text('成绩单')),
+        appBar: MiuixAppBar(title: const Text('成绩单')),
         body: _QueryView(),
       ),
     );

@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -155,11 +156,11 @@ class _HomeCourseStatusCardState extends State<HomeCourseStatusCard>
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-                fontSize: size, fontWeight: weight, color: colors.onPrimary)));
-    return Card(
+                fontSize: size, fontWeight: weight, color: colors.onSurface)));
+    return MiuixCard(
       key: const ValueKey('homeCourseStatusCard'),
       elevation: 0,
-      color: colors.primary,
+      color: colors.surfaceContainerLow,
       clipBehavior: Clip.hardEdge,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: ConstrainedBox(
@@ -175,8 +176,8 @@ class _HomeCourseStatusCardState extends State<HomeCourseStatusCard>
                 child: CourseStatusIcon(
                   key: const ValueKey('courseStatusCompletedIcon'),
                   completed: true,
-                  color: Color.alphaBlend(
-                      colors.onPrimary.withOpacity(0.22), colors.primary),
+                  color: Color.alphaBlend(colors.onSurface.withOpacity(0.22),
+                      colors.surfaceContainerLow),
                 ),
               ),
             Padding(
@@ -215,7 +216,7 @@ class _HomeCourseStatusCardState extends State<HomeCourseStatusCard>
                     child: CourseStatusIcon(
                         key: const ValueKey('courseStatusGoingIcon'),
                         completed: false,
-                        color: colors.onPrimary),
+                        color: colors.onSurface),
                   ),
                 ],
               ]),

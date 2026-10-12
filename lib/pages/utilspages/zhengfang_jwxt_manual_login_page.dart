@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sachet/constants/url_constants.dart';
@@ -133,10 +134,10 @@ class _ZhengFangManualLoginPageState extends State<ZhengFangManualLoginPage> {
     /// 是否是信息门户网页
     bool isXinXiMenHu = widget.initialUrl == xinXiMenHuBaseUrl;
     return Scaffold(
-      appBar: AppBar(title: const Text('手动登录')),
+      appBar: MiuixAppBar(compact: true, title: const Text('手动登录')),
       body: Column(
         children: [
-          MaterialBanner(
+          MiuixBanner(
             forceActionsBelow: true,
             content: isXinXiMenHu
                 ? Text('1. 完成登录\n'

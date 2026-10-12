@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:flutter/material.dart';
 import 'package:sachet/models/enums/nav_type.dart';
 import 'package:sachet/pages/utilspages/zhengfang_jwxt_login_page.dart';
@@ -19,7 +20,7 @@ class _IntroCompleteScreenState extends State<IntroCompleteScreen> {
       body: Padding(
         padding: EdgeInsets.fromLTRB(
           16.0,
-          AppBar().preferredSize.height +
+          MiuixAppBar().preferredSize.height +
               MediaQuery.of(context).viewPadding.top,
           16.0,
           0.0,

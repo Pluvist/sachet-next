@@ -179,7 +179,7 @@ class MyApp extends StatelessWidget {
     return applyExpressiveTheme(ThemeData(
       colorSchemeSeed: themeProvider.themeColor,
       brightness: brightness,
-      useMaterial3: themeProvider.isMD3,
+      useMaterial3: true,
       pageTransitionsTheme: PageTransitionsTheme(
         builders: <TargetPlatform, PageTransitionsBuilder>{
           TargetPlatform.android: themeProvider.transitionBuilder,
@@ -199,7 +199,7 @@ class MyApp extends StatelessWidget {
   }) {
     return applyExpressiveTheme(ThemeData(
       colorScheme: colorScheme,
-      useMaterial3: themeProvider.isMD3,
+      useMaterial3: true,
       pageTransitionsTheme: PageTransitionsTheme(
         builders: <TargetPlatform, PageTransitionsBuilder>{
           TargetPlatform.android: themeProvider.transitionBuilder,

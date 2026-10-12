@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:sachet/widgets/settingspage_widgets/miuix_settings_list.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -45,7 +46,7 @@ class _AdvancedSettingsPageState extends State<AdvancedSettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: MiuixAppBar(
         title: const Text("高级设置"),
       ),
       body: MiuixSettingsList(
@@ -61,7 +62,7 @@ class _AdvancedSettingsPageState extends State<AdvancedSettingsPage> {
           Selector<SettingsProvider, String>(
               selector: (_, settingsProvider) => settingsProvider.curveType,
               builder: (_, curveType, __) {
-                return ListTile(
+                return MiuixListTile(
                   leading: const Align(
                     widthFactor: 1,
                     alignment: Alignment.centerLeft,
@@ -80,7 +81,7 @@ class _AdvancedSettingsPageState extends State<AdvancedSettingsPage> {
           Selector<SettingsProvider, int>(
               selector: (_, settingsProvider) => settingsProvider.curveDuration,
               builder: (_, curveDuration, __) {
-                return ListTile(
+                return MiuixListTile(
                   leading: const Align(
                     widthFactor: 1,
                     alignment: Alignment.centerLeft,
@@ -107,7 +108,7 @@ class _AdvancedSettingsPageState extends State<AdvancedSettingsPage> {
               selector: (_, settingsProvider) =>
                   settingsProvider.isShowPageTurnArrow,
               builder: (_, isShowPageTurnArrow, __) {
-                return ListTile(
+                return MiuixListTile(
                   leading: Align(
                     widthFactor: 1,
                     alignment: Alignment.centerLeft,
@@ -131,7 +132,7 @@ class _AdvancedSettingsPageState extends State<AdvancedSettingsPage> {
               selector: (_, settingsProvider) =>
                   settingsProvider.freeClassroomSections,
               builder: (_, sections, __) {
-                return ListTile(
+                return MiuixListTile(
                   leading: const Align(
                     widthFactor: 1,
                     alignment: Alignment.centerLeft,
@@ -160,7 +161,7 @@ class _AdvancedSettingsPageState extends State<AdvancedSettingsPage> {
                 selector: (_, settingsProvider) =>
                     SettingsProvider.isOpenLinkInExternalBrowser,
                 builder: (_, isOpenLinkInExternalBrowser, __) {
-                  return ListTile(
+                  return MiuixListTile(
                     leading: Align(
                       widthFactor: 1,
                       alignment: Alignment.centerLeft,
@@ -187,7 +188,7 @@ class _AdvancedSettingsPageState extends State<AdvancedSettingsPage> {
                 selector: (_, settingsProvider) =>
                     SettingsProvider.isOpenLinkInExternalBrowser,
                 builder: (_, isOpenLinkInExternalBrowser, __) {
-                  return ListTile(
+                  return MiuixListTile(
                     leading: Align(
                       widthFactor: 1,
                       alignment: Alignment.centerLeft,
@@ -211,7 +212,7 @@ class _AdvancedSettingsPageState extends State<AdvancedSettingsPage> {
                 }),
 
           // 删除缓存数据
-          ListTile(
+          MiuixListTile(
             leading: Align(
               widthFactor: 1,
               alignment: Alignment.centerLeft,

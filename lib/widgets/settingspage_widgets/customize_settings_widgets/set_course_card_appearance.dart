@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sachet/providers/course_card_settings_provider.dart';
@@ -28,7 +29,7 @@ class _SetCourseCardAppearanceState extends State<SetCourseCardAppearance> {
   Widget build(BuildContext context) {
     final courseCardSettings = context.watch<CourseCardSettingsProvider>();
 
-    return ListTile(
+    return MiuixListTile(
       leading: Align(
         widthFactor: 1,
         alignment: Alignment.centerLeft,
@@ -226,7 +227,7 @@ class _SetCourseCardAppearanceDialogState
               child: SizedBox(
                 height: 48,
                 width: 48,
-                child: Card(
+                child: MiuixCard(
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(100),
                   ),

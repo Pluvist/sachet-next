@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:provider/provider.dart';
@@ -420,7 +421,8 @@ class _ClassPageAppBarState extends State<ClassPageAppBar> {
         ],
       ),
     ];
-    return AppBar(
+    return MiuixAppBar(
+      compact: true,
       titleSpacing: 12.0,
       title: title,
       actions: actions,

@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:sachet/widgets/settingspage_widgets/miuix_settings_list.dart';
 import 'package:flutter/material.dart';
 import 'package:sachet/providers/course_card_settings_provider.dart';
@@ -13,7 +14,7 @@ class CustomizeSettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: MiuixAppBar(
         title: const Text("课表外观"),
         // actions: [
         //   IconButton(
@@ -39,7 +40,7 @@ class CustomizeSettingsPage extends StatelessWidget {
               selector: (_, courseCardSettingsProvider) =>
                   courseCardSettingsProvider.cardHeight,
               builder: (context, cardHeight, __) {
-                return ListTile(
+                return MiuixListTile(
                   leading: const Align(
                     widthFactor: 1,
                     alignment: Alignment.centerLeft,
@@ -69,7 +70,7 @@ class CustomizeSettingsPage extends StatelessWidget {
               selector: (_, courseCardSettingsProvider) =>
                   courseCardSettingsProvider.cardBorderRadius,
               builder: (context, cardBorderRadius, __) {
-                return ListTile(
+                return MiuixListTile(
                   leading: const Align(
                     widthFactor: 1,
                     alignment: Alignment.centerLeft,
@@ -98,7 +99,7 @@ class CustomizeSettingsPage extends StatelessWidget {
               selector: (_, courseCardSettingsProvider) =>
                   courseCardSettingsProvider.cardMargin,
               builder: (context, cardMargin, __) {
-                return ListTile(
+                return MiuixListTile(
                   leading: const Align(
                     widthFactor: 1,
                     alignment: Alignment.centerLeft,

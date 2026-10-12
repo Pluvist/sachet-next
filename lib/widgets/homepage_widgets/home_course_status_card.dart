@@ -158,11 +158,12 @@ class _HomeCourseStatusCardState extends State<HomeCourseStatusCard>
             style: TextStyle(
                 fontSize: size, fontWeight: weight, color: colors.onSurface)));
     return MiuixCard(
+      margin: EdgeInsets.zero,
       key: const ValueKey('homeCourseStatusCard'),
       elevation: 0,
       color: colors.surfaceContainerLow,
       clipBehavior: Clip.hardEdge,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       child: ConstrainedBox(
         constraints: const BoxConstraints(minHeight: HomeDesign.heroHeight),
         child: Stack(

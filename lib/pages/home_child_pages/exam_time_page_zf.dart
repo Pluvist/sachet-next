@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_select.dart';
 import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'dart:convert';
 import 'dart:io';
@@ -444,8 +445,8 @@ class _ExamTimePageZFState extends State<ExamTimePageZF> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Theme.of(context).useMaterial3
-                            ? FilledButton.icon(
-                                style: FilledButton.styleFrom(
+                            ? MiuixButton.icon(
+                                style: MiuixButton.styleFrom(
                                   padding: EdgeInsets.symmetric(
                                     horizontal: 24,
                                     vertical: 12,
@@ -459,8 +460,8 @@ class _ExamTimePageZFState extends State<ExamTimePageZF> {
                                 ),
                                 label: const Text('重试'),
                               )
-                            : ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
+                            : MiuixButton.icon(
+                                style: MiuixButton.styleFrom(
                                   padding: EdgeInsets.symmetric(
                                     horizontal: 24,
                                     vertical: 12,
@@ -682,8 +683,8 @@ class _ExamTimeViewZF extends StatelessWidget {
                   label: Text('查看所有缓存数据', style: TextStyle(fontSize: 10)),
                 ),
                 SizedBox(width: 4.0),
-                FilledButton.icon(
-                  style: FilledButton.styleFrom(
+                MiuixButton.icon(
+                  style: MiuixButton.styleFrom(
                     padding: EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 8,

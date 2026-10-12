@@ -1,3 +1,5 @@
+import 'package:sachet/widgets/utils_widgets/miuix_popup.dart';
+import 'package:sachet/widgets/utils_widgets/miuix_glyph.dart';
 import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -293,12 +295,12 @@ class _ClassPageAppBarState extends State<ClassPageAppBar> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             IconButton(
-                              icon: const Icon(Icons.skip_previous_outlined),
+                              icon: const MiuixGlyph(MiuixSymbol.previous),
                               tooltip: '上一周',
                               onPressed: () => navToLastWeek(context),
                             ),
                             IconButton(
-                              icon: const Icon(Icons.skip_next_outlined),
+                              icon: const MiuixGlyph(MiuixSymbol.next),
                               tooltip: '下一周',
                               onPressed: () => navToNextWeek(context),
                             ),
@@ -309,12 +311,12 @@ class _ClassPageAppBarState extends State<ClassPageAppBar> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             IconButton(
-                              icon: const Icon(Icons.skip_previous_outlined),
+                              icon: const MiuixGlyph(MiuixSymbol.previous),
                               tooltip: '上个月',
                               onPressed: () => navToLastMonth(context),
                             ),
                             IconButton(
-                              icon: const Icon(Icons.skip_next_outlined),
+                              icon: const MiuixGlyph(MiuixSymbol.next),
                               tooltip: '下个月',
                               onPressed: () => navToNextMonth(context),
                             ),
@@ -336,13 +338,13 @@ class _ClassPageAppBarState extends State<ClassPageAppBar> {
             switch (currentViewMode) {
               case ClassScheduleViewMode.week:
                 return IconButton(
-                  icon: const Icon(Icons.today),
+                  icon: const MiuixGlyph(MiuixSymbol.calendar),
                   tooltip: '回到本周',
                   onPressed: () => navToThisWeek(context),
                 );
               case ClassScheduleViewMode.month:
                 return IconButton(
-                  icon: const Icon(Icons.today),
+                  icon: const MiuixGlyph(MiuixSymbol.calendar),
                   tooltip: '回到本月',
                   onPressed: () => navToThisMonth(context),
                 );
@@ -351,7 +353,7 @@ class _ClassPageAppBarState extends State<ClassPageAppBar> {
             }
           }),
 
-      PopupMenuButton(
+      MiuixPopup(
         tooltip: '更多操作',
         itemBuilder: (context) => [
           // 更新课表
@@ -360,7 +362,8 @@ class _ClassPageAppBarState extends State<ClassPageAppBar> {
               await showUpdateClassScheduleDialog(context);
             },
             child: Row(children: [
-              Icon(Icons.refresh, color: colorScheme.onSurfaceVariant),
+              MiuixGlyph(MiuixSymbol.refresh,
+                  color: colorScheme.onSurfaceVariant),
               const SizedBox(width: 8),
               const Text('更新课表')
             ]),
@@ -371,8 +374,7 @@ class _ClassPageAppBarState extends State<ClassPageAppBar> {
               await switchClassSchedules(context);
             },
             child: Row(children: [
-              Icon(Icons.swap_horiz_outlined,
-                  color: colorScheme.onSurfaceVariant),
+              MiuixGlyph(MiuixSymbol.swap, color: colorScheme.onSurfaceVariant),
               const SizedBox(width: 8),
               const Text('切换课表'),
             ]),
@@ -386,7 +388,8 @@ class _ClassPageAppBarState extends State<ClassPageAppBar> {
               );
             },
             child: Row(children: [
-              Icon(Icons.share_outlined, color: colorScheme.onSurfaceVariant),
+              MiuixGlyph(MiuixSymbol.share,
+                  color: colorScheme.onSurfaceVariant),
               const SizedBox(width: 8),
               const Text('导出课表')
             ]),
@@ -413,7 +416,7 @@ class _ClassPageAppBarState extends State<ClassPageAppBar> {
               }
             },
             child: Row(children: [
-              Icon(Icons.tune_outlined, color: colorScheme.onSurfaceVariant),
+              MiuixGlyph(MiuixSymbol.tune, color: colorScheme.onSurfaceVariant),
               const SizedBox(width: 8),
               const Text('课表设置')
             ]),
@@ -447,114 +450,49 @@ class ViewModeToggle extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final screenWidth = MediaQuery.sizeOf(context).width;
-        final isWideScreen = screenWidth >= 600;
-
-        if (isWideScreen) {
-          // 宽屏：使用 SegmentedButton
-          return Center(
-            child: SegmentedButton<ClassScheduleViewMode>(
-              segments: const [
-                ButtonSegment(
-                  value: ClassScheduleViewMode.week,
-                  label: Text('周'),
-                  icon: Icon(Icons.calendar_view_week),
-                  tooltip: '周视图',
+        return MiuixPopup<ClassScheduleViewMode>(
+          icon: const MiuixGlyph(MiuixSymbol.view),
+          tooltip: '切换视图',
+          itemBuilder: (context) => [
+            // 切换到周视图
+            PopupMenuItem(
+              value: ClassScheduleViewMode.week,
+              child: Row(children: [
+                MiuixGlyph(
+                  MiuixSymbol.view,
+                  color: colorScheme.onSurfaceVariant,
                 ),
-                ButtonSegment(
-                  value: ClassScheduleViewMode.month,
-                  label: Text('月'),
-                  icon: Icon(Icons.calendar_view_month),
-                  tooltip: '月视图',
-                ),
-                ButtonSegment(
-                  value: ClassScheduleViewMode.semester,
-                  label: Text('学期'),
-                  icon: Icon(Icons.view_compact_outlined),
-                  tooltip: '学期视图',
-                ),
-              ],
-              selected: {currentViewMode},
-              onSelectionChanged: (selected) {
-                if (selected.isNotEmpty) {
-                  onModeChanged(selected.first);
-                }
-              },
-              showSelectedIcon: false,
-              style: ButtonStyle(
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                visualDensity: VisualDensity(horizontal: 0, vertical: 1),
-                padding: WidgetStateProperty.all(
-                  const EdgeInsets.symmetric(horizontal: 12),
-                ),
-                foregroundColor: (!Theme.of(context).useMaterial3 &&
-                        Theme.of(context).brightness == Brightness.light)
-                    ? WidgetStateProperty.resolveWith<Color>(
-                        (Set<WidgetState> states) {
-                          if (states.contains(WidgetState.selected)) {
-                            // 选中时的文字和图标颜色
-                            return colorScheme.onSecondaryContainer;
-                          }
-                          // 未选中时的文字和图标颜色
-                          return colorScheme.onPrimary;
-                        },
-                      )
-                    : null,
-              ),
+                const SizedBox(width: 8),
+                const Text('周'),
+              ]),
             ),
-          );
-        } else {
-          // 窄屏：使用 PopupMenuButton
-          return PopupMenuButton<ClassScheduleViewMode>(
-            icon: Icon(
-              currentViewMode == ClassScheduleViewMode.week
-                  ? Icons.calendar_view_week
-                  : currentViewMode == ClassScheduleViewMode.month
-                      ? Icons.calendar_view_month
-                      : Icons.view_compact_outlined,
+            // 切换到月视图
+            PopupMenuItem(
+              value: ClassScheduleViewMode.month,
+              child: Row(children: [
+                MiuixGlyph(
+                  MiuixSymbol.calendar,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 8),
+                const Text('月'),
+              ]),
             ),
-            tooltip: '切换视图',
-            itemBuilder: (context) => [
-              // 切换到周视图
-              PopupMenuItem(
-                value: ClassScheduleViewMode.week,
-                child: Row(children: [
-                  Icon(
-                    Icons.calendar_view_week,
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                  const SizedBox(width: 8),
-                  const Text('周'),
-                ]),
-              ),
-              // 切换到月视图
-              PopupMenuItem(
-                value: ClassScheduleViewMode.month,
-                child: Row(children: [
-                  Icon(
-                    Icons.calendar_view_month,
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                  const SizedBox(width: 8),
-                  const Text('月'),
-                ]),
-              ),
-              // 切换到学期视图
-              PopupMenuItem(
-                value: ClassScheduleViewMode.semester,
-                child: Row(children: [
-                  Icon(
-                    Icons.view_compact_outlined,
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                  const SizedBox(width: 8),
-                  const Text('学期'),
-                ]),
-              ),
-            ],
-            onSelected: onModeChanged,
-          );
-        }
+            // 切换到学期视图
+            PopupMenuItem(
+              value: ClassScheduleViewMode.semester,
+              child: Row(children: [
+                MiuixGlyph(
+                  MiuixSymbol.view,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 8),
+                const Text('学期'),
+              ]),
+            ),
+          ],
+          onSelected: onModeChanged,
+        );
       },
     );
   }

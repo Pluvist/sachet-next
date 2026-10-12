@@ -4,7 +4,7 @@ description: "An app designed for Xiangtan University students, offering easy-to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 0.10.1-next.2+19
+version: 0.10.1-next.3+20
 
 homepage: https://github.com/Pluvist/sachet-next
 repository: https://github.com/Pluvist/sachet-next
@@ -51,7 +51,6 @@ dependencies:
   flutter_colorpicker: ^1.1.0     # 颜色选择器
   package_info_plus: ^8.1.2       # 用于获取应用当前版本信息
   flutter_markdown: ^0.7.7        # 用于渲染更新内容的 Markdown
-  dynamic_color: 1.7.0            # 动态取色 [动态配色](https://developer.android.com/develop/ui/views/theming/dynamic-colors?hl=zh-cn)
   pointycastle: ^4.0.0            # RSA 加密，用于正方教务系统登录时对用户密码的加密
   uuid: ^4.5.2                    # 生成 UUID，用于导出课程表到 .ics 文件时，为每个 VEVENT 生成 UID
   pdfx: 2.8.0                     # 应用内查看成绩单pdf

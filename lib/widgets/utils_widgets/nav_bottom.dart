@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/liquid_glass_surface.dart';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -71,108 +72,128 @@ class NavBottom extends StatelessWidget {
                   .clamp(math.min(256, constraints.maxWidth),
                       math.min(400, constraints.maxWidth))
                   .toDouble();
-              return Material(
+              return LiquidGlassSurface(
                 key: const ValueKey('floatingNavToolbar'),
-                color: dark ? const Color(0xff191919) : Colors.white,
-                shape: StadiumBorder(
-                    side: BorderSide(
-                        color: Colors.grey.withOpacity(dark ? .28 : .18),
-                        width: .5)),
-                elevation: 0,
-                clipBehavior: Clip.antiAlias,
                 child: SizedBox(
                   width: width,
                   child: Padding(
                       padding: const EdgeInsets.all(5),
-                      child: Row(children: [
-                        for (var index = 0;
-                            index < destinations.length;
-                            index++)
-                          Expanded(
-                              child: Semantics(
-                                  selected: index == currentPageIndex,
-                                  button: true,
-                                  label: destinations[index].label,
-                                  child: Tooltip(
-                                      message: destinations[index].label,
-                                      excludeFromSemantics: true,
-                                      child: SizedBox(
-                                          height: height,
-                                          child: AnimatedContainer(
-                                            duration: duration,
-                                            curve: Curves.easeOutCubic,
-                                            decoration: ShapeDecoration(
-                                                shape: const StadiumBorder(),
-                                                color: index == currentPageIndex
-                                                    ? colors
-                                                        .surfaceContainerHigh
-                                                    : Colors.transparent),
-                                            child: Material(
-                                                type: MaterialType.transparency,
-                                                child: InkWell(
-                                                  customBorder:
-                                                      const StadiumBorder(),
-                                                  onTap: () {
-                                                    if (index !=
-                                                        currentPageIndex) {
-                                                      context
-                                                          .read<
-                                                              ScreenNavProvider>()
-                                                          .setCurrentPage(
-                                                              routeNames[
-                                                                  index]);
-                                                    }
-                                                  },
-                                                  child: Padding(
-                                                      padding: const EdgeInsets
-                                                          .symmetric(
-                                                          horizontal: 8),
-                                                      child: Column(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .center,
-                                                          children: [
-                                                            MiuixGlyph(
-                                                                routeNames[index] ==
-                                                                        '/home'
-                                                                    ? MiuixSymbol
-                                                                        .home
-                                                                    : routeNames[index] ==
-                                                                            '/profile'
-                                                                        ? MiuixSymbol
-                                                                            .person
-                                                                        : MiuixSymbol
-                                                                            .calendar,
-                                                                size: 26,
-                                                                color: index ==
-                                                                        currentPageIndex
-                                                                    ? colors
-                                                                        .onSurface
-                                                                    : colors
-                                                                        .onSurfaceVariant),
-                                                            const SizedBox(
-                                                                height: 3),
-                                                            FittedBox(
-                                                                fit: BoxFit
-                                                                    .scaleDown,
-                                                                child: Text(
-                                                                    destinations[
-                                                                            index]
-                                                                        .label,
-                                                                    maxLines: 1,
-                                                                    softWrap:
-                                                                        false,
-                                                                    overflow:
-                                                                        TextOverflow
-                                                                            .clip,
-                                                                    style: labelStyle.copyWith(
-                                                                        color: index ==
-                                                                                currentPageIndex
-                                                                            ? colors.onSurface
-                                                                            : colors.onSurfaceVariant))),
-                                                          ])),
-                                                )),
-                                          ))))),
+                      child: Stack(children: [
+                        Positioned.fill(
+                            child: IgnorePointer(
+                                child: AnimatedAlign(
+                                    duration: duration,
+                                    curve: Curves.easeOutCubic,
+                                    alignment: Alignment(
+                                        destinations.length == 1
+                                            ? 0
+                                            : -1 +
+                                                2 *
+                                                    currentPageIndex /
+                                                    (destinations.length - 1),
+                                        0),
+                                    child: FractionallySizedBox(
+                                        widthFactor: 1 / destinations.length,
+                                        heightFactor: 1,
+                                        child: DecoratedBox(
+                                            key: const ValueKey(
+                                                'liquidNavSelection'),
+                                            decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(100),
+                                                color: colors.onSurface
+                                                    .withOpacity(
+                                                        dark ? .12 : .07),
+                                                border: Border.all(
+                                                    color: colors.onSurface
+                                                        .withOpacity(.08),
+                                                    width: .5))))))),
+                        Row(children: [
+                          for (var index = 0;
+                              index < destinations.length;
+                              index++)
+                            Expanded(
+                                child: Semantics(
+                                    selected: index == currentPageIndex,
+                                    button: true,
+                                    label: destinations[index].label,
+                                    child: Tooltip(
+                                        message: destinations[index].label,
+                                        excludeFromSemantics: true,
+                                        child: SizedBox(
+                                            height: height,
+                                            child: AnimatedContainer(
+                                              duration: duration,
+                                              curve: Curves.easeOutCubic,
+                                              child: Material(
+                                                  type:
+                                                      MaterialType.transparency,
+                                                  child: InkWell(
+                                                    customBorder:
+                                                        const StadiumBorder(),
+                                                    onTap: () {
+                                                      if (index !=
+                                                          currentPageIndex) {
+                                                        context
+                                                            .read<
+                                                                ScreenNavProvider>()
+                                                            .setCurrentPage(
+                                                                routeNames[
+                                                                    index]);
+                                                      }
+                                                    },
+                                                    child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                                horizontal: 8),
+                                                        child: Column(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .center,
+                                                            children: [
+                                                              MiuixGlyph(
+                                                                  routeNames[index] ==
+                                                                          '/home'
+                                                                      ? MiuixSymbol
+                                                                          .home
+                                                                      : routeNames[index] ==
+                                                                              '/profile'
+                                                                          ? MiuixSymbol
+                                                                              .person
+                                                                          : MiuixSymbol
+                                                                              .calendar,
+                                                                  size: 26,
+                                                                  color: index ==
+                                                                          currentPageIndex
+                                                                      ? colors
+                                                                          .onSurface
+                                                                      : colors
+                                                                          .onSurfaceVariant),
+                                                              const SizedBox(
+                                                                  height: 3),
+                                                              FittedBox(
+                                                                  fit: BoxFit
+                                                                      .scaleDown,
+                                                                  child: Text(
+                                                                      destinations[
+                                                                              index]
+                                                                          .label,
+                                                                      maxLines:
+                                                                          1,
+                                                                      softWrap:
+                                                                          false,
+                                                                      overflow:
+                                                                          TextOverflow
+                                                                              .clip,
+                                                                      style: labelStyle.copyWith(
+                                                                          color: index == currentPageIndex
+                                                                              ? colors.onSurface
+                                                                              : colors.onSurfaceVariant))),
+                                                            ])),
+                                                  )),
+                                            ))))),
+                        ])
                       ])),
                 ),
               );

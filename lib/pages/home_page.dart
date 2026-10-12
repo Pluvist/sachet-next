@@ -77,7 +77,12 @@ class HomePage extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                for (int column = 0; column < columns; column++) ...[
+                for (int column = 0;
+                    column <
+                        (cards.length - start < columns
+                            ? cards.length - start
+                            : columns);
+                    column++) ...[
                   if (column > 0) const SizedBox(width: HomeDesign.gap),
                   Expanded(
                       child: start + column < cards.length
@@ -217,12 +222,13 @@ class HomePage extends StatelessWidget {
                     const SizedBox(height: 10),
                     MiuixCard(
                       key: const ValueKey('homeHeroCard'),
+                      margin: EdgeInsets.zero,
                       elevation: 0,
                       shadowColor: primaryColor.withOpacity(0.4),
                       clipBehavior: Clip.hardEdge,
                       color: colorScheme.surfaceContainerLow,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(24),
                       ),
                       child: InkWell(
                         onTap: () => Navigator.push(
@@ -277,7 +283,7 @@ class HomePage extends StatelessWidget {
                     ),
                     const SizedBox(height: 10),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      padding: EdgeInsets.zero,
                       child: _buildFeatureCards(context),
                     ),
                     Padding(
@@ -288,8 +294,9 @@ class HomePage extends StatelessWidget {
                                 color: colorScheme.onSurfaceVariant))),
                     SizedBox(height: 6),
                     MiuixCard(
+                      margin: EdgeInsets.zero,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(24),
                       ),
                       clipBehavior: Clip.hardEdge,
                       child: Column(

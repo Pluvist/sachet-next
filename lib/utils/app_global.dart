@@ -87,7 +87,7 @@ class AppGlobal {
 const defaultAppSettingsConfig = {
   "isMD3": true, // 是否启用 MD3 (Material Design 3)，若为 false 则用 Material Design 2
   "themeMode": 0, // 主题模式（0: system, 1: light, 2: dark）
-  "themeColor": "#FF64C564", // 主题色(ARGB)
+  "themeColor": "#FF3482FF", // 主题色(ARGB)
   "startupPage": "/class", // 启动页
   "isAutoCheckUpdate": false, // Sachet Next 不使用上游更新渠道
   "isShowAllCheckUpdateResult": false, // 是否显示检查更新所有结果（检查更新失败和已是最新版）

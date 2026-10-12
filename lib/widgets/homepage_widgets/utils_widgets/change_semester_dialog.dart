@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_select.dart';
 import 'package:flutter/material.dart';
 
 class ChangeSemesterDialogZF extends StatefulWidget {
@@ -37,7 +38,7 @@ class _ChangeSemesterDialogZFState extends State<ChangeSemesterDialogZF> {
         children: [
           Flexible(
             flex: 20,
-            child: DropdownMenu<String>(
+            child: MiuixSelect<String>(
               menuHeight: 400,
               initialSelection: widget.selectedSemesterYear,
               requestFocusOnTap: false,
@@ -57,7 +58,7 @@ class _ChangeSemesterDialogZFState extends State<ChangeSemesterDialogZF> {
             flex: 13,
             child: Padding(
               padding: const EdgeInsets.only(left: 4.0),
-              child: DropdownMenu<String>(
+              child: MiuixSelect<String>(
                 menuHeight: 400,
                 initialSelection: widget.selectedSemesterIndex,
                 requestFocusOnTap: false,

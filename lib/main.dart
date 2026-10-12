@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:sachet/constants/app_constants.dart';
+
 import 'package:sachet/models/enums/nav_type.dart';
 import 'package:sachet/pages/intro_screen/intro_screen.dart';
 import 'package:sachet/pages/profile_page.dart';
@@ -19,7 +19,7 @@ import 'package:sachet/pages/about_page.dart';
 import 'package:sachet/services/check_update.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:dynamic_color/dynamic_color.dart';
+
 import 'package:sachet/utils/expressive_theme.dart';
 import 'package:sachet/widgets/utils_widgets/course_refresh_coordinator.dart';
 
@@ -66,65 +66,19 @@ class MyApp extends StatelessWidget {
         context.read<ZhengFangUserProvider>();
         return Consumer<ThemeProvider>(
           builder: (context, themeProvider, child) {
-            // 是否使用动态取色
-            if (themeProvider.isUsingDynamicColors) {
-              return DynamicColorBuilder(
-                builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
-                  ColorScheme lightColorScheme;
-                  ColorScheme darkColorScheme;
-
-                  if (lightDynamic != null && darkDynamic != null) {
-                    // On Android S+ devices, use the provided dynamic color scheme.
-                    lightColorScheme = ColorScheme.fromSeed(
-                      seedColor: lightDynamic.primary,
-                      brightness: Brightness.light,
-                    ).harmonized();
-                    darkColorScheme = ColorScheme.fromSeed(
-                      seedColor: darkDynamic.primary,
-                      brightness: Brightness.dark,
-                    ).harmonized();
-                  } else {
-                    // Otherwise, use fallback schemes.
-                    lightColorScheme = ColorScheme.fromSeed(
-                      seedColor: appBrandColor,
-                      brightness: Brightness.light,
-                    );
-                    darkColorScheme = ColorScheme.fromSeed(
-                      seedColor: appBrandColor,
-                      brightness: Brightness.dark,
-                    );
-                  }
-
-                  final ThemeData theme = _buildThemeDataFromColorScheme(
-                    colorScheme: lightColorScheme,
-                    themeProvider: themeProvider,
-                  );
-                  final ThemeData darkTheme = _buildThemeDataFromColorScheme(
-                    colorScheme: darkColorScheme,
-                    themeProvider: themeProvider,
-                  );
-                  return _buildMaterialApp(
-                    theme: theme,
-                    darkTheme: darkTheme,
-                    themeProvider: themeProvider,
-                  );
-                },
-              );
-            } else {
-              final ThemeData theme = _buildThemeDataFromSeedColor(
-                brightness: Brightness.light,
-                themeProvider: themeProvider,
-              );
-              final ThemeData darkTheme = _buildThemeDataFromSeedColor(
-                brightness: Brightness.dark,
-                themeProvider: themeProvider,
-              );
-              return _buildMaterialApp(
-                theme: theme,
-                darkTheme: darkTheme,
-                themeProvider: themeProvider,
-              );
-            }
+            final ThemeData theme = _buildThemeDataFromSeedColor(
+              brightness: Brightness.light,
+              themeProvider: themeProvider,
+            );
+            final ThemeData darkTheme = _buildThemeDataFromSeedColor(
+              brightness: Brightness.dark,
+              themeProvider: themeProvider,
+            );
+            return _buildMaterialApp(
+              theme: theme,
+              darkTheme: darkTheme,
+              themeProvider: themeProvider,
+            );
           },
         );
       })),
@@ -176,40 +130,22 @@ class MyApp extends StatelessWidget {
     required Brightness brightness,
     required ThemeProvider themeProvider,
   }) {
-    return applyExpressiveTheme(ThemeData(
-      colorSchemeSeed: themeProvider.themeColor,
-      brightness: brightness,
-      useMaterial3: true,
-      pageTransitionsTheme: PageTransitionsTheme(
-        builders: <TargetPlatform, PageTransitionsBuilder>{
-          TargetPlatform.android: themeProvider.transitionBuilder,
-          TargetPlatform.iOS: themeProvider.transitionBuilder,
-          TargetPlatform.macOS: themeProvider.transitionBuilder,
-          TargetPlatform.linux: themeProvider.transitionBuilder,
-          TargetPlatform.windows: themeProvider.transitionBuilder,
-          TargetPlatform.fuchsia: themeProvider.transitionBuilder,
-        },
-      ),
-    ));
-  }
-
-  ThemeData _buildThemeDataFromColorScheme({
-    required ColorScheme colorScheme,
-    required ThemeProvider themeProvider,
-  }) {
-    return applyExpressiveTheme(ThemeData(
-      colorScheme: colorScheme,
-      useMaterial3: true,
-      pageTransitionsTheme: PageTransitionsTheme(
-        builders: <TargetPlatform, PageTransitionsBuilder>{
-          TargetPlatform.android: themeProvider.transitionBuilder,
-          TargetPlatform.iOS: themeProvider.transitionBuilder,
-          TargetPlatform.macOS: themeProvider.transitionBuilder,
-          TargetPlatform.linux: themeProvider.transitionBuilder,
-          TargetPlatform.windows: themeProvider.transitionBuilder,
-          TargetPlatform.fuchsia: themeProvider.transitionBuilder,
-        },
-      ),
-    ));
+    return applyExpressiveTheme(
+        ThemeData(
+          colorSchemeSeed: themeProvider.themeColor,
+          brightness: brightness,
+          useMaterial3: true,
+          pageTransitionsTheme: PageTransitionsTheme(
+            builders: <TargetPlatform, PageTransitionsBuilder>{
+              TargetPlatform.android: themeProvider.transitionBuilder,
+              TargetPlatform.iOS: themeProvider.transitionBuilder,
+              TargetPlatform.macOS: themeProvider.transitionBuilder,
+              TargetPlatform.linux: themeProvider.transitionBuilder,
+              TargetPlatform.windows: themeProvider.transitionBuilder,
+              TargetPlatform.fuchsia: themeProvider.transitionBuilder,
+            },
+          ),
+        ),
+        accent: themeProvider.themeColor);
   }
 }

@@ -109,6 +109,15 @@ void main() {
     }
     final first = tester.getRect(cards.at(0));
     final second = tester.getRect(cards.at(1));
+    final heroBounds = tester.getRect(heroFinder);
+    final statusBounds = tester.getRect(status);
+    expect(statusBounds.left, heroBounds.left);
+    expect(statusBounds.right, heroBounds.right);
+    expect(first.left, heroBounds.left);
+    expect(second.right, heroBounds.right);
+    final last = tester.getRect(cards.last);
+    expect(last.left, heroBounds.left);
+    expect(last.right, heroBounds.right);
     final fourth = tester.getRect(cards.at(2));
     expect(second.left - first.right, (design['gap'] as num).toDouble());
     expect(fourth.top - first.bottom, (design['gap'] as num).toDouble());

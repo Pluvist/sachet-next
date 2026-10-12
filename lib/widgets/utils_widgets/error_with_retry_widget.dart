@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_select.dart';
 import 'package:flutter/material.dart';
 import 'package:sachet/utils/transform.dart';
 
@@ -38,7 +39,7 @@ class ErrorWithRetryWidget extends StatelessWidget {
       child: SingleChildScrollView(
         padding: EdgeInsets.symmetric(
           vertical: isCompact ? 8.0 : 40.0,
-          horizontal: isCompact ? 16.0 : 24.0,
+          horizontal: isCompact ? 20.0 : 28.0,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -48,8 +49,8 @@ class ErrorWithRetryWidget extends StatelessWidget {
               width: isCompact ? 48 : 80,
               height: isCompact ? 48 : 80,
               decoration: BoxDecoration(
-                color: colorScheme.primaryContainer,
-                borderRadius: BorderRadius.circular(isCompact ? 16.0 : 24.0),
+                color: colorScheme.surfaceContainerLow,
+                borderRadius: BorderRadius.circular(isCompact ? 20.0 : 28.0),
               ),
               child: Icon(
                 dioExceptionTypeToText.values.any(
@@ -58,7 +59,7 @@ class ErrorWithRetryWidget extends StatelessWidget {
                     ? Icons.cloud_off
                     : Icons.error_outline,
                 size: isCompact ? 24 : 44,
-                color: colorScheme.onPrimaryContainer,
+                color: colorScheme.onSurfaceVariant,
               ),
             ),
             SizedBox(height: isCompact ? 12 : 24),
@@ -105,8 +106,8 @@ class ErrorWithRetryWidget extends StatelessWidget {
             ),
             SizedBox(height: isCompact ? 12 : 24),
             if (onRetry != null)
-              FilledButton.icon(
-                style: FilledButton.styleFrom(
+              MiuixButton.icon(
+                style: MiuixButton.styleFrom(
                   padding: EdgeInsets.symmetric(
                     horizontal: isCompact ? 12 : 24,
                     vertical: isCompact ? 2 : 8,

@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_select.dart';
 import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -121,9 +122,10 @@ class _QueryViewState extends State<_QueryView> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           FutureBuilder(
             future: getDataFuture,
@@ -147,18 +149,12 @@ class _QueryViewState extends State<_QueryView> {
               return Column(
                 children: [
                   SizedBox(height: 20),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Flexible(child: SemesterYearSelectorZF()),
-                      SizedBox(width: 12),
-                      Flexible(child: SemesterIndexSelectorZF()),
-                    ],
-                  ),
+                  const SemesterYearSelectorZF(),
+                  const SizedBox(height: 10),
+                  const SemesterIndexSelectorZF(),
                   SizedBox(height: 10),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
+                  MiuixButton(
+                    style: MiuixButton.styleFrom(
                       backgroundColor: Theme.of(context).colorScheme.primary,
                       foregroundColor: Theme.of(context).colorScheme.onPrimary,
                     ),

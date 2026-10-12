@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sachet/utils/app_global.dart';
 import 'package:sachet/providers/settings_provider.dart';
 import 'package:sachet/providers/class_page_provider.dart';
-import 'package:sachet/widgets/modified_widgets/my_drop_down_menu.dart';
+import 'package:sachet/widgets/utils_widgets/miuix_popup.dart';
 import 'package:provider/provider.dart';
 
 class WeekCountDropdownMenu extends StatefulWidget {
@@ -21,30 +21,17 @@ class _WeekCountDropdownMenuState extends State<WeekCountDropdownMenu> {
         (settingsProvider) => settingsProvider.curveType);
     int currentWeekCount = context.select<ClassPageProvider, int>(
         (classPageModel) => classPageModel.currentWeekCount);
-    return MyDropdownMenu<int>(
-      width: 90,
-      initialSelection: currentWeekCount,
-      // trailingIcon: const SizedBox.shrink(),
-      selectedTrailingIcon: const SizedBox.shrink(),
-      menuHeight: 500,
-      textStyle: TextStyle(
-          color: Theme.of(context).useMaterial3
-              ? Theme.of(context).colorScheme.onSurface
-              : Theme.of(context).brightness == Brightness.light
-                  ? Theme.of(context).colorScheme.onPrimary
-                  : Theme.of(context).colorScheme.onSurface,
-          // OR:
-          // color: (!Theme.of(context).useMaterial3 && Theme.of(context).brightness == Brightness.light)
-          //     ? Theme.of(context).colorScheme.onPrimary
-          //     : Theme.of(context).colorScheme.onSurface,
-          fontSize: 18,
-          fontWeight: FontWeight.w500),
-      menuStyle: const MenuStyle(),
-      requestFocusOnTap: false,
-      inputDecorationTheme: const InputDecorationTheme(
-        filled: false,
-        border: UnderlineInputBorder(borderSide: BorderSide.none),
-      ),
+    return MiuixPopup<int>(
+      tooltip: '选择周次',
+      child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text('第 $currentWeekCount 周',
+              style:
+                  const TextStyle(fontSize: 18, fontWeight: FontWeight.w500))),
+      itemBuilder: (context) => pageMenuList
+          .map((value) =>
+              PopupMenuItem<int>(value: value, child: Text('第 $value 周')))
+          .toList(),
       onSelected: (int? page) {
         if (page != null) {
           context.read<ClassPageProvider>().pageController.animateToPage(
@@ -54,9 +41,6 @@ class _WeekCountDropdownMenuState extends State<WeekCountDropdownMenu> {
               );
         }
       },
-      dropdownMenuEntries: pageMenuList.map((int value) {
-        return DropdownMenuEntry<int>(value: value, label: '第 $value 周');
-      }).toList(),
     );
   }
 }

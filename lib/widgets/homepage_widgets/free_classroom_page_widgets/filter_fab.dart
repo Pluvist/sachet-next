@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:sachet/widgets/utils_widgets/liquid_glass_surface.dart';
+import 'package:sachet/widgets/utils_widgets/miuix_glyph.dart';
 import 'package:sachet/providers/free_classroom_page_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -18,23 +20,27 @@ class FilterFAB extends StatelessWidget {
       return const SizedBox();
     }
 
-    return FloatingActionButton(
-      child: const Icon(Icons.filter_alt_outlined),
-      onPressed: () {
-        showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          showDragHandle: false,
-          useSafeArea: true,
-          builder: (context) => ChangeNotifierProvider.value(
-            value: freeClassroomPageProvider,
-            builder: (context, _) {
-              return _FilterBottomSheet(sessionFilter: sessionFilter);
-            },
-          ),
-        );
-      },
-    );
+    return LiquidGlassSurface(
+        child: SizedBox.square(
+            dimension: 56,
+            child: IconButton(
+              tooltip: '筛选教室',
+              icon: const MiuixGlyph(MiuixSymbol.tune),
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  showDragHandle: false,
+                  useSafeArea: true,
+                  builder: (context) => ChangeNotifierProvider.value(
+                    value: freeClassroomPageProvider,
+                    builder: (context, _) {
+                      return _FilterBottomSheet(sessionFilter: sessionFilter);
+                    },
+                  ),
+                );
+              },
+            )));
   }
 }
 

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 /// Shared HyperOS-style surfaces, headers and preference rows. Kept compatible
 /// with Flutter 3.24 so presentation changes do not replace the data layer.
 const miuixPanelShape = ContinuousRectangleBorder(
-  borderRadius: BorderRadius.all(Radius.circular(40)),
+  borderRadius: BorderRadius.all(Radius.circular(48)),
 );
 
 Color miuixIconColor(IconData icon) {
@@ -38,7 +38,7 @@ class MiuixIconBadge extends StatelessWidget {
         decoration: ShapeDecoration(
             color: color ?? miuixIconColor(icon),
             shape: ContinuousRectangleBorder(
-                borderRadius: BorderRadius.circular(size * .4))),
+                borderRadius: BorderRadius.circular(size * .5))),
         child: SizedBox(
             width: size,
             height: size,
@@ -109,45 +109,48 @@ class MiuixAppBar extends StatelessWidget implements PreferredSizeWidget {
       surfaceTintColor: Colors.transparent,
       flexibleSpace: SafeArea(
           bottom: false,
-          child: Column(children: [
-            SizedBox(
-                height: 56,
-                child: Row(children: [
-                  const SizedBox(width: 12),
-                  if (leading != null)
-                    SizedBox(width: 48, child: leading)
-                  else if (automaticallyImplyLeading &&
-                      Navigator.of(context).canPop())
-                    const BackButton(),
-                  if (leading == null &&
-                      automaticallyImplyLeading &&
-                      !Navigator.of(context).canPop() &&
-                      Scaffold.of(context).hasDrawer)
-                    IconButton(
-                        tooltip: '导航菜单',
-                        icon: const Icon(Icons.menu),
-                        onPressed: () => Scaffold.of(context).openDrawer()),
-                  const Spacer(),
-                  ...?actions,
-                  const SizedBox(width: 12),
-                ])),
-            Expanded(
-                child: Align(
-                    alignment: Alignment.bottomLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(26, 0, 26, 18),
-                      child: DefaultTextStyle.merge(
-                          style: TextStyle(
-                              fontSize: 34,
-                              fontWeight: FontWeight.w400,
-                              height: 1.16,
-                              color: colors.onSurface),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          child: MediaQuery.withClampedTextScaling(
-                              maxScaleFactor: 1.4, child: title!)),
-                    ))),
-          ])),
+          child: Padding(
+              padding:
+                  EdgeInsets.only(bottom: bottom?.preferredSize.height ?? 0),
+              child: Column(children: [
+                SizedBox(
+                    height: 56,
+                    child: Row(children: [
+                      const SizedBox(width: 12),
+                      if (leading != null)
+                        SizedBox(width: 48, child: leading)
+                      else if (automaticallyImplyLeading &&
+                          Navigator.of(context).canPop())
+                        const BackButton(),
+                      if (leading == null &&
+                          automaticallyImplyLeading &&
+                          !Navigator.of(context).canPop() &&
+                          Scaffold.of(context).hasDrawer)
+                        IconButton(
+                            tooltip: '导航菜单',
+                            icon: const Icon(Icons.menu),
+                            onPressed: () => Scaffold.of(context).openDrawer()),
+                      const Spacer(),
+                      ...?actions,
+                      const SizedBox(width: 12),
+                    ])),
+                Expanded(
+                    child: Align(
+                        alignment: Alignment.bottomLeft,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(26, 0, 26, 18),
+                          child: DefaultTextStyle.merge(
+                              style: TextStyle(
+                                  fontSize: 34,
+                                  fontWeight: FontWeight.w400,
+                                  height: 1.16,
+                                  color: colors.onSurface),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              child: MediaQuery.withClampedTextScaling(
+                                  maxScaleFactor: 1.4, child: title!)),
+                        ))),
+              ]))),
     );
   }
 }

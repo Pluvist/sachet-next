@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 
 /// Miuix-inspired Flutter styling. Keeps the existing theme preferences.
-ThemeData applyExpressiveTheme(ThemeData theme) {
+ThemeData applyExpressiveTheme(ThemeData theme,
+    {Color accent = const Color(0xff3482ff)}) {
   final dark = theme.brightness == Brightness.dark;
   final background = dark ? Colors.black : const Color(0xfff5f5f5);
   final panel = dark ? const Color(0xff222222) : Colors.white;
   final colors = theme.colorScheme.copyWith(
     surface: background,
+    primary: accent,
+    onPrimary:
+        accent.computeLuminance() > .5 ? const Color(0xff191919) : Colors.white,
+    primaryContainer: dark ? const Color(0xff24344d) : const Color(0xffe8f0ff),
+    onPrimaryContainer:
+        dark ? const Color(0xffa9caff) : const Color(0xff2464c4),
     onSurface: dark ? const Color(0xffeeeeee) : const Color(0xff191919),
     onSurfaceVariant: dark ? const Color(0xff999999) : const Color(0xff777777),
     surfaceContainerLow: panel,
@@ -22,11 +29,11 @@ ThemeData applyExpressiveTheme(ThemeData theme) {
     outlineVariant: dark ? const Color(0xff333333) : const Color(0xffe8e8e8),
   );
   final roundedPanel = ContinuousRectangleBorder(
-    borderRadius: BorderRadius.circular(40),
+    borderRadius: BorderRadius.circular(48),
   );
   final buttonStyle = ButtonStyle(
     shape: WidgetStatePropertyAll(
-        ContinuousRectangleBorder(borderRadius: BorderRadius.circular(32))),
+        ContinuousRectangleBorder(borderRadius: BorderRadius.circular(38))),
     minimumSize: const WidgetStatePropertyAll(Size(48, 48)),
     padding: const WidgetStatePropertyAll(
       EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -60,11 +67,11 @@ ThemeData applyExpressiveTheme(ThemeData theme) {
       fillColor: panel,
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
       border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+          borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
       enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+          borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
       focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           borderSide: BorderSide(color: colors.primary)),
     ),
     switchTheme: SwitchThemeData(
@@ -133,7 +140,7 @@ ThemeData applyExpressiveTheme(ThemeData theme) {
         indicatorSize: TabBarIndicatorSize.tab,
         indicator: BoxDecoration(
             color: colors.surfaceContainerHigh,
-            borderRadius: BorderRadius.circular(16)),
+            borderRadius: BorderRadius.circular(20)),
         dividerColor: Colors.transparent),
     filledButtonTheme: FilledButtonThemeData(style: buttonStyle),
     elevatedButtonTheme: ElevatedButtonThemeData(

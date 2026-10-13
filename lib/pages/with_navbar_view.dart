@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/glass_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
@@ -112,6 +113,8 @@ class _WithNavigationBarViewState extends State<WithNavigationBarView> {
     } else if (notification is ScrollEndNotification) {
       // 滚动结束时清理状态
       _scrollStartOffset = null;
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => GlassBackdrop.capture());
     }
 
     return false;
@@ -147,12 +150,14 @@ class _WithNavigationBarViewState extends State<WithNavigationBarView> {
               child: NotificationListener<ScrollNotification>(
                 onNotification: (notification) => _onScrollNotification(
                     notification, isWideScreenMode, currentPageIndex),
-                child: currentPageIndex < 0
-                    ? const ProfilePage()
-                    : RetainedTabBody(
-                        index: currentPageIndex,
-                        children: const [HomePage(), ClassPage()],
-                      ),
+                child: RepaintBoundary(
+                    key: GlassBackdrop.key,
+                    child: currentPageIndex < 0
+                        ? const ProfilePage()
+                        : RetainedTabBody(
+                            index: currentPageIndex,
+                            children: const [HomePage(), ClassPage()],
+                          )),
               ),
             ),
           ],

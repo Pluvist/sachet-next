@@ -11,7 +11,7 @@ import 'package:sachet/pages/profile_page.dart';
 import 'package:sachet/utils/app_global.dart';
 import 'package:sachet/utils/expressive_theme.dart';
 import 'package:sachet/widgets/classpage_widgets/classpage_appbar.dart';
-import 'package:sachet/widgets/classpage_widgets/week_count_dropdown_menu.dart';
+import 'package:sachet/widgets/utils_widgets/liquid_dropdown_menu.dart';
 
 void main() {
   setUp(() {
@@ -31,71 +31,62 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
   }
 
-  testWidgets('Restored header preserves five button bounds and interactions',
+  testWidgets('Header keeps one row of controls and the NexioSchedule menus',
       (tester) async {
     setPhoneSize(tester);
     final courses = ClassPageProvider();
     final settings = SettingsProvider();
-    Future<void> pumpHeader({required bool restored}) async {
-      await tester.pumpWidget(MultiProvider(
-        providers: [
-          ChangeNotifierProvider.value(value: courses),
-          ChangeNotifierProvider.value(value: settings),
-        ],
-        child: MaterialApp(
-          theme: applyExpressiveTheme(ThemeData(
-            colorSchemeSeed: Colors.green,
-            useMaterial3: true,
-          )),
-          home: Scaffold(
-            appBar: restored
-                ? ClassPageAppBar() as PreferredSizeWidget
-                : AppBar(
-                    titleSpacing: 12,
-                    title: const WeekCountDropdownMenu(),
-                    actions: [
-                      ViewModeToggle(
-                          currentViewMode: ClassScheduleViewMode.week,
-                          onModeChanged: (_) {}),
-                      Row(mainAxisSize: MainAxisSize.min, children: [
-                        IconButton(
-                            icon: const Icon(Icons.skip_previous_outlined),
-                            tooltip: '上一周',
-                            onPressed: () {}),
-                        IconButton(
-                            icon: const Icon(Icons.skip_next_outlined),
-                            tooltip: '下一周',
-                            onPressed: () {}),
-                      ]),
-                      IconButton(
-                          icon: const Icon(Icons.today),
-                          tooltip: '回到本周',
-                          onPressed: () {}),
-                      PopupMenuButton(tooltip: '更多操作', itemBuilder: (_) => []),
-                    ],
-                  ),
-            body: PageView(
-              controller: courses.pageController,
-              onPageChanged: (page) => courses.updateCurrentWeekCount(page + 1),
-              children: List.generate(20, (_) => const SizedBox.expand()),
-            ),
+    await tester.pumpWidget(MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: courses),
+        ChangeNotifierProvider.value(value: settings),
+      ],
+      child: MaterialApp(
+        theme: applyExpressiveTheme(ThemeData(
+          colorSchemeSeed: Colors.green,
+          useMaterial3: true,
+        )),
+        home: Scaffold(
+          appBar: ClassPageAppBar() as PreferredSizeWidget,
+          body: PageView(
+            controller: courses.pageController,
+            onPageChanged: (page) => courses.updateCurrentWeekCount(page + 1),
+            children: List.generate(20, (_) => const SizedBox.expand()),
           ),
         ),
-      ));
-      await tester.pumpAndSettle();
-    }
+      ),
+    ));
+    await tester.pumpAndSettle();
 
-    const labels = ['切换视图', '上一周', '下一周', '回到本周', '更多操作'];
-    await pumpHeader(restored: false);
-    final originalBounds = {
-      for (final label in labels) label: tester.getRect(find.byTooltip(label)),
-    };
-    await pumpHeader(restored: true);
-    for (final label in labels) {
-      expect(tester.getRect(find.byTooltip(label)), originalBounds[label]);
-    }
+    // The title is plain text now; the week list lives behind the top-right
+    // glass button instead of a clickable tab on the title.
+    expect(
+        find.byWidgetPredicate((widget) =>
+            widget is Text && (widget.data ?? '').startsWith('第 ')),
+        findsOneWidget);
     expect(find.byKey(const ValueKey('courseTitleCapsule')), findsNothing);
     expect(find.byKey(const ValueKey('courseActionsCapsule')), findsNothing);
+
+    // Five controls, ordered left to right, all on one 56dp row.
+    const labels = ['切换视图', '上一周', '下一周', '回到本周', '选择周次', '更多操作'];
+    final rects = {
+      for (final label in labels) label: tester.getRect(find.byTooltip(label)),
+    };
+    for (final label in labels) {
+      expect(rects[label]!.top, greaterThanOrEqualTo(0));
+      expect(rects[label]!.bottom, lessThanOrEqualTo(56));
+    }
+    for (var index = 1; index < labels.length; index++) {
+      expect(rects[labels[index]]!.left,
+          greaterThan(rects[labels[index - 1]]!.left),
+          reason: '${labels[index]} must sit right of ${labels[index - 1]}');
+    }
+    // The two morphing controls keep the reference trigger footprint.
+    for (final label in ['选择周次', '更多操作']) {
+      expect(rects[label]!.width, kLiquidDropdownButtonDiameter);
+      expect(rects[label]!.height, kLiquidDropdownButtonDiameter);
+    }
+
     final week = courses.currentWeekCount;
     await tester.tap(find.byTooltip('下一周'));
     await tester.pumpAndSettle();
@@ -103,25 +94,36 @@ void main() {
     await tester.tap(find.byTooltip('上一周'));
     await tester.pumpAndSettle();
     expect(courses.currentWeekCount, week);
-    await tester.tap(find.byType(WeekCountDropdownMenu));
+
+    // Week list: the trigger grows into the panel and pages the schedule.
+    await tester.tap(find.byTooltip('选择周次'));
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text('第 2 周').last);
+    expect(find.text('第 20 周'), findsWidgets);
+    await tester.ensureVisible(
+        find.byKey(const ValueKey('liquidDropdownItem1')).last);
     await tester.pumpAndSettle();
-    await tester.tap(find.text('第 2 周').last);
+    await tester.tap(find.byKey(const ValueKey('liquidDropdownItem1')).last);
     await tester.pumpAndSettle();
     expect(courses.currentWeekCount, 2);
+
     await tester.tap(find.byTooltip('回到本周'));
     await tester.pumpAndSettle();
     expect(courses.currentWeekCount, week);
+
     await tester.tap(find.byTooltip('切换视图'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('月').last);
     await tester.pumpAndSettle();
     expect(courses.currentViewMode, ClassScheduleViewMode.month);
+
+    // More actions: same control, opened from the right-most button.
     await tester.tap(find.byTooltip('更多操作'));
     await tester.pumpAndSettle();
-    expect(find.text('课表设置'), findsOneWidget);
-    expect(find.text('导出课表'), findsOneWidget);
+    expect(find.text('课表设置'), findsWidgets);
+    expect(find.text('导出课表'), findsWidgets);
+    await tester.tapAt(const Offset(10, 400));
+    await tester.pumpAndSettle();
+    expect(find.text('导出课表'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 

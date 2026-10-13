@@ -4,7 +4,7 @@
 
 本项目是独立修改版本。上游提供的教务系统接入、课程表、成绩与空闲教室查询等功能构成了本项目的基础。应用目前主要针对 Android 开发和验证。
 
-[English](README_EN.md) · [构建说明](README_DEV.md) · [MIT 许可证](LICENSE) · [第三方资源说明](THIRD_PARTY_NOTICES.md)
+[English](README_EN.md) · [构建说明](README_DEV.md) · [AGPL-3.0 许可证](LICENSE) · [第三方资源说明](THIRD_PARTY_NOTICES.md)
 
 ## 下载
 
@@ -65,7 +65,7 @@ flutter build apk --release --target-platform android-arm64
 
 ## 许可证与鸣谢
 
-本项目代码沿用上游的 [MIT License](LICENSE)：保留 **Copyright (c) 2025 wyvern1723** 与完整许可文本，并新增 **Copyright (c) 2026 Pluvist (Sachet Next modifications)**。复制、修改或分发本项目时，请保留这些版权及许可声明。
+本项目移植 NexioSchedule 底栏与菜单后，整体按 [AGPL-3.0](LICENSE) 开源。Sachet 原始代码继续保留 [MIT License](LICENSE-MIT)：保留 **Copyright (c) 2025 wyvern1723** 与完整许可文本，并新增 **Copyright (c) 2026 Pluvist (Sachet Next modifications)**。复制、修改或分发本项目时，请保留这些版权及许可声明。
 
 - 上游项目：[wyvern1723/sachet](https://github.com/wyvern1723/sachet)
 - 上游作者：[wyvern1723](https://github.com/wyvern1723)

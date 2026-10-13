@@ -2,7 +2,7 @@
 
 A modified version of [Sachet](https://github.com/wyvern1723/sachet) for Xiangtan University, maintained by **Pluvist**. Thanks to **wyvern1723** for developing and open-sourcing the upstream application.
 
-[简体中文](README.md) · [Build guide](README_DEV.md) · [MIT license](LICENSE) · [Third-party notices](THIRD_PARTY_NOTICES.md)
+[简体中文](README.md) · [Build guide](README_DEV.md) · [AGPL-3.0 license](LICENSE) · [Third-party notices](THIRD_PARTY_NOTICES.md)
 
 ## Downloads
 
@@ -46,7 +46,7 @@ The GitHub Actions workflow provides manual/PR checks and a test APK, without up
 
 ## License and attribution
 
-Code is distributed under the [MIT license](LICENSE), preserving `Copyright (c) 2025 wyvern1723` and adding `Copyright (c) 2026 Pluvist (Sachet Next modifications)`. Preserve the copyright and permission notices when redistributing.
+Code is distributed under the [AGPL-3.0 license](LICENSE), preserving `Copyright (c) 2025 wyvern1723` and adding `Copyright (c) 2026 Pluvist (Sachet Next modifications)`. Preserve the copyright and permission notices when redistributing.
 
 Noto Serif SC is separately licensed under SIL OFL 1.1. Proprietary Anthropic fonts are excluded from this public version; optional serif headings use Noto Serif SC, while default headings use the system sans-serif font. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 

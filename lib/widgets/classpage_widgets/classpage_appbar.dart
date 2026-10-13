@@ -1,5 +1,6 @@
-import 'package:sachet/widgets/utils_widgets/miuix_popup.dart';
+import 'package:sachet/widgets/utils_widgets/liquid_dropdown_menu.dart';
 import 'package:sachet/widgets/utils_widgets/miuix_glyph.dart';
+import 'package:sachet/widgets/utils_widgets/miuix_popup.dart';
 import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -18,6 +19,7 @@ import 'package:sachet/widgets/classpage_widgets/switch_actived_app_file_dialog.
 import 'package:sachet/widgets/classpage_widgets/update_class_schedule_zf_dialog.dart';
 import 'package:sachet/widgets/classpage_widgets/week_count_dropdown_menu.dart';
 import 'package:path/path.dart' as path;
+import 'package:collection/collection.dart';
 
 class ClassPageAppBar extends StatefulWidget implements PreferredSizeWidget {
   ClassPageAppBar({super.key})
@@ -238,16 +240,41 @@ class _ClassPageAppBarState extends State<ClassPageAppBar> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
+    // 标题只作显示；周次/月份的选择统一由右上角的玻璃按钮展开，与
+    // NexioSchedule 的顶栏一致（标题不再是可点击的选项卡）。
     final title = Selector<ClassPageProvider, ClassScheduleViewMode>(
         selector: (_, provider) => provider.currentViewMode,
         builder: (_, currentViewMode, __) {
           switch (currentViewMode) {
             case ClassScheduleViewMode.week:
-              return WeekCountDropdownMenu();
+              return FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Selector<ClassPageProvider, int>(
+                    selector: (_, provider) => provider.currentWeekCount,
+                    builder: (_, currentWeekCount, __) => Text(
+                          '第 $currentWeekCount 周',
+                          style: const TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.w500),
+                        )),
+              );
             case ClassScheduleViewMode.month:
-              return MonthCountDropdownMenu();
+              return FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Selector<ClassPageProvider, (List<MonthData>, int)>(
+                    selector: (_, provider) =>
+                        (provider.monthList, provider.currentMonth),
+                    builder: (_, data, __) {
+                      final (monthList, currentMonth) = data;
+                      return Text(
+                        monthList
+                                .firstWhereOrNull(
+                                    (entry) => entry.month == currentMonth)
+                                ?.label ??
+                            '$currentMonth 月',
+                        style: const TextStyle(fontSize: 18),
+                      );
+                    }),
+              );
             case ClassScheduleViewMode.semester:
               return Selector<SettingsProvider, String>(
                   selector: (_, provider) => provider.classScheduleFilePath,
@@ -353,75 +380,47 @@ class _ClassPageAppBarState extends State<ClassPageAppBar> {
             }
           }),
 
-      MiuixPopup(
-        tooltip: '更多操作',
-        itemBuilder: (context) => [
-          // 更新课表
-          PopupMenuItem(
-            onTap: () async {
-              await showUpdateClassScheduleDialog(context);
+      // 选择周次/月份：玻璃按钮就地展开为列表面板
+      Selector<ClassPageProvider, ClassScheduleViewMode>(
+          selector: (_, provider) => provider.currentViewMode,
+          builder: (_, currentViewMode, __) {
+            switch (currentViewMode) {
+              case ClassScheduleViewMode.week:
+                return const WeekCountDropdownMenu();
+              case ClassScheduleViewMode.month:
+                return const MonthCountDropdownMenu();
+              case ClassScheduleViewMode.semester:
+                return const SizedBox.shrink();
+            }
+          }),
+
+      // 更多操作：与周次/月份选择器一致，使用 NexioSchedule 的玻璃变形面板
+      _MoreActionsMenu(
+        onUpdateClassSchedule: () => showUpdateClassScheduleDialog(context),
+        onSwitchClassSchedules: () => switchClassSchedules(context),
+        onExportClassSchedule: () => showDialog(
+          context: context,
+          builder: (BuildContext context) => ExportClassScheduleDialog(),
+        ),
+        onOpenCourseSettings: () async {
+          final semesterStartDate = SettingsProvider.semesterStartDate;
+          await Navigator.of(context).push(MaterialPageRoute(
+            maintainState: false,
+            builder: (BuildContext context) {
+              return const CourseSettingsPage();
             },
-            child: Row(children: [
-              MiuixGlyph(MiuixSymbol.refresh,
-                  color: colorScheme.onSurfaceVariant),
-              const SizedBox(width: 8),
-              const Text('更新课表')
-            ]),
-          ),
-          // 切换课表
-          PopupMenuItem(
-            onTap: () async {
-              await switchClassSchedules(context);
-            },
-            child: Row(children: [
-              MiuixGlyph(MiuixSymbol.swap, color: colorScheme.onSurfaceVariant),
-              const SizedBox(width: 8),
-              const Text('切换课表'),
-            ]),
-          ),
-          // 导出课表
-          PopupMenuItem(
-            onTap: () async {
-              await showDialog(
-                context: context,
-                builder: (BuildContext context) => ExportClassScheduleDialog(),
-              );
-            },
-            child: Row(children: [
-              MiuixGlyph(MiuixSymbol.share,
-                  color: colorScheme.onSurfaceVariant),
-              const SizedBox(width: 8),
-              const Text('导出课表')
-            ]),
-          ),
-          // 课表设置
-          PopupMenuItem(
-            onTap: () async {
-              final semesterStartDate = SettingsProvider.semesterStartDate;
-              await Navigator.of(context).push(MaterialPageRoute(
-                maintainState: false,
-                builder: (BuildContext context) {
-                  return const CourseSettingsPage();
-                },
-              ));
-              final newSmesterStartDate = SettingsProvider.semesterStartDate;
-              if (semesterStartDate != newSmesterStartDate) {
-                if (!context.mounted) {
-                  return;
-                }
-                context.read<ClassPageProvider>().updateMonthList();
-                context
-                    .read<ClassPageProvider>()
-                    .updateCurrentMonth(DateTime.now().month);
-              }
-            },
-            child: Row(children: [
-              MiuixGlyph(MiuixSymbol.tune, color: colorScheme.onSurfaceVariant),
-              const SizedBox(width: 8),
-              const Text('课表设置')
-            ]),
-          ),
-        ],
+          ));
+          final newSmesterStartDate = SettingsProvider.semesterStartDate;
+          if (semesterStartDate != newSmesterStartDate) {
+            if (!context.mounted) {
+              return;
+            }
+            context.read<ClassPageProvider>().updateMonthList();
+            context
+                .read<ClassPageProvider>()
+                .updateCurrentMonth(DateTime.now().month);
+          }
+        },
       ),
     ];
     return MiuixAppBar(
@@ -429,6 +428,68 @@ class _ClassPageAppBarState extends State<ClassPageAppBar> {
       titleSpacing: 12.0,
       title: title,
       actions: actions,
+    );
+  }
+}
+
+/// 更多操作：玻璃按钮就地展开为菜单面板（NexioSchedule 右上角控件形式）。
+class _MoreActionsMenu extends StatefulWidget {
+  const _MoreActionsMenu({
+    required this.onUpdateClassSchedule,
+    required this.onSwitchClassSchedules,
+    required this.onExportClassSchedule,
+    required this.onOpenCourseSettings,
+  });
+  final VoidCallback onUpdateClassSchedule,
+      onSwitchClassSchedules,
+      onExportClassSchedule;
+  final Future<void> Function() onOpenCourseSettings;
+
+  @override
+  State<_MoreActionsMenu> createState() => _MoreActionsMenuState();
+}
+
+class _MoreActionsMenuState extends State<_MoreActionsMenu> {
+  static const _labels = ['更新课表', '切换课表', '导出课表', '课表设置'];
+  static const _symbols = [
+    MiuixSymbol.refresh,
+    MiuixSymbol.swap,
+    MiuixSymbol.share,
+    MiuixSymbol.tune,
+  ];
+
+  bool _show = false;
+
+  void _run(int index) {
+    // 关闭面板后再打开对话框 / 页面，避免菜单留在下一层路由之上。
+    setState(() => _show = false);
+    switch (index) {
+      case 0:
+        widget.onUpdateClassSchedule();
+      case 1:
+        widget.onSwitchClassSchedules();
+      case 2:
+        widget.onExportClassSchedule();
+      case 3:
+        widget.onOpenCourseSettings();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return LiquidGlassDropdownMenu(
+      show: _show,
+      itemCount: _labels.length,
+      entryLabels: _labels,
+      icon: const MiuixGlyph(MiuixSymbol.more, size: 24),
+      tooltip: '更多操作',
+      semanticLabel: '更多操作',
+      leadingBuilder: (index) => MiuixGlyph(_symbols[index],
+          size: 22, color: colorScheme.onSurfaceVariant),
+      onExpanded: () => setState(() => _show = true),
+      onDismissed: () => setState(() => _show = false),
+      onSelected: _run,
     );
   }
 }

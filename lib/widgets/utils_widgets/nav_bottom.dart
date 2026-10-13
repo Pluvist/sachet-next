@@ -1,11 +1,16 @@
-import 'package:sachet/widgets/utils_widgets/liquid_glass_surface.dart';
-import 'dart:math' as math;
+// Adapted from NexioSchedule ScheduleBottomBar.kt. AGPL-3.0-only.
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sachet/models/nav_destination.dart';
 import 'package:sachet/providers/screen_nav_provider.dart';
-import 'package:sachet/utils/home_design.dart';
+import 'package:sachet/widgets/utils_widgets/glass_backdrop.dart';
 import 'package:sachet/widgets/utils_widgets/miuix_glyph.dart';
+import 'package:sachet/widgets/utils_widgets/nexio_bottom_tabs.dart';
+
+const double kNavBottomHeight = 56;
+const double kNavBottomWidthFactor = .42;
+const double kNavBottomSelectorHeight = 48;
+const double kNavBottomPadding = 4;
 
 class NavBottom extends StatelessWidget {
   const NavBottom(
@@ -16,191 +21,81 @@ class NavBottom extends StatelessWidget {
   final List<NavDestination> destinations;
   final List<String> routeNames;
   final int currentPageIndex;
-
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => GlassBackdrop.capture());
     final dark = Theme.of(context).brightness == Brightness.dark;
-    final scaler = MediaQuery.textScalerOf(context);
-    final duration = MediaQuery.disableAnimationsOf(context)
-        ? Duration.zero
-        : const Duration(milliseconds: 220);
-    final labelStyle = TextStyle(
-        fontSize: 14,
-        height: 1.2,
-        fontWeight: FontWeight.w500,
-        color: colors.onSurface);
-    var longest = 0.0;
-    for (final destination in destinations) {
-      final text = TextPainter(
-          text: TextSpan(text: destination.label, style: labelStyle),
-          textDirection: Directionality.of(context),
-          textScaler: scaler)
-        ..layout();
-      longest = math.max(longest, text.width);
-      text.dispose();
-    }
-    final height = math.max(64.0, scaler.scale(14) * 1.3 + 36);
     final mask = dark ? Colors.black : Colors.white;
+    final colors = Theme.of(context).colorScheme;
+    final bottom = MediaQuery.paddingOf(context).bottom;
+    final width = MediaQuery.sizeOf(context).width *
+        (destinations.length == 2 ? .42 : .63);
     return Stack(children: [
       Positioned.fill(
           child: IgnorePointer(
               child: DecoratedBox(
-        key: const ValueKey('floatingNavBottomMask'),
-        decoration: BoxDecoration(
-            gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [mask.withOpacity(0), mask.withOpacity(.94), mask],
-                stops: const [0, .75, 1])),
-      ))),
+                  key: const ValueKey('floatingNavBottomMask'),
+                  decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                        mask.withOpacity(0),
+                        mask.withOpacity(.94),
+                        mask
+                      ],
+                          stops: const [
+                        0,
+                        .75,
+                        1
+                      ]))))),
       Padding(
-        padding: const EdgeInsets.only(top: 24),
-        child: SafeArea(
-          top: false,
-          minimum: EdgeInsets.fromLTRB(
-              16,
-              8,
-              16,
-              routeNames[currentPageIndex] == '/home'
-                  ? HomeDesign.navBottom
-                  : 16),
+          padding: EdgeInsets.only(top: 24, bottom: bottom > 0 ? bottom : 24),
           child: Center(
-            heightFactor: 1,
-            child: LayoutBuilder(builder: (context, constraints) {
-              final width = ((longest + 48) * destinations.length + 16)
-                  .clamp(math.min(256, constraints.maxWidth),
-                      math.min(400, constraints.maxWidth))
-                  .toDouble();
-              return LiquidGlassSurface(
-                key: const ValueKey('floatingNavToolbar'),
-                child: SizedBox(
+              heightFactor: 1,
+              child: SizedBox(
                   width: width,
-                  child: Padding(
-                      padding: const EdgeInsets.all(5),
-                      child: Stack(children: [
-                        Positioned.fill(
-                            child: IgnorePointer(
-                                child: AnimatedAlign(
-                                    duration: duration,
-                                    curve: Curves.easeOutCubic,
-                                    alignment: Alignment(
-                                        destinations.length == 1
-                                            ? 0
-                                            : -1 +
-                                                2 *
-                                                    currentPageIndex /
-                                                    (destinations.length - 1),
-                                        0),
-                                    child: FractionallySizedBox(
-                                        widthFactor: 1 / destinations.length,
-                                        heightFactor: 1,
-                                        child: DecoratedBox(
-                                            key: const ValueKey(
-                                                'liquidNavSelection'),
-                                            decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(100),
-                                                color: colors.onSurface
-                                                    .withOpacity(
-                                                        dark ? .12 : .07),
-                                                border: Border.all(
-                                                    color: colors.onSurface
-                                                        .withOpacity(.08),
-                                                    width: .5))))))),
-                        Row(children: [
-                          for (var index = 0;
-                              index < destinations.length;
-                              index++)
-                            Expanded(
-                                child: Semantics(
-                                    selected: index == currentPageIndex,
-                                    button: true,
-                                    label: destinations[index].label,
-                                    child: Tooltip(
-                                        message: destinations[index].label,
-                                        excludeFromSemantics: true,
-                                        child: SizedBox(
-                                            height: height,
-                                            child: AnimatedContainer(
-                                              duration: duration,
-                                              curve: Curves.easeOutCubic,
-                                              child: Material(
-                                                  type:
-                                                      MaterialType.transparency,
-                                                  child: InkWell(
-                                                    customBorder:
-                                                        const StadiumBorder(),
-                                                    onTap: () {
-                                                      if (index !=
-                                                          currentPageIndex) {
-                                                        context
-                                                            .read<
-                                                                ScreenNavProvider>()
-                                                            .setCurrentPage(
-                                                                routeNames[
-                                                                    index]);
-                                                      }
-                                                    },
-                                                    child: Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .symmetric(
-                                                                horizontal: 8),
-                                                        child: Column(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .center,
-                                                            children: [
-                                                              MiuixGlyph(
-                                                                  routeNames[index] ==
-                                                                          '/home'
-                                                                      ? MiuixSymbol
-                                                                          .home
-                                                                      : routeNames[index] ==
-                                                                              '/profile'
-                                                                          ? MiuixSymbol
-                                                                              .person
-                                                                          : MiuixSymbol
-                                                                              .calendar,
-                                                                  size: 26,
-                                                                  color: index ==
-                                                                          currentPageIndex
-                                                                      ? colors
-                                                                          .onSurface
-                                                                      : colors
-                                                                          .onSurfaceVariant),
-                                                              const SizedBox(
-                                                                  height: 3),
-                                                              FittedBox(
-                                                                  fit: BoxFit
-                                                                      .scaleDown,
-                                                                  child: Text(
-                                                                      destinations[
-                                                                              index]
-                                                                          .label,
-                                                                      maxLines:
-                                                                          1,
-                                                                      softWrap:
-                                                                          false,
-                                                                      overflow:
-                                                                          TextOverflow
-                                                                              .clip,
-                                                                      style: labelStyle.copyWith(
-                                                                          color: index == currentPageIndex
-                                                                              ? colors.onSurface
-                                                                              : colors.onSurfaceVariant))),
-                                                            ])),
-                                                  )),
-                                            ))))),
-                        ])
-                      ])),
-                ),
-              );
-            }),
-          ),
-        ),
-      ),
+                  child: NexioBottomTabs(
+                    key: const ValueKey('floatingNavToolbar'),
+                    selected: currentPageIndex,
+                    onSelected: (i) {
+                      if (i != currentPageIndex) {
+                        context
+                            .read<ScreenNavProvider>()
+                            .setCurrentPage(routeNames[i]);
+                      }
+                    },
+                    children: [
+                      for (var i = 0; i < destinations.length; i++)
+                        Tooltip(
+                            message: destinations[i].label,
+                            child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  MiuixGlyph(
+                                      routeNames[i] == '/home'
+                                          ? MiuixSymbol.home
+                                          : routeNames[i] == '/profile'
+                                              ? MiuixSymbol.person
+                                              : MiuixSymbol.calendar,
+                                      size: 24,
+                                      color: colors.onSurface.withOpacity(.8)),
+                                  const SizedBox(height: 2),
+                                  SizedBox(
+                                      height: 16,
+                                      child: FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          child: Text(destinations[i].label,
+                                              maxLines: 1,
+                                              softWrap: false,
+                                              style: TextStyle(
+                                                  fontSize: 11,
+                                                  color: colors.onSurface
+                                                      .withOpacity(.8))))),
+                                ]))
+                    ],
+                  )))),
     ]);
   }
 }

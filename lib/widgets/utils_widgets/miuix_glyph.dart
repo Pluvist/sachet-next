@@ -13,7 +13,8 @@ enum MiuixSymbol {
   swap,
   share,
   view,
-  tune
+  tune,
+  check
 }
 
 /// Original stroke icons, independent of external font or bitmap assets.
@@ -140,6 +141,13 @@ class _GlyphPainter extends CustomPainter {
           canvas.drawCircle(
               Offset(i == 1 ? 15 : 8, y), 2, Paint()..color = color);
         }
+      case MiuixSymbol.check:
+        canvas.drawPath(
+            Path()
+              ..moveTo(5, 12.5)
+              ..lineTo(10, 17.5)
+              ..lineTo(19, 7),
+            pen);
       case MiuixSymbol.settings:
         canvas.drawCircle(const Offset(12, 12), 7.5, pen);
         canvas.drawCircle(const Offset(12, 12), 3, pen);

@@ -28,9 +28,14 @@ void main() {
 
   LicenseRegistry.addLicense(() async* {
     yield LicenseEntryWithLineBreaks(
-      ['Sachet', 'Sachet Next'],
-      await rootBundle.loadString('LICENSE'),
+      ['Sachet'],
+      await rootBundle.loadString('LICENSE-MIT'),
     );
+    yield LicenseEntryWithLineBreaks(['Sachet Next', 'NexioSchedule'],
+        await rootBundle.loadString('LICENSE'));
+    yield LicenseEntryWithLineBreaks([
+      'Kyant Backdrop'
+    ], await rootBundle.loadString('third_party/nexio/LICENSE-Apache-2.0.txt'));
     yield LicenseEntryWithLineBreaks(
       ['Noto Serif SC Titles'],
       await rootBundle.loadString('assets/fonts/NotoSerifSC-LICENSE.txt'),

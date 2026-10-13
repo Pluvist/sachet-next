@@ -1,5 +1,4 @@
 import 'package:sachet/widgets/utils_widgets/source_expand_route.dart';
-import 'package:sachet/pages/class_page.dart';
 import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:flutter/material.dart';
 import 'package:sachet/widgets/utils_widgets/miuix_glyph.dart';
@@ -260,13 +259,7 @@ class _HomePageState extends State<HomePage>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _fly(
-                        1,
-                        Builder(
-                            builder: (sourceContext) => GestureDetector(
-                                onTap: () => expandPage(
-                                    sourceContext, const ClassPage()),
-                                child: const HomeCourseStatusCard()))),
+                    _fly(1, const HomeCourseStatusCard()),
                     const SizedBox(height: 10),
                     _fly(
                         2,

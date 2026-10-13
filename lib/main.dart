@@ -31,7 +31,8 @@ void main() {
       ['Sachet'],
       await rootBundle.loadString('LICENSE-MIT'),
     );
-    yield LicenseEntryWithLineBreaks(['Sachet Next', 'NexioSchedule'],
+    yield LicenseEntryWithLineBreaks(
+        ['Sachet Next', 'NexioSchedule', 'HyperCeiler onboarding'],
         await rootBundle.loadString('LICENSE'));
     yield LicenseEntryWithLineBreaks([
       'Kyant Backdrop'

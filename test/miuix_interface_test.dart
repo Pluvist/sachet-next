@@ -11,6 +11,7 @@ import 'package:sachet/models/course_card_settings.dart';
 import 'package:sachet/models/nav_destination.dart';
 import 'package:sachet/pages/about_page.dart';
 import 'package:sachet/pages/home_page.dart';
+import 'package:sachet/pages/intro_screen/intro_screen.dart';
 import 'package:sachet/pages/profile_page.dart';
 import 'package:sachet/pages/settings_page.dart';
 import 'package:sachet/pages/settings_child_pages/advanced_settings_page.dart';
@@ -30,6 +31,7 @@ import 'package:sachet/widgets/utils_widgets/nav_bottom.dart';
 void main() {
   final pages = <String, Widget>{
     'home': const HomePage(),
+    'intro': const IntroScreen(),
     'settings': const SettingsPage(),
     'profile': const ProfilePage(openedFromHome: true),
     'about': const AboutPage(),
@@ -96,8 +98,9 @@ void main() {
                 colorSchemeSeed: Colors.blue,
                 brightness: brightness)),
             builder: (context, child) => MediaQuery(
-                data: MediaQuery.of(context)
-                    .copyWith(textScaler: TextScaler.linear(scale)),
+                data: MediaQuery.of(context).copyWith(
+                    textScaler: TextScaler.linear(scale),
+                    disableAnimations: page is IntroScreen),
                 child: RepaintBoundary(
                     key: const ValueKey('uiPreview'), child: child!)),
             home: previewDir != null && page is HomePage
@@ -123,6 +126,11 @@ void main() {
                         ]))
                 : page)));
     await tester.pumpAndSettle();
+    if (page is IntroScreen) {
+      await tester.runAsync(() =>
+          ui.FragmentProgram.fromAsset('assets/shaders/hyperceiler_glow.frag'));
+      await tester.pumpAndSettle();
+    }
   }
 
   for (final entry in pages.entries) {
@@ -133,7 +141,7 @@ void main() {
             (tester) async {
           await pumpPage(tester, entry.value, brightness, scale);
           expect(tester.takeException(), isNull);
-          if (entry.key != 'home') {
+          if (entry.key != 'home' && entry.key != 'intro') {
             expect(find.byType(MiuixAppBar), findsOneWidget);
           }
           final colors =

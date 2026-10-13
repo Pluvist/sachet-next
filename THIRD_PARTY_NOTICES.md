@@ -25,3 +25,7 @@ Flutter 及 pubspec.yaml 中的依赖遵循各自许可证；Flutter 构建生�
 ## NexioSchedule 与 Kyant Backdrop
 
 底栏尺寸、手势、弹簧及菜单变形逻辑移植自 HaoZai000/NexioSchedule，遵循 AGPL-3.0；着色器公式版权为 Copyright 2025 Kyant，遵循 Apache-2.0。修改者 Pluvist。源码版本、原文、许可全文和移植差异见 [来源说明](third_party/nexio/SOURCES.md)。
+
+## HyperCeiler
+
+首次账号引导布局转写自 ReChronoRain/HyperCeiler，Copyright (C) 2023-2026 HyperCeiler Contributions，AGPL-3.0。原始XML、固定提交和适配说明保存在 [来源目录](third_party/hyperceiler/SOURCES.md)。品牌改为Sachet Next，仅保留账号步骤，保留原glow.glsl与GlowPainter默认参数，转写为Flutter着色器；未包含其系统专属活动动画库。

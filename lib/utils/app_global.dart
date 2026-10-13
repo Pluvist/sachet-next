@@ -36,6 +36,12 @@ class AppGlobal {
     }
 
     startupPage = appSettings.startupPage ?? '/class';
+    // Apply this release's blue palette once, including existing installations.
+    if (_prefs.getBool('sachetNextBlueThemeV1') != true) {
+      appSettings.themeColor = '#FF3482FF';
+      await persistAppSettings();
+      await _prefs.setBool('sachetNextBlueThemeV1', true);
+    }
 
     if (appSettings.pageTransition != 'cupertino') {
       appSettings.pageTransition = 'cupertino';

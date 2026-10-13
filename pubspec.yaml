@@ -4,7 +4,7 @@ description: "An app designed for Xiangtan University students, offering easy-to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 0.10.1-next.4+21
+version: 0.10.1-next.5+22
 
 homepage: https://github.com/Pluvist/sachet-next
 repository: https://github.com/Pluvist/sachet-next
@@ -87,17 +87,20 @@ flutter_launcher_icons:
 # 生成有关 splash screen 的文件
 # dart run flutter_native_splash:create
 flutter_native_splash:
+  ios: false
+  web: false
   image: assets/icon/icon-fg_1152x1152.png
-  color: "#a5d6a7"
+  color: "#e8f0ff"
   color_dark: "#000000"
   fullscreen: true # 需要设为 true，否则会显示系统的状态栏
   android_12:
-    color: "#a5d6a7"
+    color: "#e8f0ff"
     color_dark: "#000000"
 
 flutter:
   shaders:
     - assets/shaders/nexio_lens.frag
+    - assets/shaders/hyperceiler_glow.frag
   uses-material-design: true
   fonts:
     - family: Noto Serif SC Titles
@@ -107,6 +110,7 @@ flutter:
     - LICENSE
     - LICENSE-MIT
     - third_party/nexio/
+    - third_party/hyperceiler/
     - THIRD_PARTY_NOTICES.md
     - assets/fonts/NotoSerifSC-LICENSE.txt
     - assets/

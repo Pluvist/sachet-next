@@ -17,7 +17,6 @@ import 'package:sachet/widgets/classpage_widgets/export_class_schedule_dialog.da
 import 'package:sachet/widgets/classpage_widgets/month_count_dropdown_menu.dart';
 import 'package:sachet/widgets/classpage_widgets/switch_actived_app_file_dialog.dart';
 import 'package:sachet/widgets/classpage_widgets/update_class_schedule_zf_dialog.dart';
-import 'package:sachet/widgets/classpage_widgets/week_count_dropdown_menu.dart';
 import 'package:path/path.dart' as path;
 import 'package:collection/collection.dart';
 
@@ -386,7 +385,7 @@ class _ClassPageAppBarState extends State<ClassPageAppBar> {
           builder: (_, currentViewMode, __) {
             switch (currentViewMode) {
               case ClassScheduleViewMode.week:
-                return const WeekCountDropdownMenu();
+                return const SizedBox.shrink();
               case ClassScheduleViewMode.month:
                 return const MonthCountDropdownMenu();
               case ClassScheduleViewMode.semester:

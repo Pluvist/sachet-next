@@ -86,6 +86,38 @@ class _NexioBottomTabsState extends State<NexioBottomTabs>
       final tabWidth = (constraints.maxWidth - 8) / widget.children.length;
       final rtl = Directionality.of(context) == TextDirection.rtl;
       double coordinate(double x) => rtl ? constraints.maxWidth - x : x;
+      final fixedBackground = Positioned.fill(
+          child: RepaintBoundary(
+              key: const ValueKey('nexioFixedBackdrop'),
+              child: LiquidGlassSurface(
+                  blur: 8,
+                  lensHeight: 24,
+                  lensAmount: 24,
+                  tint: dark
+                      ? const Color(0xff242424).withOpacity(.6)
+                      : const Color(0xfffafafa).withOpacity(.6),
+                  child: const SizedBox())));
+      final fixedLabels = Positioned.fill(
+          child: RepaintBoundary(
+              key: const ValueKey('nexioFixedLabels'),
+              child: Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: Row(children: [
+                    for (var i = 0; i < widget.children.length; i++)
+                      Expanded(
+                          child: Semantics(
+                              selected: i == widget.selected,
+                              label: widget.children[i] is Tooltip
+                                  ? (widget.children[i] as Tooltip).message
+                                  : null,
+                              button: true,
+                              onTap: () {
+                                move(i.toDouble());
+                                widget.onSelected(i);
+                              },
+                              child: IgnorePointer(
+                                  child: Center(child: widget.children[i])))),
+                  ]))));
       return Listener(
         onPointerDown: (event) {
           if (pointer != null) return;
@@ -93,14 +125,28 @@ class _NexioBottomTabsState extends State<NexioBottomTabs>
           down = last = coordinate(event.localPosition.dx);
           dragging = (down - (4 + (position.value + .5) * tabWidth)).abs() <=
               tabWidth * .55;
+          if (dragging) {
+            target = position.value;
+            position.stop();
+          }
           pressed(true);
           if (!dragging) move(((down - 4) / tabWidth).floor().toDouble());
         },
         onPointerMove: (event) {
           if (pointer != event.pointer) return;
           final x = coordinate(event.localPosition.dx);
-          if (!dragging && (x - down).abs() > 18) dragging = true;
-          if (dragging) move(target + (x - last) / tabWidth);
+          if (!dragging && (x - down).abs() > 18) {
+            dragging = true;
+            target = position.value;
+            position.stop();
+            last = x;
+          }
+          if (dragging) {
+            target = (target + (x - last) / tabWidth)
+                .clamp(0, widget.children.length - 1)
+                .toDouble();
+            position.value = target;
+          }
           last = x;
         },
         onPointerUp: (event) {
@@ -119,7 +165,8 @@ class _NexioBottomTabsState extends State<NexioBottomTabs>
         },
         child: AnimatedBuilder(
             animation: Listenable.merge([position, press, scale, scaleY]),
-            builder: (context, _) {
+            child: fixedBackground,
+            builder: (context, fixedBackdrop) {
               final p = press.value.clamp(0.0, 1.0);
               final offset =
                   (position.value.clamp(0, widget.children.length - 1) *
@@ -131,15 +178,7 @@ class _NexioBottomTabsState extends State<NexioBottomTabs>
               return SizedBox(
                   height: 56,
                   child: Stack(clipBehavior: Clip.none, children: [
-                    Positioned.fill(
-                        child: LiquidGlassSurface(
-                            blur: 8,
-                            lensHeight: 24,
-                            lensAmount: 24,
-                            tint: dark
-                                ? const Color(0xff242424).withOpacity(.6)
-                                : const Color(0xfffafafa).withOpacity(.6),
-                            child: const SizedBox())),
+                    fixedBackdrop!,
                     Positioned(
                         left: x,
                         top: 4,
@@ -159,33 +198,14 @@ class _NexioBottomTabsState extends State<NexioBottomTabs>
                                             .clamp(-.2, .2)),
                                 1),
                             child: LiquidGlassSurface(
+                                blur: 0,
                                 lensHeight: 10 * p,
                                 lensAmount: 14 * p,
                                 dispersion: p,
                                 tint: (dark ? Colors.white : Colors.black)
                                     .withOpacity((dark ? .1 : .06) * (1 - p)),
                                 child: const SizedBox()))),
-                    Positioned.fill(
-                        child: Padding(
-                            padding: const EdgeInsets.all(4),
-                            child: Row(children: [
-                              for (var i = 0; i < widget.children.length; i++)
-                                Expanded(
-                                    child: Semantics(
-                                        selected: i == widget.selected,
-                                        label: widget.children[i] is Tooltip
-                                            ? (widget.children[i] as Tooltip)
-                                                .message
-                                            : null,
-                                        button: true,
-                                        onTap: () {
-                                          move(i.toDouble());
-                                          widget.onSelected(i);
-                                        },
-                                        child: IgnorePointer(
-                                            child: Center(
-                                                child: widget.children[i])))),
-                            ]))),
+                    fixedLabels,
                   ]));
             }),
       );

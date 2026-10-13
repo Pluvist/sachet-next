@@ -19,19 +19,25 @@ import 'package:sachet/widgets/utilspages_widgets/login_page_widgets/username_fo
 import 'package:provider/provider.dart';
 
 class ZhengFangJwxtLoginPage extends StatelessWidget {
-  const ZhengFangJwxtLoginPage({super.key});
+  const ZhengFangJwxtLoginPage(
+      {super.key, this.title = '登录', this.onboarding = false});
+  final String title;
+  final bool onboarding;
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => LoginPageProvider(),
-      child: ZhengFangJwxtLoginPageView(),
+      child: ZhengFangJwxtLoginPageView(title: title, onboarding: onboarding),
     );
   }
 }
 
 class ZhengFangJwxtLoginPageView extends StatefulWidget {
-  const ZhengFangJwxtLoginPageView({super.key});
+  const ZhengFangJwxtLoginPageView(
+      {super.key, this.title = '登录', this.onboarding = false});
+  final String title;
+  final bool onboarding;
 
   @override
   State<ZhengFangJwxtLoginPageView> createState() =>
@@ -211,7 +217,13 @@ class _ZhengFangJwxtLoginPageViewState
     final TextTheme textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      appBar: MiuixAppBar(title: const Text('登录')),
+      appBar: MiuixAppBar(title: Text(widget.title), actions: [
+        if (widget.onboarding)
+          TextButton(
+              key: const ValueKey('onboardLoginSkip'),
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('稍后登录'))
+      ]),
       body: Form(
         key: _loginFormKey,
         child: SingleChildScrollView(

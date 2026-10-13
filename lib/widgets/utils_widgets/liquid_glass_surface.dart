@@ -46,9 +46,9 @@ class _LiquidGlassSurfaceState extends State<LiquidGlassSurface> {
     return ClipRRect(
         key: surfaceKey,
         borderRadius: BorderRadius.circular(widget.radius),
-        child: BackdropFilter(
-            filter:
-                ui.ImageFilter.blur(sigmaX: widget.blur, sigmaY: widget.blur),
+        child: _BackdropBlur(
+            sigma: widget.blur,
+            shaderReady: shader != null,
             child: ValueListenableBuilder<ui.Image?>(
                 valueListenable: GlassBackdrop.image,
                 builder: (context, image, _) => CustomPaint(
@@ -112,9 +112,30 @@ class _LensPainter extends CustomPainter {
         Offset.zero & size,
         Paint()
           ..shader = shader
-          ..imageFilter = ui.ImageFilter.blur(sigmaX: blur, sigmaY: blur));
+          ..imageFilter = blur > 0
+              ? ui.ImageFilter.blur(sigmaX: blur, sigmaY: blur)
+              : null);
   }
 
   @override
   bool shouldRepaint(_LensPainter old) => true;
+}
+
+// When the refraction painter already samples and blurs a page image, a second
+// backdrop filter would duplicate GPU work. Keep it only as the fallback.
+class _BackdropBlur extends StatelessWidget {
+  const _BackdropBlur(
+      {required this.sigma, required this.shaderReady, required this.child});
+  final double sigma;
+  final bool shaderReady;
+  final Widget child;
+  @override
+  Widget build(BuildContext context) => ValueListenableBuilder<ui.Image?>(
+      valueListenable: GlassBackdrop.image,
+      builder: (context, image, _) =>
+          sigma > 0 && (!shaderReady || image == null)
+              ? BackdropFilter(
+                  filter: ui.ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
+                  child: child)
+              : child);
 }

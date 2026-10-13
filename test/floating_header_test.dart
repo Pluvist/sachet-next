@@ -61,14 +61,14 @@ void main() {
     // The title is plain text now; the week list lives behind the top-right
     // glass button instead of a clickable tab on the title.
     expect(
-        find.byWidgetPredicate((widget) =>
-            widget is Text && (widget.data ?? '').startsWith('第 ')),
+        find.byWidgetPredicate(
+            (widget) => widget is Text && (widget.data ?? '').startsWith('第 ')),
         findsOneWidget);
     expect(find.byKey(const ValueKey('courseTitleCapsule')), findsNothing);
     expect(find.byKey(const ValueKey('courseActionsCapsule')), findsNothing);
 
     // Five controls, ordered left to right, all on one 56dp row.
-    const labels = ['切换视图', '上一周', '下一周', '回到本周', '选择周次', '更多操作'];
+    const labels = ['切换视图', '上一周', '下一周', '回到本周', '更多操作'];
     final rects = {
       for (final label in labels) label: tester.getRect(find.byTooltip(label)),
     };
@@ -82,7 +82,7 @@ void main() {
           reason: '${labels[index]} must sit right of ${labels[index - 1]}');
     }
     // The two morphing controls keep the reference trigger footprint.
-    for (final label in ['选择周次', '更多操作']) {
+    for (final label in ['更多操作']) {
       expect(rects[label]!.width, kLiquidDropdownButtonDiameter);
       expect(rects[label]!.height, kLiquidDropdownButtonDiameter);
     }
@@ -95,16 +95,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(courses.currentWeekCount, week);
 
-    // Week list: the trigger grows into the panel and pages the schedule.
-    await tester.tap(find.byTooltip('选择周次'));
-    await tester.pumpAndSettle();
-    expect(find.text('第 20 周'), findsWidgets);
-    await tester.ensureVisible(
-        find.byKey(const ValueKey('liquidDropdownItem1')).last);
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('liquidDropdownItem1')).last);
-    await tester.pumpAndSettle();
-    expect(courses.currentWeekCount, 2);
+    expect(find.byTooltip('选择周次'), findsNothing);
 
     await tester.tap(find.byTooltip('回到本周'));
     await tester.pumpAndSettle();

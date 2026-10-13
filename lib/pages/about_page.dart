@@ -97,7 +97,7 @@ class _AboutPageState extends State<AboutPage> {
       children: [
         const Text(upstreamAcknowledgement),
         const Text(
-            '底栏与菜单：NexioSchedule（HaoZai000），AGPL-3.0；折射着色器：Kyant Backdrop，Apache-2.0。源码移植与适配：Pluvist。'),
+            '底栏与菜单：NexioSchedule（HaoZai000），AGPL-3.0；折射着色器：Kyant Backdrop，Apache-2.0。引导布局：HyperCeiler Contributions，AGPL-3.0。源码移植与适配：Pluvist。'),
         const SizedBox(height: 12),
         const Text(
             'Sachet Next 遵循 AGPL-3.0 许可证，Sachet 上游代码保留 MIT 许可证声明，以免费软件形式提供，不作任何担保。'),

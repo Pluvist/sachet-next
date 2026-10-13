@@ -1,3 +1,5 @@
+import 'package:sachet/widgets/utils_widgets/source_expand_route.dart';
+import 'package:sachet/pages/class_page.dart';
 import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:flutter/material.dart';
 import 'package:sachet/widgets/utils_widgets/miuix_glyph.dart';
@@ -35,8 +37,45 @@ class OpenLinkListTile {
   });
 }
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _entrance;
+  @override
+  void initState() {
+    super.initState();
+    final animate = AppGlobal.homeEntrancePending;
+    AppGlobal.homeEntrancePending = false;
+    _entrance = AnimationController(
+        vsync: this,
+        duration: const Duration(milliseconds: 1100),
+        value: animate ? 0 : 1);
+    if (animate) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        if (MediaQuery.disableAnimationsOf(context)) {
+          _entrance.value = 1;
+        } else {
+          _entrance.forward();
+        }
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _entrance.dispose();
+    super.dispose();
+  }
+
+  Widget _fly(int index, Widget child) =>
+      HomeEntrance(animation: _entrance, index: index, child: child);
 
   Widget _buildFeatureCards(BuildContext context) {
     final cards = <Widget>[
@@ -86,7 +125,7 @@ class HomePage extends StatelessWidget {
                   if (column > 0) const SizedBox(width: HomeDesign.gap),
                   Expanded(
                       child: start + column < cards.length
-                          ? cards[start + column]
+                          ? _fly(start + column + 3, cards[start + column])
                           : const SizedBox()),
                 ],
               ],
@@ -179,16 +218,17 @@ class HomePage extends StatelessWidget {
               actions: [
                 Padding(
                     padding: const EdgeInsets.only(right: 16),
-                    child: IconButton(
-                      key: const ValueKey('homeProfileButton'),
-                      tooltip: '个人中心',
-                      iconSize: 26,
-                      icon: const MiuixGlyph(MiuixSymbol.person),
-                      onPressed: () => Navigator.of(context).push(
-                          MaterialPageRoute<void>(
-                              builder: (_) =>
-                                  const ProfilePage(openedFromHome: true))),
-                    )),
+                    child: _fly(
+                        0,
+                        Builder(
+                            builder: (sourceContext) => IconButton(
+                                  key: const ValueKey('homeProfileButton'),
+                                  tooltip: '个人中心',
+                                  iconSize: 26,
+                                  icon: const MiuixGlyph(MiuixSymbol.person),
+                                  onPressed: () => expandPage(sourceContext,
+                                      const ProfilePage(openedFromHome: true)),
+                                )))),
               ],
               flexibleSpace: LayoutBuilder(builder: (context, constraints) {
                 final top = MediaQuery.paddingOf(context).top;
@@ -204,10 +244,12 @@ class HomePage extends StatelessWidget {
                               EdgeInsets.fromLTRB(26, 0, 72, 14 + progress * 4),
                           child: MediaQuery.withClampedTextScaling(
                               maxScaleFactor: 1.4,
-                              child: PageHeading(HomeDesign.title,
-                                  fontSize: 20 +
-                                      progress *
-                                          (HomeDesign.headingSize - 20))),
+                              child: _fly(
+                                  0,
+                                  PageHeading(HomeDesign.title,
+                                      fontSize: 20 +
+                                          progress *
+                                              (HomeDesign.headingSize - 20)))),
                         )));
               }),
             ),
@@ -218,69 +260,79 @@ class HomePage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const HomeCourseStatusCard(),
+                    _fly(
+                        1,
+                        Builder(
+                            builder: (sourceContext) => GestureDetector(
+                                onTap: () => expandPage(
+                                    sourceContext, const ClassPage()),
+                                child: const HomeCourseStatusCard()))),
                     const SizedBox(height: 10),
-                    MiuixCard(
-                      key: const ValueKey('homeHeroCard'),
-                      margin: EdgeInsets.zero,
-                      elevation: 0,
-                      shadowColor: primaryColor.withOpacity(0.4),
-                      clipBehavior: Clip.hardEdge,
-                      color: colorScheme.surfaceContainerLow,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      child: InkWell(
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => FreeClassroomPageZF(),
-                          ),
-                        ),
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(
-                              minHeight: HomeDesign.heroHeight),
-                          child: Padding(
-                            padding: const EdgeInsets.all(24.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        '空闲教室',
-                                        style: TextStyle(
-                                          fontSize: HomeDesign.heroSize,
-                                          fontWeight: FontWeight.bold,
-                                          color: colorScheme.onSurface,
-                                        ),
-                                      ),
-                                      SizedBox(height: 4),
-                                      Text(
-                                        '快速查询自习室',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: colorScheme.onSurface,
-                                        ),
-                                      ),
-                                    ],
+                    _fly(
+                        2,
+                        Builder(
+                            builder: (sourceContext) => MiuixCard(
+                                  key: const ValueKey('homeHeroCard'),
+                                  margin: EdgeInsets.zero,
+                                  elevation: 0,
+                                  shadowColor: primaryColor.withOpacity(0.4),
+                                  clipBehavior: Clip.hardEdge,
+                                  color: colorScheme.surfaceContainerLow,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(24),
                                   ),
-                                ),
-                                const SizedBox(width: 12),
-                                Icon(
-                                  Icons.meeting_room_rounded,
-                                  size: 44,
-                                  color: colorScheme.onSurface,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                                  child: InkWell(
+                                    onTap: () => expandPage(
+                                        sourceContext, FreeClassroomPageZF()),
+                                    child: ConstrainedBox(
+                                      constraints: const BoxConstraints(
+                                          minHeight: HomeDesign.heroHeight),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(24.0),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    '空闲教室',
+                                                    style: TextStyle(
+                                                      fontSize:
+                                                          HomeDesign.heroSize,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color:
+                                                          colorScheme.onSurface,
+                                                    ),
+                                                  ),
+                                                  SizedBox(height: 4),
+                                                  Text(
+                                                    '快速查询自习室',
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color:
+                                                          colorScheme.onSurface,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            const SizedBox(width: 12),
+                                            Icon(
+                                              Icons.meeting_room_rounded,
+                                              size: 44,
+                                              color: colorScheme.onSurface,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ))),
                     const SizedBox(height: 10),
                     Padding(
                       padding: EdgeInsets.zero,
@@ -293,68 +345,89 @@ class HomePage extends StatelessWidget {
                                 fontSize: 13,
                                 color: colorScheme.onSurfaceVariant))),
                     SizedBox(height: 6),
-                    MiuixCard(
-                      margin: EdgeInsets.zero,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      clipBehavior: Clip.hardEdge,
-                      child: Column(
-                        children:
-                            List.generate(openLinkListTileList.length, (index) {
-                          return Column(
-                            children: [
-                              MiuixListTile(
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                  vertical: 4,
-                                ),
-                                leading: Align(
-                                  widthFactor: 1,
-                                  alignment: Alignment.centerLeft,
-                                  child: Icon(
-                                    openLinkListTileList[index].icon,
-                                    color: primaryColor,
-                                  ),
-                                ),
-                                title: Text(
-                                  openLinkListTileList[index].title,
-                                  style: TextStyle(fontWeight: FontWeight.w500),
-                                ),
-                                subtitle: Text(
-                                  openLinkListTileList[index].subtitle,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: colorScheme.onSurfaceVariant,
-                                  ),
-                                ),
-                                trailing: Icon(
-                                  // Icons.chevron_right,
-                                  Icons.chevron_right_rounded,
-                                  color: colorScheme.onSurfaceVariant,
-                                ),
-                                onTap: () =>
-                                    openLink(openLinkListTileList[index].link),
-                                onLongPress: () => copyToClipboard(
-                                  context,
-                                  openLinkListTileList[index].link,
-                                  prefix: '链接',
-                                ),
-                              ),
-                              // 添加分割线，除了最后一个
-                              if (index != openLinkListTileList.length - 1)
-                                Divider(
-                                  height: 1,
-                                  thickness: 1,
-                                  indent: 60,
-                                  endIndent: 40,
-                                  color: colorScheme.outlineVariant,
-                                ),
-                            ],
-                          );
-                        }),
-                      ),
-                    ),
+                    _fly(
+                        12,
+                        MiuixCard(
+                          margin: EdgeInsets.zero,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          clipBehavior: Clip.hardEdge,
+                          child: Column(
+                            children: List.generate(openLinkListTileList.length,
+                                (index) {
+                              return Column(
+                                children: [
+                                  _fly(
+                                      index + 12,
+                                      Builder(
+                                          builder: (sourceContext) =>
+                                              MiuixListTile(
+                                                contentPadding:
+                                                    const EdgeInsets.symmetric(
+                                                  horizontal: 20,
+                                                  vertical: 4,
+                                                ),
+                                                leading: Align(
+                                                  widthFactor: 1,
+                                                  alignment:
+                                                      Alignment.centerLeft,
+                                                  child: Icon(
+                                                    openLinkListTileList[index]
+                                                        .icon,
+                                                    color: primaryColor,
+                                                  ),
+                                                ),
+                                                title: Text(
+                                                  openLinkListTileList[index]
+                                                      .title,
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w500),
+                                                ),
+                                                subtitle: Text(
+                                                  openLinkListTileList[index]
+                                                      .subtitle,
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: colorScheme
+                                                        .onSurfaceVariant,
+                                                  ),
+                                                ),
+                                                trailing: Icon(
+                                                  // Icons.chevron_right,
+                                                  Icons.chevron_right_rounded,
+                                                  color: colorScheme
+                                                      .onSurfaceVariant,
+                                                ),
+                                                onTap: () => expandAction(
+                                                    sourceContext,
+                                                    () => openLink(
+                                                        openLinkListTileList[
+                                                                index]
+                                                            .link)),
+                                                onLongPress: () =>
+                                                    copyToClipboard(
+                                                  context,
+                                                  openLinkListTileList[index]
+                                                      .link,
+                                                  prefix: '链接',
+                                                ),
+                                              ))),
+                                  // 添加分割线，除了最后一个
+                                  if (index != openLinkListTileList.length - 1)
+                                    Divider(
+                                      height: 1,
+                                      thickness: 1,
+                                      indent: 60,
+                                      endIndent: 40,
+                                      color: colorScheme.outlineVariant,
+                                    ),
+                                ],
+                              );
+                            }),
+                          ),
+                        )),
                   ],
                 ),
               ),

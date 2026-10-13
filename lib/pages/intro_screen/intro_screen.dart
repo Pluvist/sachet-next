@@ -1,6 +1,8 @@
 // HyperCeiler provision layout and glow adaptation. AGPL-3.0.
 // Copyright (C) 2023-2026 HyperCeiler Contributions; adaptation Pluvist.
 import 'dart:math' as math;
+import 'package:sachet/providers/screen_nav_provider.dart';
+import 'package:sachet/widgets/utils_widgets/source_expand_route.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sachet/models/enums/nav_type.dart';
@@ -18,13 +20,18 @@ class IntroScreen extends StatefulWidget {
 }
 
 class _IntroScreenState extends State<IntroScreen> {
+  final _arrowKey = GlobalKey();
   bool completed = false;
   bool opening = false;
   void _finish() {
+    context.read<SettingsProvider>().setStartupPage('/home');
+    AppGlobal.startupPage = '/home';
+    AppGlobal.homeEntrancePending = true;
+    context.read<ScreenNavProvider>().setCurrentPage('/home');
     context.read<SettingsProvider>().setHasReadDisclaimer();
     Navigator.of(context).pushNamedAndRemoveUntil(
         SettingsProvider.navigationType == NavType.navigationDrawer.type
-            ? AppGlobal.appSettings.startupPage ?? '/class'
+            ? '/home'
             : '/navBarView',
         (_) => false);
   }
@@ -36,9 +43,12 @@ class _IntroScreenState extends State<IntroScreen> {
       return;
     }
     setState(() => opening = true);
-    final result = await Navigator.of(context).push<bool>(MaterialPageRoute(
-        builder: (_) =>
-            const ZhengFangJwxtLoginPage(title: '登录账号', onboarding: true)));
+    final result = await Navigator.of(context).push<bool>(
+        SourceExpandRoute<bool>(
+            source: expansionSource(_arrowKey.currentContext!),
+            reduceMotion: MediaQuery.disableAnimationsOf(context),
+            builder: (_) =>
+                const ZhengFangJwxtLoginPage(title: '登录账号', onboarding: true)));
     if (!mounted) return;
     setState(() {
       opening = false;
@@ -50,11 +60,10 @@ class _IntroScreenState extends State<IntroScreen> {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final foreground = completed ? colors.onSurface : Colors.black;
+    const foreground = Colors.black;
     return Scaffold(
         body: Stack(fit: StackFit.expand, children: [
-      if (!completed)
-        const Positioned.fill(child: IgnorePointer(child: HyperCeilerGlow())),
+      const Positioned.fill(child: IgnorePointer(child: HyperCeilerGlow())),
       SafeArea(
           child: LayoutBuilder(
               builder: (context, constraints) => SingleChildScrollView(
@@ -74,11 +83,16 @@ class _IntroScreenState extends State<IntroScreen> {
                             const SizedBox(height: 24),
                             FittedBox(
                                 fit: BoxFit.scaleDown,
-                                child: Text(completed ? '设置完成' : 'Sachet Next',
-                                    style: TextStyle(
-                                        fontSize: completed ? 32 : 38,
-                                        fontWeight: FontWeight.w500,
-                                        color: foreground))),
+                                child: Padding(
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 6),
+                                    child: Text(
+                                        completed ? '设置完成' : 'Sachet Next',
+                                        style: TextStyle(
+                                            fontSize: completed ? 32 : 38,
+                                            fontWeight: FontWeight.w700,
+                                            height: 1.25,
+                                            color: foreground)))),
                             const SizedBox(height: 8),
                             Text(completed ? '一切准备就绪' : '让每一天，井然有序',
                                 textAlign: TextAlign.center,
@@ -92,6 +106,7 @@ class _IntroScreenState extends State<IntroScreen> {
                                 button: true,
                                 label: completed ? '开始使用' : '下一步',
                                 child: Material(
+                                    key: _arrowKey,
                                     color: completed
                                         ? colors.primary
                                         : Colors.black.withOpacity(.6),

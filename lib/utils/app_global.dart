@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sachet/services/course_widget_bridge.dart';
 
 class AppGlobal {
+  static bool homeEntrancePending = false;
   static late SharedPreferences _prefs;
   static late AppSettings appSettings;
   static late CourseCardSettings courseCardSettings;

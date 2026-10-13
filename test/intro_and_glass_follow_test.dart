@@ -1,3 +1,4 @@
+import 'package:sachet/providers/screen_nav_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui' as ui;
@@ -14,6 +15,11 @@ import 'package:sachet/widgets/utils_widgets/nexio_bottom_tabs.dart';
 
 class _Settings extends SettingsProvider {
   int completed = 0;
+  @override
+  void setStartupPage(String page) {
+    AppGlobal.appSettings.startupPage = page;
+  }
+
   @override
   void setHasReadDisclaimer() {
     completed++;
@@ -42,6 +48,7 @@ void main() {
   });
   setUp(() {
     AppGlobal.appSettings = AppSettings.fromJson(defaultAppSettingsConfig);
+    AppGlobal.homeEntrancePending = false;
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
             const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
@@ -52,6 +59,7 @@ void main() {
     final settings = _Settings();
     await tester.pumpWidget(MultiProvider(
         providers: [
+          ChangeNotifierProvider(create: (_) => ScreenNavProvider()),
           ChangeNotifierProvider<SettingsProvider>.value(value: settings),
           ChangeNotifierProvider<ZhengFangUserProvider>(
               create: (_) => _Account()),
@@ -94,6 +102,8 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.text('主界面'), findsOneWidget);
         expect(settings.completed, 1);
+        expect(AppGlobal.startupPage, '/home');
+        expect(ScreenNavProvider.currentPage, '/home');
         expect(tester.takeException(), isNull);
       });
     }
@@ -126,6 +136,8 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('introFinish')));
     await tester.pumpAndSettle();
     expect(settings.completed, 1);
+    expect(AppGlobal.startupPage, '/home');
+    expect(ScreenNavProvider.currentPage, '/home');
     expect(find.text('主界面'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });

@@ -7,8 +7,10 @@ import 'package:sachet/services/automatic_course_refresh.dart';
 
 /// Refresh on cold start and return from background, never on a tab change.
 class CourseRefreshCoordinator extends StatefulWidget {
-  const CourseRefreshCoordinator({super.key, required this.child});
+  const CourseRefreshCoordinator(
+      {super.key, required this.child, this.refresh});
   final Widget child;
+  final AutomaticCourseRefresh? refresh;
   @override
   State<CourseRefreshCoordinator> createState() =>
       _CourseRefreshCoordinatorState();
@@ -16,10 +18,12 @@ class CourseRefreshCoordinator extends StatefulWidget {
 
 class _CourseRefreshCoordinatorState extends State<CourseRefreshCoordinator>
     with WidgetsBindingObserver {
-  final _refresh = AutomaticCourseRefresh();
+  late final _refresh = widget.refresh ?? AutomaticCourseRefresh();
   bool _wasBackground = false;
   bool _loggedIn = false;
   ZhengFangUserProvider? _user;
+  SettingsProvider? _settings;
+  bool _introFinished = false;
   @override
   void initState() {
     super.initState();
@@ -30,12 +34,27 @@ class _CourseRefreshCoordinatorState extends State<CourseRefreshCoordinator>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    final settings = context.read<SettingsProvider>();
+    if (_settings != settings) {
+      _settings?.removeListener(_onSettingsChanged);
+      _settings = settings;
+      _introFinished = settings.hasReadDisclaimer;
+      settings.addListener(_onSettingsChanged);
+    }
     final user = context.read<ZhengFangUserProvider>();
     if (_user == user) return;
     _user?.removeListener(_onUserChanged);
     _user = user;
     _loggedIn = user.isLogin;
     user.addListener(_onUserChanged);
+  }
+
+  void _onSettingsChanged() {
+    final finished = _settings!.hasReadDisclaimer;
+    if (finished && !_introFinished) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _run());
+    }
+    _introFinished = finished;
   }
 
   void _onUserChanged() {
@@ -47,7 +66,7 @@ class _CourseRefreshCoordinatorState extends State<CourseRefreshCoordinator>
   }
 
   void _run() {
-    if (!mounted) return;
+    if (!mounted || !_introFinished) return;
     unawaited(_refresh
         .refresh(context.read<SettingsProvider>(), _user!,
             isAlive: () => mounted)
@@ -68,6 +87,7 @@ class _CourseRefreshCoordinatorState extends State<CourseRefreshCoordinator>
   @override
   void dispose() {
     _user?.removeListener(_onUserChanged);
+    _settings?.removeListener(_onSettingsChanged);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }

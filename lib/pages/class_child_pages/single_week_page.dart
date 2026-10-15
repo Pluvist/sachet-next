@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_glyph.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sachet/models/course_schedule.dart';
@@ -32,11 +33,36 @@ class SingleWeekPage extends StatefulWidget {
 
 class _SingleWeekPageState extends State<SingleWeekPage>
     with AutomaticKeepAliveClientMixin {
+  late final PageController _days =
+      PageController(initialPage: (DateTime.now().weekday - 1) ~/ 2);
+  @override
+  void dispose() {
+    _days.dispose();
+    super.dispose();
+  }
+
   @override
   bool get wantKeepAlive => true;
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    if (MediaQuery.orientationOf(context) == Orientation.landscape) {
+      return PageView.builder(
+        key: ValueKey('twoDayPager-${widget.weekCount}'),
+        controller: _days,
+        physics: widget.pointerCount >= 2
+            ? const NeverScrollableScrollPhysics()
+            : null,
+        itemCount: 4,
+        itemBuilder: (context, index) => _buildDays(context,
+            firstWeekday: index == 3 ? 6 : index * 2 + 1, dayCount: 2),
+      );
+    }
+    return _buildDays(context);
+  }
+
+  Widget _buildDays(BuildContext context,
+      {int firstWeekday = 1, int dayCount = 7}) {
     final settings = context.watch<SettingsProvider>();
     final overrides = settings.courseRoutineOverrides;
     final axis = SchoolTimeAxis(widget.cardHeight);
@@ -77,16 +103,56 @@ class _SingleWeekPageState extends State<SingleWeekPage>
     return Column(children: [
       DayOfTheWeekTopBar(
           weekCount: widget.weekCount,
+          firstWeekday: firstWeekday,
+          dayCount: dayCount,
           semesterStartDate: SettingsProvider.semesterStartDateDateTime,
           timeRailWidth: leftWidth,
           rightTimeRailWidth: rightWidth),
       Row(children: [
         if (leftWidth > 0) railHeading(BuildingRoutine.normal),
-        const Expanded(child: SizedBox(height: 30)),
+        Expanded(
+            child: dayCount == 2
+                ? SizedBox(
+                    height: 30,
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          IconButton(
+                              tooltip: '前两天',
+                              padding: EdgeInsets.zero,
+                              iconSize: 18,
+                              constraints: const BoxConstraints(minWidth: 32),
+                              onPressed: firstWeekday == 1
+                                  ? null
+                                  : () => _days.previousPage(
+                                      duration:
+                                          const Duration(milliseconds: 250),
+                                      curve: Curves.easeOutCubic),
+                              icon: const MiuixGlyph(MiuixSymbol.previous,
+                                  size: 18)),
+                          const Text('左右滑动查看其他日期',
+                              style: TextStyle(fontSize: 10)),
+                          IconButton(
+                              tooltip: '后两天',
+                              padding: EdgeInsets.zero,
+                              iconSize: 18,
+                              constraints: const BoxConstraints(minWidth: 32),
+                              onPressed: firstWeekday == 6
+                                  ? null
+                                  : () => _days.nextPage(
+                                      duration:
+                                          const Duration(milliseconds: 250),
+                                      curve: Curves.easeOutCubic),
+                              icon:
+                                  const MiuixGlyph(MiuixSymbol.next, size: 18)),
+                        ]))
+                : const SizedBox(height: 30)),
         if (rightWidth > 0) railHeading(BuildingRoutine.staggered),
       ]),
       Expanded(
           child: SingleChildScrollView(
+        key: PageStorageKey(
+            'course-scroll-${widget.weekCount}-$firstWeekday-$dayCount'),
         physics: widget.pointerCount >= 2
             ? const NeverScrollableScrollPhysics()
             : const AlwaysScrollableScrollPhysics(),
@@ -121,7 +187,9 @@ class _SingleWeekPageState extends State<SingleWeekPage>
                                             .colorScheme
                                             .onSurfaceVariant))))),
                   Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    for (int weekday = 1; weekday <= 7; weekday++)
+                    for (int weekday = firstWeekday;
+                        weekday < firstWeekday + dayCount;
+                        weekday++)
                       Expanded(
                           child: SizedBox(
                               height: axis.height,

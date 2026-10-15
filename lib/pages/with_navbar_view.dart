@@ -8,7 +8,7 @@ import 'package:sachet/pages/home_page.dart';
 import 'package:sachet/pages/profile_page.dart';
 import 'package:sachet/providers/screen_nav_provider.dart';
 import 'package:sachet/widgets/utils_widgets/nav_bottom.dart';
-import 'package:sachet/widgets/utils_widgets/nav_side.dart';
+import 'package:sachet/widgets/utils_widgets/nav_top.dart';
 import 'package:sachet/widgets/utils_widgets/retained_tab_body.dart';
 
 const List<String> _routeNames = ['/home', '/class'];
@@ -126,42 +126,37 @@ class _WithNavigationBarViewState extends State<WithNavigationBarView> {
         context.select<ScreenNavProvider, String>(
             (screenNavProvider) => ScreenNavProvider.currentPage));
     return LayoutBuilder(builder: (context, BoxConstraints constraints) {
-      // 是否宽屏。
-      // 为什么还要判断主题是否启用了 MD3 呢，
-      // 因为如果是 MD2 风格，AppBar 背景色为主题色,而侧边导航栏 NavigationRail 背景色是白色，看起来不协调。
-      // 启用 MD3 时，两者背景色都是白色。
-      // TODO: 优化 MaterialDesign2 时的宽屏模式（响应式设计）
-      final bool isWideScreenMode = (constraints.maxWidth > 600 &&
-          Theme.of(context).useMaterial3 == true);
+      final bool isWideScreenMode = constraints.maxWidth > 600 ||
+          constraints.maxWidth > constraints.maxHeight;
       return Scaffold(
         // Let page content paint through the transparent space around the pill.
         extendBody: !isWideScreenMode && Theme.of(context).useMaterial3,
-        body: Row(
-          children: [
-            if (isWideScreenMode && currentPageIndex >= 0)
-              SafeArea(
-                child: NavSide(
-                  destinations: _destinations,
-                  routeNames: _routeNames,
-                  currentPageIndex: currentPageIndex,
-                ),
-              ),
-            Expanded(
-              child: NotificationListener<ScrollNotification>(
-                onNotification: (notification) => _onScrollNotification(
-                    notification, isWideScreenMode, currentPageIndex),
-                child: RepaintBoundary(
-                    key: GlassBackdrop.key,
-                    child: currentPageIndex < 0
-                        ? const ProfilePage()
-                        : RetainedTabBody(
-                            index: currentPageIndex,
-                            children: const [HomePage(), ClassPage()],
-                          )),
-              ),
-            ),
-          ],
-        ),
+        body: Stack(children: [
+          Positioned.fill(
+              child: Padding(
+                  padding: EdgeInsets.only(
+                      top: isWideScreenMode && currentPageIndex >= 0 ? 72 : 0),
+                  child: NotificationListener<ScrollNotification>(
+                    onNotification: (notification) => _onScrollNotification(
+                        notification, isWideScreenMode, currentPageIndex),
+                    child: RepaintBoundary(
+                        key: GlassBackdrop.key,
+                        child: currentPageIndex < 0
+                            ? const ProfilePage()
+                            : RetainedTabBody(
+                                index: currentPageIndex,
+                                children: const [HomePage(), ClassPage()])),
+                  ))),
+          if (isWideScreenMode && currentPageIndex >= 0)
+            Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: NavTop(
+                    destinations: _destinations,
+                    routeNames: _routeNames,
+                    currentPageIndex: currentPageIndex)),
+        ]),
         bottomNavigationBar: !isWideScreenMode && currentPageIndex >= 0
             ? Selector<ScreenNavProvider, bool>(
                 selector: (_, provider) => provider.isNavBottomVisible,

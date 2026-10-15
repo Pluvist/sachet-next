@@ -129,13 +129,13 @@ void main() {
     await first.moveTo(const Offset(180, 250));
     await second.moveTo(const Offset(460, 250));
     await tester.pump();
-    expect(tester.widget<PageView>(find.byType(PageView)).physics,
+    expect(tester.widget<PageView>(find.byType(PageView).first).physics,
         isA<NeverScrollableScrollPhysics>());
     await first.up();
     await second.up();
     await tester.pumpAndSettle();
     expect(settings.cardHeight, greaterThan(height));
-    expect(tester.widget<PageView>(find.byType(PageView)).physics,
+    expect(tester.widget<PageView>(find.byType(PageView).first).physics,
         isA<AlwaysScrollableScrollPhysics>());
     debugOnRebuildDirtyWidget = null;
     expect(tester.takeException(), isNull);

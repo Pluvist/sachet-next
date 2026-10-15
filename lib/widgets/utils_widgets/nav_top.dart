@@ -24,7 +24,7 @@ class NavTop extends StatelessWidget {
         : Colors.white;
     final colors = Theme.of(context).colorScheme;
     return SizedBox(
-        height: MediaQuery.paddingOf(context).top + 96,
+        height: MediaQuery.paddingOf(context).top + 84,
         child: Stack(children: [
           Positioned.fill(
               child: IgnorePointer(
@@ -52,11 +52,12 @@ class NavTop extends StatelessWidget {
                       alignment: Alignment.topCenter,
                       child: SizedBox(
                           width: math.min(
-                              440,
+                              320,
                               math.max(
-                                  240, MediaQuery.sizeOf(context).width * .42)),
+                                  200, MediaQuery.sizeOf(context).width * .30)),
                           child: NexioBottomTabs(
                               key: const ValueKey('floatingNavTopToolbar'),
+                              height: 44,
                               selected: currentPageIndex,
                               onSelected: (i) => context
                                   .read<ScreenNavProvider>()
@@ -69,7 +70,7 @@ class NavTop extends StatelessWidget {
                                           child: Text(destination.label,
                                               maxLines: 1,
                                               style: TextStyle(
-                                                  fontSize: 15,
+                                                  fontSize: 14,
                                                   fontWeight: FontWeight.w600,
                                                   color: colors.onSurface))))
                               ]))))),

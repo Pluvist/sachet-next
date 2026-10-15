@@ -135,7 +135,7 @@ class _WithNavigationBarViewState extends State<WithNavigationBarView> {
           Positioned.fill(
               child: Padding(
                   padding: EdgeInsets.only(
-                      top: isWideScreenMode && currentPageIndex >= 0 ? 72 : 0),
+                      top: isWideScreenMode && currentPageIndex >= 0 ? 60 : 0),
                   child: NotificationListener<ScrollNotification>(
                     onNotification: (notification) => _onScrollNotification(
                         notification, isWideScreenMode, currentPageIndex),

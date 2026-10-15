@@ -25,7 +25,7 @@ class _WeekCountDropdownMenuState extends State<WeekCountDropdownMenu> {
     setState(() => _show = false);
     final settingsProvider = context.read<SettingsProvider>();
     context.read<ClassPageProvider>().pageController.animateToPage(
-          page - 1,
+          context.read<ClassPageProvider>().pageForWeek(page),
           duration: Duration(milliseconds: settingsProvider.curveDuration),
           curve: curveTypes[settingsProvider.curveType] ?? Easing.standard,
         );

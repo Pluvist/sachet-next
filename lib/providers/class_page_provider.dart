@@ -37,6 +37,29 @@ class ClassPageProvider extends ChangeNotifier {
               .clamp(1, 20) -
           1);
   PageController get pageController => _pageController;
+  int _weekPageStride = 1;
+  int _dayGroup = (DateTime.now().weekday - 1) ~/ 2;
+  int get weekPageStride => _weekPageStride;
+  int pageForWeek(int week, {int? dayGroup}) =>
+      (week.clamp(1, 20) - 1) * _weekPageStride +
+      (_weekPageStride == 4 ? (dayGroup ?? _dayGroup).clamp(0, 3) : 0);
+
+  // Orientation rebuilds the pager; controls keep addressing logical weeks.
+  void configureWeekPaging(bool landscape) {
+    final stride = landscape ? 4 : 1;
+    if (_weekPageStride == stride) return;
+    _weekPageStride = stride;
+    final previous = _pageController;
+    _pageController =
+        PageController(initialPage: pageForWeek(_currentWeekCount));
+    WidgetsBinding.instance.addPostFrameCallback((_) => previous.dispose());
+  }
+
+  void updateWeekPage(int page) {
+    if (_weekPageStride == 4) _dayGroup = page % 4;
+    final week = page ~/ _weekPageStride + 1;
+    if (week != _currentWeekCount) updateCurrentWeekCount(week);
+  }
 
   ClassScheduleViewMode _currentViewMode = ClassScheduleViewMode.week;
   ClassScheduleViewMode get currentViewMode => _currentViewMode;

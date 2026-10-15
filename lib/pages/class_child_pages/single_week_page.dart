@@ -13,6 +13,10 @@ class SingleWeekPage extends StatefulWidget {
   const SingleWeekPage({
     super.key,
     required this.weekCount,
+    this.firstWeekday = 1,
+    this.dayCount = 7,
+    this.onPreviousDays,
+    this.onNextDays,
     required this.courseScheduleItemsList,
     required this.classSessionSummerDataList,
     required this.classSessionWinterDataList,
@@ -21,6 +25,8 @@ class SingleWeekPage extends StatefulWidget {
     required this.pointerCount,
   });
   final int weekCount;
+  final int firstWeekday, dayCount;
+  final VoidCallback? onPreviousDays, onNextDays;
   final List<List<CourseSchedule>>? courseScheduleItemsList;
   final Map? courseColorData;
   final List? classSessionSummerDataList;
@@ -33,36 +39,13 @@ class SingleWeekPage extends StatefulWidget {
 
 class _SingleWeekPageState extends State<SingleWeekPage>
     with AutomaticKeepAliveClientMixin {
-  late final PageController _days =
-      PageController(initialPage: (DateTime.now().weekday - 1) ~/ 2);
-  @override
-  void dispose() {
-    _days.dispose();
-    super.dispose();
-  }
-
   @override
   bool get wantKeepAlive => true;
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    if (MediaQuery.orientationOf(context) == Orientation.landscape) {
-      return PageView.builder(
-        key: ValueKey('twoDayPager-${widget.weekCount}'),
-        controller: _days,
-        physics: widget.pointerCount >= 2
-            ? const NeverScrollableScrollPhysics()
-            : null,
-        itemCount: 4,
-        itemBuilder: (context, index) => _buildDays(context,
-            firstWeekday: index == 3 ? 6 : index * 2 + 1, dayCount: 2),
-      );
-    }
-    return _buildDays(context);
-  }
-
-  Widget _buildDays(BuildContext context,
-      {int firstWeekday = 1, int dayCount = 7}) {
+    final firstWeekday = widget.firstWeekday;
+    final dayCount = widget.dayCount;
     final settings = context.watch<SettingsProvider>();
     final overrides = settings.courseRoutineOverrides;
     final axis = SchoolTimeAxis(widget.cardHeight);
@@ -122,12 +105,7 @@ class _SingleWeekPageState extends State<SingleWeekPage>
                               padding: EdgeInsets.zero,
                               iconSize: 18,
                               constraints: const BoxConstraints(minWidth: 32),
-                              onPressed: firstWeekday == 1
-                                  ? null
-                                  : () => _days.previousPage(
-                                      duration:
-                                          const Duration(milliseconds: 250),
-                                      curve: Curves.easeOutCubic),
+                              onPressed: widget.onPreviousDays,
                               icon: const MiuixGlyph(MiuixSymbol.previous,
                                   size: 18)),
                           const Text('左右滑动查看其他日期',
@@ -137,12 +115,7 @@ class _SingleWeekPageState extends State<SingleWeekPage>
                               padding: EdgeInsets.zero,
                               iconSize: 18,
                               constraints: const BoxConstraints(minWidth: 32),
-                              onPressed: firstWeekday == 6
-                                  ? null
-                                  : () => _days.nextPage(
-                                      duration:
-                                          const Duration(milliseconds: 250),
-                                      curve: Curves.easeOutCubic),
+                              onPressed: widget.onNextDays,
                               icon:
                                   const MiuixGlyph(MiuixSymbol.next, size: 18)),
                         ]))

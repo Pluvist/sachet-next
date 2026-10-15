@@ -7,7 +7,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sachet/pages/with_navbar_view.dart';
-import 'package:sachet/pages/class_child_pages/single_week_page.dart';
+import 'package:sachet/pages/class_child_pages/week_view.dart';
+import 'package:sachet/providers/class_page_provider.dart';
 import 'package:sachet/models/course_schedule.dart';
 import 'package:sachet/providers/settings_provider.dart';
 import 'package:sachet/providers/screen_nav_provider.dart';
@@ -80,6 +81,7 @@ void main() {
                 create: (_) => _MemorySettings()),
             ChangeNotifierProvider(create: (_) => ZhengFangUserProvider()),
             ChangeNotifierProvider(create: (_) => CourseCardSettingsProvider()),
+            ChangeNotifierProvider(create: (_) => ClassPageProvider()),
           ],
           child: MaterialApp(
               theme: ThemeData(brightness: brightness),
@@ -91,6 +93,8 @@ void main() {
       expect(tabs, findsOneWidget);
       expect(tester.getRect(tabs).center.dx, closeTo(450, .1));
       expect(tester.getRect(tabs).bottom, lessThan(80));
+      expect(tester.getSize(tabs).height, 44);
+      expect(tester.getSize(tabs).width, closeTo(270, .1));
       final mask = tester.widget<DecoratedBox>(
           find.byKey(const ValueKey('floatingNavTopMask')));
       final gradient =
@@ -106,6 +110,19 @@ void main() {
       await tester.tap(find.byTooltip('课程表'));
       await tester.pumpAndSettle();
       expect(ScreenNavProvider.currentPage, '/class');
+      final weekModel =
+          tester.element(find.byType(WeekView)).read<ClassPageProvider>();
+      weekModel.pageController.jumpToPage(22);
+      await tester.pumpAndSettle();
+      expect(weekModel.currentWeekCount, 6);
+      await tester.tap(find.byTooltip('上一周'));
+      await tester.pumpAndSettle();
+      expect(weekModel.currentWeekCount, 5);
+      expect(weekModel.pageController.page, 18);
+      await tester.tap(find.byTooltip('下一周'));
+      await tester.pumpAndSettle();
+      expect(weekModel.currentWeekCount, 6);
+      expect(weekModel.pageController.page, 22);
       await capture(tester, 'class-landscape-${brightness.name}');
       await tester.tap(find.byTooltip('主页'));
       await tester.pumpAndSettle();
@@ -117,26 +134,16 @@ void main() {
       'Landscape shows two days, all seven accessible, portrait restores week',
       (tester) async {
     size(tester, const Size(900, 450));
-    await tester.pumpWidget(MultiProvider(
-        providers: [
-          ChangeNotifierProvider<SettingsProvider>(
-              create: (_) => _MemorySettings()),
-          ChangeNotifierProvider(create: (_) => CourseCardSettingsProvider()),
-        ],
-        child: MaterialApp(
-            home: Scaffold(
-                body: SingleWeekPage(
-                    weekCount: 1,
-                    courseScheduleItemsList:
-                        List.generate(35, (_) => <CourseSchedule>[]),
-                    classSessionSummerDataList: null,
-                    classSessionWinterDataList: null,
-                    courseColorData: const {},
-                    cardHeight: 50,
-                    pointerCount: 0)))));
+    await tester.pumpWidget(MultiProvider(providers: [
+      ChangeNotifierProvider<SettingsProvider>(
+          create: (_) => _MemorySettings()),
+      ChangeNotifierProvider(create: (_) => CourseCardSettingsProvider()),
+      ChangeNotifierProvider(create: (_) => ClassPageProvider()),
+    ], child: MaterialApp(home: Scaffold(body: const WeekView()))));
     await tester.pumpAndSettle();
-    final pager =
-        tester.widget<PageView>(find.byKey(const ValueKey('twoDayPager-1')));
+    final model =
+        tester.element(find.byType(WeekView)).read<ClassPageProvider>();
+    final pager = tester.widget<PageView>(find.byType(PageView));
     final seen = <int>{};
     for (var i = 0; i < 4; i++) {
       pager.controller!.jumpToPage(i);
@@ -149,9 +156,71 @@ void main() {
       expect(find.byKey(const ValueKey('staggeredTimeRail')), findsOneWidget);
     }
     expect(seen, {1, 2, 3, 4, 5, 6, 7});
+    expect(model.currentWeekCount, 1);
     tester.view.physicalSize = const Size(450, 900);
     await tester.pumpAndSettle();
     expect(find.byType(DateAndWeekday), findsNWidgets(7));
+    expect(tester.takeException(), isNull);
+  });
+  testWidgets(
+      'Real horizontal drags cross weeks both ways and controls retain dates',
+      (tester) async {
+    size(tester, const Size(900, 450));
+    final model = ClassPageProvider()..updateCurrentWeekCount(5);
+    await tester.pumpWidget(MultiProvider(providers: [
+      ChangeNotifierProvider.value(value: model),
+      ChangeNotifierProvider<SettingsProvider>(
+          create: (_) => _MemorySettings()),
+      ChangeNotifierProvider(create: (_) => CourseCardSettingsProvider()),
+    ], child: const MaterialApp(home: Scaffold(body: WeekView()))));
+    await tester.pumpAndSettle();
+    expect(find.byType(PageView), findsOneWidget);
+    model.pageController.jumpToPage(5 * 4 - 1);
+    await tester.pumpAndSettle();
+    expect(model.currentWeekCount, 5);
+    await tester.drag(find.byType(PageView), const Offset(-650, 0));
+    await tester.pumpAndSettle();
+    expect(model.currentWeekCount, 6);
+    expect(
+        tester
+            .widgetList<DateAndWeekday>(find.byType(DateAndWeekday))
+            .map((h) => h.weekday),
+        [1, 2]);
+    await tester.drag(find.byType(PageView), const Offset(650, 0));
+    await tester.pumpAndSettle();
+    expect(model.currentWeekCount, 5);
+    expect(
+        tester
+            .widgetList<DateAndWeekday>(find.byType(DateAndWeekday))
+            .map((h) => h.weekday),
+        [6, 7]);
+    // Day arrow also moves across the boundary.
+    await tester.tap(find.byTooltip('后两天'));
+    await tester.pumpAndSettle();
+    expect(model.currentWeekCount, 6);
+    expect(model.pageForWeek(7), 24);
+    // Preserve the logical week when rotating and round-trip the day group.
+    tester.view.physicalSize = const Size(450, 900);
+    await tester.pumpAndSettle();
+    expect(model.currentWeekCount, 6);
+    expect(model.pageController.page, 5);
+    tester.view.physicalSize = const Size(900, 450);
+    await tester.pumpAndSettle();
+    expect(model.currentWeekCount, 6);
+    expect(model.pageController.page, 20);
+    // End of semester cannot overshoot.
+    model.pageController.jumpToPage(79);
+    await tester.pumpAndSettle();
+    await tester.drag(find.byType(PageView), const Offset(-650, 0));
+    await tester.pumpAndSettle();
+    expect(model.currentWeekCount, 20);
+    expect(model.pageController.page, 79);
+    model.pageController.jumpToPage(0);
+    await tester.pumpAndSettle();
+    await tester.drag(find.byType(PageView), const Offset(650, 0));
+    await tester.pumpAndSettle();
+    expect(model.currentWeekCount, 1);
+    expect(model.pageController.page, 0);
     expect(tester.takeException(), isNull);
   });
 }

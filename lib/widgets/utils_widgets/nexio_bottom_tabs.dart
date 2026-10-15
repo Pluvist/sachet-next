@@ -9,9 +9,11 @@ class NexioBottomTabs extends StatefulWidget {
   const NexioBottomTabs(
       {super.key,
       required this.selected,
+      this.height = 56,
       required this.children,
       required this.onSelected});
   final int selected;
+  final double height;
   final List<Widget> children;
   final ValueChanged<int> onSelected;
   @override
@@ -176,14 +178,14 @@ class _NexioBottomTabsState extends State<NexioBottomTabs>
                   ? constraints.maxWidth - 4 - tabWidth - offset
                   : 4 + offset;
               return SizedBox(
-                  height: 56,
+                  height: widget.height,
                   child: Stack(clipBehavior: Clip.none, children: [
                     fixedBackdrop!,
                     Positioned(
                         left: x,
                         top: 4,
                         width: tabWidth,
-                        height: 48,
+                        height: widget.height - 8,
                         child: Transform(
                             key: const ValueKey('liquidNavSelection'),
                             alignment: Alignment.center,

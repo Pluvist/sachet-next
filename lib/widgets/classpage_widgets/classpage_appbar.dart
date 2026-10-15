@@ -68,7 +68,9 @@ class _ClassPageAppBarState extends State<ClassPageAppBar> {
 
     if (result == true) {
       context.read<ClassPageProvider>().pageController.jumpToPage(
-            weekCountOfToday(SettingsProvider.semesterStartDateDateTime) - 1,
+            context.read<ClassPageProvider>().pageForWeek(
+                weekCountOfToday(SettingsProvider.semesterStartDateDateTime),
+                dayGroup: (DateTime.now().weekday - 1) ~/ 2),
           );
       await showDialog(
         context: context,
@@ -163,7 +165,7 @@ class _ClassPageAppBarState extends State<ClassPageAppBar> {
     // classPageModel.decrementCurrentWeekCount();
     // 第一个 -1 表示上一周，第二个 -1 是周次到 pagelist 序号的转换（第一周 => 第0页）
     context.read<ClassPageProvider>().pageController.animateToPage(
-        (classPageModel.currentWeekCount - 1 - 1),
+        classPageModel.pageForWeek(classPageModel.currentWeekCount - 1),
         duration: Duration(milliseconds: settingsProvider.curveDuration),
         curve: curveTypes[settingsProvider.curveType] ?? Easing.standard);
   }
@@ -176,7 +178,7 @@ class _ClassPageAppBarState extends State<ClassPageAppBar> {
     // classPageModel.incrementCurrentWeekCount();
     // +1 表示下一周，-1 是周次到 pagelist 序号的转换（第一周 => 第0页）
     context.read<ClassPageProvider>().pageController.animateToPage(
-        (classPageModel.currentWeekCount + 1 - 1),
+        classPageModel.pageForWeek(classPageModel.currentWeekCount + 1),
         duration: Duration(milliseconds: settingsProvider.curveDuration),
         curve: curveTypes[settingsProvider.curveType] ?? Easing.standard);
   }
@@ -186,7 +188,9 @@ class _ClassPageAppBarState extends State<ClassPageAppBar> {
     final settingsProvider = context.read<SettingsProvider>();
     // context.read<ClassPageModel>().resetCurrentWeekCount();
     context.read<ClassPageProvider>().pageController.animateToPage(
-        weekCountOfToday(SettingsProvider.semesterStartDateDateTime) - 1,
+        context.read<ClassPageProvider>().pageForWeek(
+            weekCountOfToday(SettingsProvider.semesterStartDateDateTime),
+            dayGroup: (DateTime.now().weekday - 1) ~/ 2),
         duration: Duration(milliseconds: settingsProvider.curveDuration),
         curve: curveTypes[settingsProvider.curveType] ?? Easing.standard);
   }

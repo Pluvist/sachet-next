@@ -44,12 +44,18 @@ class _WeekViewState extends State<WeekView> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted ||
           !context.read<ClassPageProvider>().pageController.hasClients) return;
-      context
+      context.read<ClassPageProvider>().pageController.jumpToPage(context
           .read<ClassPageProvider>()
-          .pageController
-          .jumpToPage(context.read<ClassPageProvider>().currentWeekCount - 1);
+          .pageForWeek(context.read<ClassPageProvider>().currentWeekCount));
     });
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    context.read<ClassPageProvider>().configureWeekPaging(
+        MediaQuery.orientationOf(context) == Orientation.landscape);
   }
 
   @override
@@ -68,6 +74,8 @@ class _WeekViewState extends State<WeekView> {
       });
     }
 
+    final model = context.read<ClassPageProvider>();
+    final stride = model.weekPageStride;
     return Listener(
       onPointerDown: (event) => _changePointers(1),
       onPointerUp: (event) => _changePointers(-1),
@@ -87,21 +95,38 @@ class _WeekViewState extends State<WeekView> {
           context.read<CourseCardSettingsProvider>().setCardHeight(_cardHeight);
         },
         child: PageView.builder(
+            key: ValueKey('week-pager-$stride'),
             controller: context.read<ClassPageProvider>().pageController,
             onPageChanged: (value) {
-              context
-                  .read<ClassPageProvider>()
-                  .updateCurrentWeekCount(value + 1);
+              context.read<ClassPageProvider>().updateWeekPage(value);
             },
             physics: _pointerCount >= 2
                 ? const NeverScrollableScrollPhysics()
                 : const AlwaysScrollableScrollPhysics(),
-            allowImplicitScrolling: true,
-            itemCount: 20,
+            allowImplicitScrolling: stride == 1,
+            itemCount: 20 * stride,
             itemBuilder: (context, index) => RepaintBoundary(
                   child: SingleWeekPage(
                     key: ValueKey(index),
-                    weekCount: index + 1,
+                    weekCount: index ~/ stride + 1,
+                    firstWeekday: stride == 4
+                        ? (index % 4 == 3 ? 6 : index % 4 * 2 + 1)
+                        : 1,
+                    dayCount: stride == 4 ? 2 : 7,
+                    onPreviousDays: index == 0
+                        ? null
+                        : () => model.pageController.previousPage(
+                            duration: MediaQuery.disableAnimationsOf(context)
+                                ? Duration.zero
+                                : const Duration(milliseconds: 250),
+                            curve: Curves.easeOutCubic),
+                    onNextDays: index == 20 * stride - 1
+                        ? null
+                        : () => model.pageController.nextPage(
+                            duration: MediaQuery.disableAnimationsOf(context)
+                                ? Duration.zero
+                                : const Duration(milliseconds: 250),
+                            curve: Curves.easeOutCubic),
                     courseScheduleItemsList: widget.courseScheduleItemsList,
                     courseColorData: widget.courseColorData,
                     classSessionSummerDataList:

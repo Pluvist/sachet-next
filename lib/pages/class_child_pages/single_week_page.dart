@@ -1,4 +1,3 @@
-import 'package:sachet/widgets/utils_widgets/miuix_glyph.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sachet/models/course_schedule.dart';
@@ -13,10 +12,7 @@ class SingleWeekPage extends StatefulWidget {
   const SingleWeekPage({
     super.key,
     required this.weekCount,
-    this.firstWeekday = 1,
-    this.dayCount = 7,
-    this.onPreviousDays,
-    this.onNextDays,
+    this.showWeekLabel = false,
     required this.courseScheduleItemsList,
     required this.classSessionSummerDataList,
     required this.classSessionWinterDataList,
@@ -25,8 +21,7 @@ class SingleWeekPage extends StatefulWidget {
     required this.pointerCount,
   });
   final int weekCount;
-  final int firstWeekday, dayCount;
-  final VoidCallback? onPreviousDays, onNextDays;
+  final bool showWeekLabel;
   final List<List<CourseSchedule>>? courseScheduleItemsList;
   final Map? courseColorData;
   final List? classSessionSummerDataList;
@@ -44,8 +39,8 @@ class _SingleWeekPageState extends State<SingleWeekPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final firstWeekday = widget.firstWeekday;
-    final dayCount = widget.dayCount;
+    const firstWeekday = 1;
+    const dayCount = 7;
     final settings = context.watch<SettingsProvider>();
     final overrides = settings.courseRoutineOverrides;
     final axis = SchoolTimeAxis(widget.cardHeight);
@@ -84,6 +79,13 @@ class _SingleWeekPageState extends State<SingleWeekPage>
           ),
         );
     return Column(children: [
+      if (widget.showWeekLabel)
+        Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Text('第 ${widget.weekCount} 周',
+                key: ValueKey('week-heading-${widget.weekCount}'),
+                style: const TextStyle(
+                    fontSize: 14, fontWeight: FontWeight.w600))),
       DayOfTheWeekTopBar(
           weekCount: widget.weekCount,
           firstWeekday: firstWeekday,
@@ -93,33 +95,7 @@ class _SingleWeekPageState extends State<SingleWeekPage>
           rightTimeRailWidth: rightWidth),
       Row(children: [
         if (leftWidth > 0) railHeading(BuildingRoutine.normal),
-        Expanded(
-            child: dayCount == 2
-                ? SizedBox(
-                    height: 30,
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          IconButton(
-                              tooltip: '前两天',
-                              padding: EdgeInsets.zero,
-                              iconSize: 18,
-                              constraints: const BoxConstraints(minWidth: 32),
-                              onPressed: widget.onPreviousDays,
-                              icon: const MiuixGlyph(MiuixSymbol.previous,
-                                  size: 18)),
-                          const Text('左右滑动查看其他日期',
-                              style: TextStyle(fontSize: 10)),
-                          IconButton(
-                              tooltip: '后两天',
-                              padding: EdgeInsets.zero,
-                              iconSize: 18,
-                              constraints: const BoxConstraints(minWidth: 32),
-                              onPressed: widget.onNextDays,
-                              icon:
-                                  const MiuixGlyph(MiuixSymbol.next, size: 18)),
-                        ]))
-                : const SizedBox(height: 30)),
+        const Expanded(child: SizedBox(height: 30)),
         if (rightWidth > 0) railHeading(BuildingRoutine.staggered),
       ]),
       Expanded(

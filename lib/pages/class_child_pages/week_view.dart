@@ -75,7 +75,7 @@ class _WeekViewState extends State<WeekView> {
     }
 
     final model = context.read<ClassPageProvider>();
-    final stride = model.weekPageStride;
+    final count = model.weeksPerPage;
     return Listener(
       onPointerDown: (event) => _changePointers(1),
       onPointerUp: (event) => _changePointers(-1),
@@ -95,7 +95,7 @@ class _WeekViewState extends State<WeekView> {
           context.read<CourseCardSettingsProvider>().setCardHeight(_cardHeight);
         },
         child: PageView.builder(
-            key: ValueKey('week-pager-$stride'),
+            key: ValueKey('week-pager-$count'),
             controller: context.read<ClassPageProvider>().pageController,
             onPageChanged: (value) {
               context.read<ClassPageProvider>().updateWeekPage(value);
@@ -103,40 +103,32 @@ class _WeekViewState extends State<WeekView> {
             physics: _pointerCount >= 2
                 ? const NeverScrollableScrollPhysics()
                 : const AlwaysScrollableScrollPhysics(),
-            allowImplicitScrolling: stride == 1,
-            itemCount: 20 * stride,
-            itemBuilder: (context, index) => RepaintBoundary(
-                  child: SingleWeekPage(
-                    key: ValueKey(index),
-                    weekCount: index ~/ stride + 1,
-                    firstWeekday: stride == 4
-                        ? (index % 4 == 3 ? 6 : index % 4 * 2 + 1)
-                        : 1,
-                    dayCount: stride == 4 ? 2 : 7,
-                    onPreviousDays: index == 0
-                        ? null
-                        : () => model.pageController.previousPage(
-                            duration: MediaQuery.disableAnimationsOf(context)
-                                ? Duration.zero
-                                : const Duration(milliseconds: 250),
-                            curve: Curves.easeOutCubic),
-                    onNextDays: index == 20 * stride - 1
-                        ? null
-                        : () => model.pageController.nextPage(
-                            duration: MediaQuery.disableAnimationsOf(context)
-                                ? Duration.zero
-                                : const Duration(milliseconds: 250),
-                            curve: Curves.easeOutCubic),
-                    courseScheduleItemsList: widget.courseScheduleItemsList,
-                    courseColorData: widget.courseColorData,
-                    classSessionSummerDataList:
-                        widget.classSessionSummerDataList,
-                    classSessionWinterDataList:
-                        widget.classSessionWinterDataList,
-                    cardHeight: _cardHeight,
-                    pointerCount: _pointerCount >= 2 ? 2 : 0,
-                  ),
-                )),
+            allowImplicitScrolling: count == 1,
+            itemCount: 20 ~/ count,
+            itemBuilder: (context, index) => Row(children: [
+                  for (var offset = 0; offset < count; offset++) ...[
+                    if (offset > 0)
+                      VerticalDivider(
+                          width: 8,
+                          thickness: .5,
+                          color: Theme.of(context).colorScheme.outlineVariant),
+                    Expanded(
+                        child: RepaintBoundary(
+                            child: SingleWeekPage(
+                      key: ValueKey(index * count + offset),
+                      weekCount: index * count + offset + 1,
+                      showWeekLabel: count == 2,
+                      courseScheduleItemsList: widget.courseScheduleItemsList,
+                      courseColorData: widget.courseColorData,
+                      classSessionSummerDataList:
+                          widget.classSessionSummerDataList,
+                      classSessionWinterDataList:
+                          widget.classSessionWinterDataList,
+                      cardHeight: _cardHeight,
+                      pointerCount: _pointerCount >= 2 ? 2 : 0,
+                    ))),
+                  ],
+                ])),
       ),
     );
   }

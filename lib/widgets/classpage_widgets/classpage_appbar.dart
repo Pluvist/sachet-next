@@ -69,8 +69,7 @@ class _ClassPageAppBarState extends State<ClassPageAppBar> {
     if (result == true) {
       context.read<ClassPageProvider>().pageController.jumpToPage(
             context.read<ClassPageProvider>().pageForWeek(
-                weekCountOfToday(SettingsProvider.semesterStartDateDateTime),
-                dayGroup: (DateTime.now().weekday - 1) ~/ 2),
+                weekCountOfToday(SettingsProvider.semesterStartDateDateTime)),
           );
       await showDialog(
         context: context,
@@ -165,7 +164,8 @@ class _ClassPageAppBarState extends State<ClassPageAppBar> {
     // classPageModel.decrementCurrentWeekCount();
     // 第一个 -1 表示上一周，第二个 -1 是周次到 pagelist 序号的转换（第一周 => 第0页）
     context.read<ClassPageProvider>().pageController.animateToPage(
-        classPageModel.pageForWeek(classPageModel.currentWeekCount - 1),
+        (classPageModel.pageForWeek(classPageModel.currentWeekCount) - 1)
+            .clamp(0, 20 ~/ classPageModel.weeksPerPage - 1),
         duration: Duration(milliseconds: settingsProvider.curveDuration),
         curve: curveTypes[settingsProvider.curveType] ?? Easing.standard);
   }
@@ -178,7 +178,8 @@ class _ClassPageAppBarState extends State<ClassPageAppBar> {
     // classPageModel.incrementCurrentWeekCount();
     // +1 表示下一周，-1 是周次到 pagelist 序号的转换（第一周 => 第0页）
     context.read<ClassPageProvider>().pageController.animateToPage(
-        classPageModel.pageForWeek(classPageModel.currentWeekCount + 1),
+        (classPageModel.pageForWeek(classPageModel.currentWeekCount) + 1)
+            .clamp(0, 20 ~/ classPageModel.weeksPerPage - 1),
         duration: Duration(milliseconds: settingsProvider.curveDuration),
         curve: curveTypes[settingsProvider.curveType] ?? Easing.standard);
   }
@@ -189,8 +190,7 @@ class _ClassPageAppBarState extends State<ClassPageAppBar> {
     // context.read<ClassPageModel>().resetCurrentWeekCount();
     context.read<ClassPageProvider>().pageController.animateToPage(
         context.read<ClassPageProvider>().pageForWeek(
-            weekCountOfToday(SettingsProvider.semesterStartDateDateTime),
-            dayGroup: (DateTime.now().weekday - 1) ~/ 2),
+            weekCountOfToday(SettingsProvider.semesterStartDateDateTime)),
         duration: Duration(milliseconds: settingsProvider.curveDuration),
         curve: curveTypes[settingsProvider.curveType] ?? Easing.standard);
   }
@@ -255,7 +255,10 @@ class _ClassPageAppBarState extends State<ClassPageAppBar> {
                 child: Selector<ClassPageProvider, int>(
                     selector: (_, provider) => provider.currentWeekCount,
                     builder: (_, currentWeekCount, __) => Text(
-                          '第 $currentWeekCount 周',
+                          MediaQuery.orientationOf(context) ==
+                                  Orientation.landscape
+                              ? '第 ${(currentWeekCount - 1) ~/ 2 * 2 + 1}–${(currentWeekCount - 1) ~/ 2 * 2 + 2} 周'
+                              : '第 $currentWeekCount 周',
                           style: const TextStyle(
                               fontSize: 18, fontWeight: FontWeight.w500),
                         )),
@@ -326,12 +329,18 @@ class _ClassPageAppBarState extends State<ClassPageAppBar> {
                           children: [
                             IconButton(
                               icon: const MiuixGlyph(MiuixSymbol.previous),
-                              tooltip: '上一周',
+                              tooltip: MediaQuery.orientationOf(context) ==
+                                      Orientation.landscape
+                                  ? '前两周'
+                                  : '上一周',
                               onPressed: () => navToLastWeek(context),
                             ),
                             IconButton(
                               icon: const MiuixGlyph(MiuixSymbol.next),
-                              tooltip: '下一周',
+                              tooltip: MediaQuery.orientationOf(context) ==
+                                      Orientation.landscape
+                                  ? '后两周'
+                                  : '下一周',
                               onPressed: () => navToNextWeek(context),
                             ),
                           ],

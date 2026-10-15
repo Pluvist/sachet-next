@@ -44,12 +44,18 @@ class _WeekViewState extends State<WeekView> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted ||
           !context.read<ClassPageProvider>().pageController.hasClients) return;
-      context
+      context.read<ClassPageProvider>().pageController.jumpToPage(context
           .read<ClassPageProvider>()
-          .pageController
-          .jumpToPage(context.read<ClassPageProvider>().currentWeekCount - 1);
+          .pageForWeek(context.read<ClassPageProvider>().currentWeekCount));
     });
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    context.read<ClassPageProvider>().configureWeekPaging(
+        MediaQuery.orientationOf(context) == Orientation.landscape);
   }
 
   @override
@@ -68,6 +74,8 @@ class _WeekViewState extends State<WeekView> {
       });
     }
 
+    final model = context.read<ClassPageProvider>();
+    final count = model.weeksPerPage;
     return Listener(
       onPointerDown: (event) => _changePointers(1),
       onPointerUp: (event) => _changePointers(-1),
@@ -87,31 +95,40 @@ class _WeekViewState extends State<WeekView> {
           context.read<CourseCardSettingsProvider>().setCardHeight(_cardHeight);
         },
         child: PageView.builder(
+            key: ValueKey('week-pager-$count'),
             controller: context.read<ClassPageProvider>().pageController,
             onPageChanged: (value) {
-              context
-                  .read<ClassPageProvider>()
-                  .updateCurrentWeekCount(value + 1);
+              context.read<ClassPageProvider>().updateWeekPage(value);
             },
             physics: _pointerCount >= 2
                 ? const NeverScrollableScrollPhysics()
                 : const AlwaysScrollableScrollPhysics(),
-            allowImplicitScrolling: true,
-            itemCount: 20,
-            itemBuilder: (context, index) => RepaintBoundary(
-                  child: SingleWeekPage(
-                    key: ValueKey(index),
-                    weekCount: index + 1,
-                    courseScheduleItemsList: widget.courseScheduleItemsList,
-                    courseColorData: widget.courseColorData,
-                    classSessionSummerDataList:
-                        widget.classSessionSummerDataList,
-                    classSessionWinterDataList:
-                        widget.classSessionWinterDataList,
-                    cardHeight: _cardHeight,
-                    pointerCount: _pointerCount >= 2 ? 2 : 0,
-                  ),
-                )),
+            allowImplicitScrolling: count == 1,
+            itemCount: 20 ~/ count,
+            itemBuilder: (context, index) => Row(children: [
+                  for (var offset = 0; offset < count; offset++) ...[
+                    if (offset > 0)
+                      VerticalDivider(
+                          width: 8,
+                          thickness: .5,
+                          color: Theme.of(context).colorScheme.outlineVariant),
+                    Expanded(
+                        child: RepaintBoundary(
+                            child: SingleWeekPage(
+                      key: ValueKey(index * count + offset),
+                      weekCount: index * count + offset + 1,
+                      showWeekLabel: count == 2,
+                      courseScheduleItemsList: widget.courseScheduleItemsList,
+                      courseColorData: widget.courseColorData,
+                      classSessionSummerDataList:
+                          widget.classSessionSummerDataList,
+                      classSessionWinterDataList:
+                          widget.classSessionWinterDataList,
+                      cardHeight: _cardHeight,
+                      pointerCount: _pointerCount >= 2 ? 2 : 0,
+                    ))),
+                  ],
+                ])),
       ),
     );
   }

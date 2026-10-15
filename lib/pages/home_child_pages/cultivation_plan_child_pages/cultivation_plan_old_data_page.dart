@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:flutter/material.dart';
 import 'package:sachet/widgets/utils_widgets/data_from_cache_or_http.dart';
 
@@ -24,7 +25,7 @@ class _CultivationPlanOldDataPageState
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          SliverAppBar(title: const Text('培养方案')),
+          MiuixSliverAppBar(title: const Text('培养方案')),
           SliverPadding(
             padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
             sliver: SliverToBoxAdapter(

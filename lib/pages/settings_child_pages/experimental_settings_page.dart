@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:sachet/widgets/settingspage_widgets/miuix_settings_list.dart';
 import 'dart:async';
 
@@ -1001,7 +1002,7 @@ class _ExperimentalSettingsPageState extends State<ExperimentalSettingsPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ...pendingNotificationRequests.map(
-                (e) => ListTile(
+                (e) => MiuixListTile(
                   leading: Text('ID: ${e.id}'),
                   title: Text('${e.title}'),
                   subtitle: Text('${e.body}'),
@@ -1071,11 +1072,11 @@ class _ExperimentalSettingsPageState extends State<ExperimentalSettingsPage> {
     ];
 
     return Scaffold(
-      appBar: AppBar(title: const Text("实验性功能")),
+      appBar: MiuixAppBar(title: const Text("实验性功能")),
       body: MiuixSettingsList(
         children: [
           if (defaultTargetPlatform == TargetPlatform.android) ...[
-            MaterialBanner(
+            MiuixBanner(
               content: Text(
                 '部分系统会限制后台通知，导致无法正常发送通知。\n'
                 '建议导出课表为 .ics 文件 → 导入到系统日历软件，享受稳定可靠的系统级提醒',
@@ -1105,7 +1106,7 @@ class _ExperimentalSettingsPageState extends State<ExperimentalSettingsPage> {
             Padding(
               padding:
                   const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
-              child: ListTile(
+              child: MiuixListTile(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(32.0),
                 ),
@@ -1140,7 +1141,7 @@ class _ExperimentalSettingsPageState extends State<ExperimentalSettingsPage> {
                 selector: (_, settingsProvider) =>
                     settingsProvider.isSilentNotification,
                 builder: (_, isSilentNotification, __) {
-                  return ListTile(
+                  return MiuixListTile(
                     enabled: isEnableCourseNotification,
                     leading: Align(
                       widthFactor: 1,
@@ -1189,28 +1190,28 @@ class _ExperimentalSettingsPageState extends State<ExperimentalSettingsPage> {
             Divider(),
 
             // 手动打开各项设置页面
-            ListTile(
+            MiuixListTile(
               leading: Icon(Icons.edit_notifications),
               title: Text('通知设置'),
               trailing: Icon(Icons.open_in_new),
               onTap: () => AppSettings.openAppSettings(
                   type: AppSettingsType.notification),
             ),
-            ListTile(
+            MiuixListTile(
               leading: Icon(Icons.app_settings_alt),
               title: Text('应用设置'),
               trailing: Icon(Icons.open_in_new),
               onTap: () =>
                   AppSettings.openAppSettings(type: AppSettingsType.settings),
             ),
-            ListTile(
+            MiuixListTile(
               leading: Icon(Icons.battery_saver),
               title: Text('电池优化设置'),
               trailing: Icon(Icons.open_in_new),
               onTap: () => AppSettings.openAppSettings(
                   type: AppSettingsType.batteryOptimization),
             ),
-            ListTile(
+            MiuixListTile(
               leading: Icon(Icons.access_alarm),
               title: Text('精确通知设置'),
               trailing: Icon(Icons.open_in_new),

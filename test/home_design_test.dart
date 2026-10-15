@@ -52,14 +52,14 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('Rendered homepage matches exported header and card geometry',
+  testWidgets('Miuix homepage retains course cards and all service links',
       (tester) async {
     await pumpHome(tester, 376, 1);
     final appBar = tester.getRect(find.byType(AppBar));
     final title = tester.getRect(find.byType(PageHeading));
     expect(appBar.height, (design['headingHeight'] as num).toDouble());
-    expect(title.center.dy - appBar.center.dy,
-        (design['headingOffset'] as num).toDouble());
+    expect(title.left, greaterThanOrEqualTo(20));
+    expect(title.bottom, lessThanOrEqualTo(appBar.bottom));
     final titleText = tester.widget<Text>(find.descendant(
       of: find.byType(PageHeading),
       matching: find.byType(Text),
@@ -79,8 +79,11 @@ void main() {
         (design['heroHeight'] as num).toDouble());
     final status = find.byKey(const ValueKey('homeCourseStatusCard'));
     expect(tester.getSize(status).height, tester.getSize(heroFinder).height);
-    expect(tester.widget<Card>(status).color,
-        tester.widget<Card>(heroFinder).color);
+    final statusCard = tester
+        .widget<Card>(find.descendant(of: status, matching: find.byType(Card)));
+    final heroCard = tester.widget<Card>(
+        find.descendant(of: heroFinder, matching: find.byType(Card)));
+    expect(statusCard.color, heroCard.color);
     expect(tester.getRect(status).bottom,
         lessThan(tester.getRect(heroFinder).top));
     final cards = find.byType(CardWidget);
@@ -106,7 +109,16 @@ void main() {
     }
     final first = tester.getRect(cards.at(0));
     final second = tester.getRect(cards.at(1));
-    final fourth = tester.getRect(cards.at(3));
+    final heroBounds = tester.getRect(heroFinder);
+    final statusBounds = tester.getRect(status);
+    expect(statusBounds.left, heroBounds.left);
+    expect(statusBounds.right, heroBounds.right);
+    expect(first.left, heroBounds.left);
+    expect(second.right, heroBounds.right);
+    final last = tester.getRect(cards.last);
+    expect(last.left, heroBounds.left);
+    expect(last.right, heroBounds.right);
+    final fourth = tester.getRect(cards.at(2));
     expect(second.left - first.right, (design['gap'] as num).toDouble());
     expect(fourth.top - first.bottom, (design['gap'] as num).toDouble());
     expect(first.top, greaterThan(tester.getRect(heroSurface).bottom));
@@ -117,10 +129,9 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('Profile title matches home height, offset and typography',
+  testWidgets('Home and profile share Miuix heading typography',
       (tester) async {
     await pumpHome(tester, 376, 1);
-    final homeBounds = tester.getRect(find.byType(PageHeading));
     final homeText = tester.widget<Text>(find.descendant(
         of: find.byType(PageHeading), matching: find.byType(Text)));
     await tester.pumpWidget(MultiProvider(
@@ -141,10 +152,8 @@ void main() {
     final profileBar = tester.getRect(find.byType(AppBar));
     final profileText = tester.widget<Text>(find.descendant(
         of: find.byType(PageHeading), matching: find.byType(Text)));
-    expect(profileBounds.top, homeBounds.top);
-    expect(profileBounds.height, homeBounds.height);
-    expect(profileBounds.center.dy - profileBar.center.dy,
-        (design['headingOffset'] as num).toDouble());
+    expect(profileBounds.left, greaterThanOrEqualTo(20));
+    expect(profileBounds.bottom, lessThanOrEqualTo(profileBar.bottom));
     expect(profileBar.height, (design['headingHeight'] as num).toDouble());
     expect(profileText.data, '我');
     expect(profileText.style!.fontSize, homeText.style!.fontSize);

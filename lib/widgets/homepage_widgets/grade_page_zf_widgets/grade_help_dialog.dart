@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:flutter/material.dart';
 
 import 'gpa_table.dart';
@@ -14,7 +15,7 @@ class GradeHelpDialog extends StatelessWidget {
         children: [Icon(Icons.info_outline), SizedBox(width: 8), Text('帮助')],
       ),
       children: [
-        ListTile(
+        MiuixListTile(
           title: Text('关于湘大绩点'),
           trailing: Icon(Icons.arrow_forward),
           onTap: () {

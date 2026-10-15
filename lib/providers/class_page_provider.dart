@@ -37,6 +37,26 @@ class ClassPageProvider extends ChangeNotifier {
               .clamp(1, 20) -
           1);
   PageController get pageController => _pageController;
+  int _weeksPerPage = 1;
+  int get weeksPerPage => _weeksPerPage;
+  int pageForWeek(int week) => (week.clamp(1, 20) - 1) ~/ _weeksPerPage;
+  int get firstVisibleWeek =>
+      pageForWeek(_currentWeekCount) * _weeksPerPage + 1;
+
+  void configureWeekPaging(bool landscape) {
+    final count = landscape ? 2 : 1;
+    if (_weeksPerPage == count) return;
+    _weeksPerPage = count;
+    final previous = _pageController;
+    _pageController =
+        PageController(initialPage: pageForWeek(_currentWeekCount));
+    WidgetsBinding.instance.addPostFrameCallback((_) => previous.dispose());
+  }
+
+  void updateWeekPage(int page) {
+    final week = page * _weeksPerPage + 1;
+    if (week != _currentWeekCount) updateCurrentWeekCount(week);
+  }
 
   ClassScheduleViewMode _currentViewMode = ClassScheduleViewMode.week;
   ClassScheduleViewMode get currentViewMode => _currentViewMode;

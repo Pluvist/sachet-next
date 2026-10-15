@@ -1,0 +1,450 @@
+package com.haooz.chedule.ui.components
+
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.EaseOut
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalViewConfiguration
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastCoerceIn
+import androidx.compose.ui.util.fastRoundToInt
+import androidx.compose.ui.util.lerp
+import com.kyant.backdrop.edgelight.edgeLight
+import com.haooz.chedule.ui.utils.rememberDefaultEdgeLight
+import com.haooz.chedule.ui.effects.liquidglass.DampedDragAnimation
+import com.haooz.chedule.ui.effects.liquidglass.InteractiveHighlight
+import com.haooz.chedule.ui.utils.isAppDarkTheme
+import com.kyant.backdrop.Backdrop
+import com.kyant.backdrop.backdrops.layerBackdrop
+import com.kyant.backdrop.backdrops.rememberCombinedBackdrop
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
+import com.kyant.backdrop.drawBackdrop
+import com.kyant.backdrop.effects.blur
+import com.kyant.backdrop.effects.lens
+import com.kyant.backdrop.effects.vibrancy
+import com.kyant.backdrop.highlight.Highlight
+import com.kyant.backdrop.shadow.InnerShadow
+import com.kyant.backdrop.shadow.Shadow
+import com.kyant.capsule.ContinuousCapsule
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.launch
+import kotlin.math.abs
+import kotlin.math.floor
+import kotlin.math.sign
+
+internal val LocalLiquidBottomTabScale =
+    staticCompositionLocalOf { { 1f } }
+
+/** 底部导航 tab：纯视觉；手势由 [LiquidBottomTabs] 统一层处理 */
+@Composable
+fun RowScope.LiquidBottomTab(
+    index: Int,
+    onClick: () -> Unit = {},
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    val scale = LocalLiquidBottomTabScale.current
+    Column(
+        modifier
+            .clip(ContinuousCapsule())
+            .semantics { role = Role.Tab }
+            .fillMaxHeight()
+            .weight(1f)
+            .graphicsLayer {
+                val s = scale()
+                scaleX = s
+                scaleY = s
+            },
+        verticalArrangement = Arrangement.spacedBy(2f.dp, Alignment.CenterVertically),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        content = content
+    )
+}
+
+/**
+ * 液态玻璃底部导航。手势全部由 [LiquidBottomTabs] 的统一层处理：
+ * - 按下 tab：胶囊飞过去并保持按压
+ * - 按下胶囊 / 随后拖动：1:1 跟手
+ * - 松手：吸附最近 tab，提交选中
+ */
+@Composable
+fun LiquidBottomTabs(
+    selectedTabIndex: () -> Int,
+    onTabSelected: (index: Int) -> Unit,
+    backdrop: Backdrop,
+    tabsCount: Int,
+    modifier: Modifier = Modifier,
+    containerHeight: Dp = 56.dp,
+    highlightHeight: Dp = 48.dp,
+    selectorHeight: Dp = 48.dp,
+    content: @Composable RowScope.() -> Unit
+) {
+    val isLightTheme = !isAppDarkTheme()
+    val accentColor =
+        if (isLightTheme) Color.Black
+        else Color.White
+    val containerColor =
+        if (isLightTheme) Color(0xFFFAFAFA).copy(0.6f)
+        else Color(0xFF242424).copy(0.6f)
+    val defaultEdgeLight = rememberDefaultEdgeLight(baseColor = containerColor)
+
+    val tabsBackdrop = rememberLayerBackdrop()
+    // 高光自己的 export 层：胶囊采样它，玻璃里才会同时看到「底栏 + 光晕」，
+    // 两者被同一套 lens 一起折射 → 轮廓天然一致。
+    // 注意：捕获层带 ColorFilter.tint(accentColor)，高光不能塞进去（浅色会被染黑）。
+    val glowBackdrop = rememberLayerBackdrop()
+
+    BoxWithConstraints(
+        modifier,
+        contentAlignment = Alignment.CenterStart
+    ) {
+        val density = LocalDensity.current
+        val viewConfiguration = LocalViewConfiguration.current
+        val padPx = with(density) { 4f.dp.toPx() }
+        val tabWidth = (constraints.maxWidth.toFloat() - padPx * 2f) / tabsCount
+        val maxIndex = (tabsCount - 1).toFloat()
+
+        val offsetAnimation = remember { Animatable(0f) }
+        val panelOffset by remember(density) {
+            derivedStateOf {
+                val fraction = (offsetAnimation.value / constraints.maxWidth).fastCoerceIn(-1f, 1f)
+                with(density) {
+                    4f.dp.toPx() * fraction.sign * EaseOut.transform(abs(fraction))
+                }
+            }
+        }
+
+        val isLtr = LocalLayoutDirection.current == LayoutDirection.Ltr
+        val ltrSign = if (isLtr) 1f else -1f
+        val animationScope = rememberCoroutineScope()
+        // 不能用 selectedTabIndex lambda 做 remember key：每次重组都是新实例，
+        // currentIndex 会被冲掉导致点 tab 无效
+        var currentIndex by remember { mutableIntStateOf(selectedTabIndex()) }
+        val dampedDragAnimation = remember(animationScope) {
+            DampedDragAnimation(
+                animationScope = animationScope,
+                initialValue = selectedTabIndex().toFloat(),
+                valueRange = 0f..maxIndex,
+                visibilityThreshold = 0.001f,
+                initialScale = 1f,
+                pressedScale = 78f / 56f,
+                onDragStarted = {},
+                onDragStopped = {},
+                onDrag = { _, _ -> }
+            )
+        }
+        val latestSelectedTabIndex by rememberUpdatedState(selectedTabIndex)
+        LaunchedEffect(dampedDragAnimation) {
+            snapshotFlow { latestSelectedTabIndex() }
+                .collectLatest { index ->
+                    if (index != currentIndex) {
+                        currentIndex = index
+                    }
+                }
+        }
+        LaunchedEffect(dampedDragAnimation) {
+            snapshotFlow { currentIndex }
+                .drop(1)
+                .collectLatest { index ->
+                    dampedDragAnimation.animateToValue(index.toFloat())
+                    onTabSelected(index)
+                }
+        }
+
+        // 按压高光：跟手光晕
+        val interactiveHighlight = remember(animationScope) {
+            InteractiveHighlight(
+                animationScope = animationScope,
+                position = { size, finger ->
+                    val s = 1f + with(density) { 16f.dp.toPx() } / size.width
+                    Offset(
+                        (finger.x - panelOffset - size.width / 2f) / s + size.width / 2f,
+                        (finger.y - size.height / 2f) / s + size.height / 2f
+                    )
+                }
+            )
+        }
+
+        // 可见层：不缩放（源库只缩放下面的捕获层，滑块外的放大不可见）
+        val chromeLens = com.haooz.chedule.ui.utils.AppMaterialSettings.chromeLensEnabled()
+        val panelEffects: com.kyant.backdrop.BackdropEffectScope.() -> Unit = remember(chromeLens) {
+            {
+                vibrancy()
+                blur(8f.dp.toPx())
+                // 均衡及以下：低栏背景板关闭折射
+                if (chromeLens) lens(24f.dp.toPx(), 24f.dp.toPx())
+            }
+        }
+        val panelSurface: androidx.compose.ui.graphics.drawscope.DrawScope.() -> Unit =
+            remember(containerColor) { { drawRect(containerColor) } }
+        Row(
+            Modifier
+                .graphicsLayer { translationX = panelOffset }
+                .drawBackdrop(
+                    backdrop = backdrop,
+                    shape = { ContinuousCapsule() },
+                    effects = panelEffects,
+                    highlight = null,
+                    layerBlock = {
+                        val progress = dampedDragAnimation.pressProgress
+                        val scale = lerp(1f, 1f + 16f.dp.toPx() / size.width, progress)
+                        scaleX = scale
+                        scaleY = scale
+                    },
+                    onDrawSurface = panelSurface
+                )
+                .then(interactiveHighlight.modifier)
+                .edgeLight(shape = ContinuousCapsule(), edgeLight = defaultEdgeLight)
+                .height(containerHeight)
+                .fillMaxWidth()
+                .padding(4f.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            content = content
+        )
+
+        // 捕获层（透明）：按压时缩放，只通过玻璃滑块的 backdrop 透出
+        CompositionLocalProvider(
+            LocalLiquidBottomTabScale provides {
+                lerp(1f, 1.2f, dampedDragAnimation.pressProgress)
+            }
+        ) {
+            Row(
+                Modifier
+                    .clearAndSetSemantics {}
+                    .alpha(0f)
+                    .layerBackdrop(tabsBackdrop)
+                    .graphicsLayer { translationX = panelOffset }
+                    .drawBackdrop(
+                        backdrop = backdrop,
+                        shape = { ContinuousCapsule() },
+                        effects = {
+                            val progress = dampedDragAnimation.pressProgress
+                            vibrancy()
+                            blur(8f.dp.toPx())
+                            lens(
+                                24f.dp.toPx() * progress,
+                                24f.dp.toPx() * progress
+                            )
+                        },
+                        highlight = {
+                            val progress = dampedDragAnimation.pressProgress
+                            Highlight.Default.copy(alpha = progress)
+                        },
+                        onDrawSurface = { drawRect(containerColor) }
+                    )
+                    .then(interactiveHighlight.modifier)
+
+                    .height(highlightHeight)
+                    .fillMaxWidth()
+                    .padding(horizontal = 4f.dp)
+                    .graphicsLayer(colorFilter = ColorFilter.tint(accentColor)),
+                verticalAlignment = Alignment.CenterVertically,
+                content = content
+            )
+        }
+
+        Box(
+            Modifier
+                .fillMaxSize()
+                .layerBackdrop(glowBackdrop)
+                .graphicsLayer {
+                    translationX = panelOffset
+                    val progress = dampedDragAnimation.pressProgress
+                    val s = lerp(1f, 1f + 16f.dp.toPx() / size.width, progress)
+                    scaleX = s
+                    scaleY = s
+                }
+                .clip(ContinuousCapsule())
+        )
+
+        // 胶囊（纯视觉）
+        Box(
+            Modifier
+                .padding(horizontal = 4f.dp)
+                .graphicsLayer {
+                    translationX =
+                        if (isLtr) dampedDragAnimation.value * tabWidth + panelOffset
+                        else size.width - (dampedDragAnimation.value + 1f) * tabWidth + panelOffset
+                }
+                .drawBackdrop(
+                    // 页面 + 捕获层（底栏图标）+ 高光：高光排最后 → 叠在最上面，
+                    // 且它自身除光晕外全透明，不会遮掉前两层
+                    backdrop = rememberCombinedBackdrop(backdrop, tabsBackdrop, glowBackdrop),
+                    shape = { ContinuousCapsule() },
+                    downsampleScale = 1f,
+                    effects = {
+                        val progress = dampedDragAnimation.pressProgress
+                        lens(
+                            10f.dp.toPx() * progress,
+                            14f.dp.toPx() * progress,
+                            chromaticAberration = true
+                        )
+                    },
+                    highlight = {
+                        val progress = dampedDragAnimation.pressProgress
+                        Highlight.Default.copy(alpha = progress)
+                    },
+                    shadow = {
+                        val progress = dampedDragAnimation.pressProgress
+                        Shadow(alpha = progress)
+                    },
+                    innerShadow = {
+                        val progress = dampedDragAnimation.pressProgress
+                        InnerShadow(
+                            radius = 8f.dp * progress,
+                            alpha = progress
+                        )
+                    },
+                    layerBlock = {
+                        scaleX = dampedDragAnimation.scaleX
+                        scaleY = dampedDragAnimation.scaleY
+                        val velocity = dampedDragAnimation.velocity / 10f
+                        scaleX /= 1f - (velocity * 0.75f).fastCoerceIn(-0.2f, 0.2f)
+                        scaleY *= 1f - (velocity * 0.25f).fastCoerceIn(-0.2f, 0.2f)
+                    },
+                    onDrawSurface = {
+                        val progress = dampedDragAnimation.pressProgress
+                        drawRect(
+                            if (isLightTheme) Color.Black.copy(0.06f)
+                            else Color.White.copy(0.1f),
+                            alpha = 1f - progress
+                        )
+                        drawRect(Color.Black.copy(alpha = 0.03f * progress))
+                    }
+                )
+                .height(selectorHeight)
+                .fillMaxWidth(1f / tabsCount)
+        )
+
+        // 统一手势层：按下 tab / 拖胶囊 / 松手选中 都在这里
+        Box(
+            Modifier
+                .fillMaxSize()
+                // 按压高光的触发挂这层（覆盖整条栏），不挂滑块
+                .then(interactiveHighlight.gestureModifier)
+                .pointerInput(tabsCount, tabWidth, isLtr, padPx) {
+                    val touchSlop = viewConfiguration.touchSlop
+                    awaitEachGesture {
+                        val down = awaitFirstDown(requireUnconsumed = false)
+                        val downX = down.position.x
+
+                        val capsuleCenterX = if (isLtr) {
+                            padPx + (dampedDragAnimation.value + 0.5f) * tabWidth
+                        } else {
+                            size.width - padPx - (dampedDragAnimation.value + 0.5f) * tabWidth
+                        }
+                        val capsuleHalf = tabWidth * 0.55f
+                        var dragging = abs(downX - capsuleCenterX) <= capsuleHalf
+                        var pressedTab = -1
+
+                        if (dragging) {
+                            dampedDragAnimation.press()
+                        } else {
+                            pressedTab = if (isLtr) {
+                                floor((downX - padPx) / tabWidth).toInt()
+                            } else {
+                                floor((size.width - padPx - downX) / tabWidth).toInt()
+                            }.fastCoerceIn(0, tabsCount - 1)
+                            // 按下 tab：胶囊飞过去，保持按压
+                            dampedDragAnimation.animateToValueKeepingPress(pressedTab.toFloat())
+                        }
+
+                        var lastX = downX
+                        while (true) {
+                            val event = awaitPointerEvent(PointerEventPass.Main)
+                            val change = event.changes.firstOrNull { it.id == down.id }
+                            if (change == null || !change.pressed) {
+                                val target = if (dragging) {
+                                    dampedDragAnimation.targetValue
+                                        .fastRoundToInt()
+                                        .fastCoerceIn(0, tabsCount - 1)
+                                } else {
+                                    pressedTab.fastCoerceIn(0, tabsCount - 1)
+                                }
+                                currentIndex = target
+                                dampedDragAnimation.animateToValue(target.toFloat())
+                                dampedDragAnimation.release()
+                                // 立即通知宿主切页，不等 snapshotFlow 下一拍，减少底栏与 pager 错帧
+                                onTabSelected(target)
+                                animationScope.launch {
+                                    offsetAnimation.animateTo(0f, spring(1f, 300f, 0.5f))
+                                }
+                                break
+                            }
+
+                            val dx = change.position.x - lastX
+                            val totalDx = change.position.x - downX
+
+                            // 点 tab 后继续滑 → 接管为拖动
+                            if (!dragging && abs(totalDx) > touchSlop) {
+                                dragging = true
+                                lastX = change.position.x
+                            }
+
+                            if (dragging && abs(dx) > 0.01f) {
+                                lastX = change.position.x
+                                dampedDragAnimation.updateValue(
+                                    (dampedDragAnimation.targetValue + dx / tabWidth * ltrSign)
+                                        .fastCoerceIn(0f, maxIndex)
+                                )
+                                animationScope.launch {
+                                    offsetAnimation.snapTo(offsetAnimation.value + dx)
+                                }
+                            } else {
+                                lastX = change.position.x
+                            }
+
+                            change.consume()
+                        }
+                    }
+                }
+        )
+    }
+}
+
+// LiquidNavigationRail（pad 主导航转调）已移回 androidApp 的 TabletNavSideBar.kt ——
+// 它转调的 TabletNavSideBar 是 Android 专有（Activity/WindowManager），不能进 :ui-shared。

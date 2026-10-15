@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:sachet/widgets/settingspage_widgets/miuix_settings_list.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -95,8 +96,11 @@ class _AboutPageState extends State<AboutPage> {
       applicationLegalese: '©2026 Pluvist\n上游版权：©2025 wyvern1723',
       children: [
         const Text(upstreamAcknowledgement),
+        const Text(
+            '底栏与菜单：NexioSchedule（HaoZai000），AGPL-3.0；折射着色器：Kyant Backdrop，Apache-2.0。引导布局：HyperCeiler Contributions，AGPL-3.0。源码移植与适配：Pluvist。'),
         const SizedBox(height: 12),
-        const Text('Sachet Next 遵循 MIT 许可证，以免费软件形式提供，不作任何担保。'),
+        const Text(
+            'Sachet Next 遵循 AGPL-3.0 许可证，Sachet 上游代码保留 MIT 许可证声明，以免费软件形式提供，不作任何担保。'),
       ],
       context: context,
     );
@@ -112,7 +116,7 @@ class _AboutPageState extends State<AboutPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: MiuixAppBar(
         title: const Text('关于'),
       ),
       body: MiuixSettingsList(
@@ -137,32 +141,28 @@ class _AboutPageState extends State<AboutPage> {
             ],
           ),
           const SizedBox(height: 16),
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                appName,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-              ),
-            ],
+          const Center(
+            child: Text(appName,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontWeight: FontWeight.w500, fontSize: 20)),
           ),
           const SizedBox(height: 30),
-          const ListTile(
+          const MiuixListTile(
             leading: Icon(Icons.person_outline),
             title: Text('作者'),
             subtitle: Text(authorName),
           ),
-          const ListTile(
+          const MiuixListTile(
             leading: Icon(Icons.favorite_outline),
             title: Text('开源来源与鸣谢'),
             subtitle: Text(upstreamAcknowledgement),
           ),
-          ListTile(
+          MiuixListTile(
             leading: const Icon(Icons.info),
             title: const Text('关于应用'),
             onTap: () => showAboutAppDialog(context),
           ),
-          ListTile(
+          MiuixListTile(
             leading: const Icon(Icons.code),
             title: const Text('Sachet Next 源代码'),
             subtitle: const Text(sachetNextRepoUrl),
@@ -170,7 +170,7 @@ class _AboutPageState extends State<AboutPage> {
             onLongPress: () =>
                 copyToClipboard(context, sachetNextRepoUrl, prefix: '链接'),
           ),
-          ListTile(
+          MiuixListTile(
             leading: const Align(
               widthFactor: 1,
               alignment: Alignment.centerLeft,
@@ -187,7 +187,7 @@ class _AboutPageState extends State<AboutPage> {
             onLongPress: () =>
                 copyToClipboard(context, appOfficialWebsiteUrl, prefix: '链接'),
           ),
-          ListTile(
+          MiuixListTile(
             leading: const Align(
               widthFactor: 1,
               alignment: Alignment.centerLeft,
@@ -197,7 +197,7 @@ class _AboutPageState extends State<AboutPage> {
             subtitle: const Text(upstreamAuthorName),
             onTap: () => openLink(appDeveloperProfileUrl),
           ),
-          ListTile(
+          MiuixListTile(
             leading: Align(
               widthFactor: 1,
               alignment: Alignment.centerLeft,
@@ -209,7 +209,7 @@ class _AboutPageState extends State<AboutPage> {
             onLongPress: () =>
                 copyToClipboard(context, appRepoUrl, prefix: '链接'),
           ),
-          ListTile(
+          MiuixListTile(
             leading: Align(
               widthFactor: 1,
               alignment: Alignment.centerLeft,

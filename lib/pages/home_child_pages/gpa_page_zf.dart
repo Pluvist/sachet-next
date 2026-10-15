@@ -1,3 +1,5 @@
+import 'package:sachet/widgets/utils_widgets/miuix_select.dart';
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -19,7 +21,7 @@ class GPAPageZF extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => GPAPageZFProvider(),
       child: Scaffold(
-        appBar: AppBar(title: const Text('绩点排名')),
+        appBar: MiuixAppBar(title: const Text('绩点排名')),
         body: Selector<GPAPageZFProvider, bool>(
             selector: (_, provider) => provider.isSelectingSemester,
             builder: (context, isSelectingSemester, __) {
@@ -112,20 +114,20 @@ class _QueryViewState extends State<_QueryView> {
 
         return SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                SizedBox(height: 52),
+                SizedBox(height: 16),
                 StartSemesterSelectorZF(),
-                SizedBox(height: 32),
+                SizedBox(height: 10),
                 EndSemesterSelectorZF(),
-                SizedBox(height: 32),
+                SizedBox(height: 10),
                 CourseTypeSelectorZF(),
-                SizedBox(height: 52),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
+                SizedBox(height: 16),
+                MiuixButton(
+                  style: MiuixButton.styleFrom(
                     backgroundColor: colorScheme.primary,
                     foregroundColor: colorScheme.onPrimary,
                     padding: EdgeInsets.symmetric(vertical: 12, horizontal: 28),

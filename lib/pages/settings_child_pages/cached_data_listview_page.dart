@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:sachet/widgets/settingspage_widgets/miuix_settings_list.dart';
 import 'dart:io';
 
@@ -132,7 +133,7 @@ class _CachedDataListviewPageState extends State<CachedDataListviewPage> {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: MiuixAppBar(
         title: const Text("缓存数据查看"),
       ),
       body: MiuixSettingsList(
@@ -186,7 +187,7 @@ class _CachedDataListviewPageState extends State<CachedDataListviewPage> {
     final String modifiedTime = DateFormat('yyyy-MM-dd HH:mm:ss')
         .format(File(file.path).lastModifiedSync());
 
-    return ListTile(
+    return MiuixListTile(
       title: Text(displayName, style: TextStyle(fontSize: 15)),
       subtitle: Text(
         '${file.path}'
@@ -217,7 +218,7 @@ class _CachedDataListviewPageState extends State<CachedDataListviewPage> {
     String folder, {
     List<String>? subFolder,
   }) {
-    return ListTile(
+    return MiuixListTile(
       title: const Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,

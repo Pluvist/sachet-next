@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:sachet/widgets/settingspage_widgets/miuix_settings_list.dart';
 import 'package:flutter/material.dart';
 import 'package:sachet/constants/app_constants.dart';
@@ -83,7 +84,7 @@ class _PaletteSettingsPageState extends State<PaletteSettingsPage> {
     // String courseColorFilePath = context.select<SettingsProvider, String>(
     //     (settingsProvider) => settingsProvider.courseColorFilePath);
     return Scaffold(
-      appBar: AppBar(
+      appBar: MiuixAppBar(
         title: const Text('配色管理'),
       ),
       body: MiuixSettingsList(
@@ -96,7 +97,7 @@ class _PaletteSettingsPageState extends State<PaletteSettingsPage> {
           //   ),
           // ),
           // // 当前配色方案
-          // ListTile(
+          // MiuixListTile(
           //   leading: const Align(
           //       widthFactor: 1,
           //       alignment: Alignment.centerLeft,
@@ -130,7 +131,7 @@ class _PaletteSettingsPageState extends State<PaletteSettingsPage> {
           // TODO: 添加新配色方案
           // Padding(
           //   padding: EdgeInsets.symmetric(vertical: 8.0),
-          //   child: ListTile(
+          //   child: MiuixListTile(
           //     title: const Row(
           //       mainAxisAlignment: MainAxisAlignment.center,
           //       crossAxisAlignment: CrossAxisAlignment.end,

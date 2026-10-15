@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -264,7 +265,7 @@ class _CultivationPlanPageZFState extends State<CultivationPlanPageZF> {
   }
 
   Widget _buildAppBar(BuildContext context) {
-    return SliverAppBar(
+    return MiuixSliverAppBar(
       title: const Text('培养方案'),
       floating: false,
       pinned: false,

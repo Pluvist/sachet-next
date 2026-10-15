@@ -26,8 +26,8 @@ class SectionCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(
           context,
-        ).colorScheme.surfaceContainerHighest.withAlpha(150),
-        borderRadius: BorderRadius.circular(12),
+        ).colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(24),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

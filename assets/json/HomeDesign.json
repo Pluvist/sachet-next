@@ -2,15 +2,15 @@
   "version": 1,
   "kind": "sachet-home-design",
   "title": "Sachet Next",
-  "headingSize": 44,
-  "headingHeight": 167,
+  "headingSize": 34,
+  "headingHeight": 144,
   "headingFont": "sans",
   "padding": 18,
   "gap": 13,
-  "columns": 3,
-  "cardHeight": 114,
+  "columns": 2,
+  "cardHeight": 76,
   "cardRadius": 28,
-  "cardSize": 12,
+  "cardSize": 15,
   "iconSize": 29,
   "iconRadius": 21,
   "heroHeight": 109,
@@ -166,5 +166,5 @@
       "visible": true
     }
   ],
-  "headingOffset": 38
+  "headingOffset": 0
 }

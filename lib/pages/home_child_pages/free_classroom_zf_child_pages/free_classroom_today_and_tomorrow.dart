@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -221,7 +222,7 @@ class _FreeClassroomTodayAndTomorrowViewState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: MiuixAppBar(
         title: const Text('空闲教室'),
         bottom: TabBar(
           isScrollable: true,

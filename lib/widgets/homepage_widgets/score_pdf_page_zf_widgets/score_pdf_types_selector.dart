@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_select.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sachet/providers/score_pdf_page_zf_provider.dart';
@@ -18,7 +19,7 @@ class ScorePdfTypesSelectorZF extends StatelessWidget {
     bool isShowDropDownMenuError = context.select<ScorePdfPageZFProvider, bool>(
         (provider) => provider.isShowDropDownMenuError);
 
-    return DropdownMenu<String>(
+    return MiuixSelect<String>(
       width: width,
       menuHeight: 600,
       initialSelection: selectedScorePdfType,

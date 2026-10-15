@@ -7,10 +7,10 @@ class ThemeProvider extends ChangeNotifier {
   AppSettings get _appSettings => AppGlobal.appSettings;
 
   bool get isMD3 => _appSettings.isMD3 ?? true;
-  bool get isUsingDynamicColors => _appSettings.isUsingDynamicColors ?? false;
+  bool get isUsingDynamicColors => false;
   int get themeMode => _appSettings.themeMode ?? 0;
   Color get themeColor =>
-      colorFromHex(_appSettings.themeColor ?? "#FF64C564") ?? Color(0xFF64C564);
+      colorFromHex(_appSettings.themeColor ?? "#FF3482FF") ?? Color(0xFF3482FF);
   bool get isPredictiveBack => _appSettings.isPredictiveBack ?? true;
 
   String get pageTransition => 'cupertino';
@@ -36,14 +36,6 @@ class ThemeProvider extends ChangeNotifier {
   void setThemeColor(Color color) {
     if (colorToHex(color) != _appSettings.themeColor) {
       _appSettings.themeColor = colorToHex(color);
-      AppGlobal.saveAppSettings();
-      notifyListeners();
-    }
-  }
-
-  void setIsUsingDynamicColors(bool isDynamicColors) {
-    if (isDynamicColors != isUsingDynamicColors) {
-      _appSettings.isUsingDynamicColors = isDynamicColors;
       AppGlobal.saveAppSettings();
       notifyListeners();
     }

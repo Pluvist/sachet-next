@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:sachet/widgets/settingspage_widgets/miuix_settings_list.dart';
 import 'dart:io';
 import 'dart:ui' as ui;
@@ -147,7 +148,7 @@ Dart 版本: $dartVersion
     bool isEnableDevMode = context.select<SettingsProvider, bool>(
         (settingsProvider) => settingsProvider.isEnableDevMode);
     return Scaffold(
-      appBar: AppBar(
+      appBar: MiuixAppBar(
         title: const Text("开发者设置"),
       ),
       body: MiuixSettingsList(
@@ -155,7 +156,7 @@ Dart 版本: $dartVersion
           Padding(
               padding:
                   const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-              child: ListTile(
+              child: MiuixListTile(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(32.0),
                 ),
@@ -183,7 +184,7 @@ Dart 版本: $dartVersion
               iconData: Icons.app_settings_alt,
             ),
           ),
-          ListTile(
+          MiuixListTile(
             enabled: isEnableDevMode,
             leading: const Align(
               widthFactor: 1,
@@ -197,7 +198,7 @@ Dart 版本: $dartVersion
                   .push(fadeTransitionPageRoute(CachedDataListviewPage()));
             },
           ),
-          ListTile(
+          MiuixListTile(
             enabled: isEnableDevMode,
             leading: const Align(
               widthFactor: 1,
@@ -211,7 +212,7 @@ Dart 版本: $dartVersion
                   fadeTransitionPageRoute(ClassScheduleDataListviewPage()));
             },
           ),
-          ListTile(
+          MiuixListTile(
             enabled: isEnableDevMode,
             leading: const Align(
               widthFactor: 1,
@@ -226,7 +227,7 @@ Dart 版本: $dartVersion
             },
           ),
           if (Platform.isAndroid)
-            ListTile(
+            MiuixListTile(
               enabled: isEnableDevMode,
               leading: const Align(
                 widthFactor: 1,
@@ -247,7 +248,7 @@ Dart 版本: $dartVersion
               iconData: Icons.perm_device_information,
             ),
           ),
-          ListTile(
+          MiuixListTile(
             leading: Align(
               widthFactor: 1,
               alignment: Alignment.centerLeft,
@@ -257,7 +258,7 @@ Dart 版本: $dartVersion
             subtitle: const Text('当前登录到正方教务系统的 Cookie'),
             onTap: () => _showCookieInfoDialog(context),
           ),
-          ListTile(
+          MiuixListTile(
             leading: Align(
               widthFactor: 1,
               alignment: Alignment.centerLeft,
@@ -273,7 +274,7 @@ Dart 版本: $dartVersion
               iconData: Icons.help_outline,
             ),
           ),
-          ListTile(
+          MiuixListTile(
             leading: Align(
               widthFactor: 1,
               alignment: Alignment.centerLeft,
@@ -283,7 +284,7 @@ Dart 版本: $dartVersion
             subtitle: Text('疑难解答'),
           ),
           if (kDebugMode)
-            ListTile(
+            MiuixListTile(
               leading: Align(
                 widthFactor: 1,
                 alignment: Alignment.centerLeft,
@@ -292,7 +293,7 @@ Dart 版本: $dartVersion
               title: const Text('太棒了，您正处于调试模式！'),
               subtitle: Text('Generating More Bugs...'),
             ),
-          ListTile(
+          MiuixListTile(
             title: Text('Intro Screen'),
             leading: Icon(Icons.cruelty_free),
             onTap: () {

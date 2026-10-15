@@ -1,3 +1,5 @@
+import 'package:sachet/widgets/utils_widgets/miuix_select.dart';
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -27,7 +29,7 @@ class ScorePdfPageZF extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => ScorePdfPageZFProvider(),
       child: Scaffold(
-        appBar: AppBar(title: const Text('成绩单')),
+        appBar: MiuixAppBar(title: const Text('成绩单')),
         body: _QueryView(),
       ),
     );
@@ -208,6 +210,7 @@ class _QueryViewState extends State<_QueryView> {
     final colorScheme = Theme.of(context).colorScheme;
     return Center(
       child: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
@@ -250,8 +253,8 @@ class _QueryViewState extends State<_QueryView> {
                       padding: const EdgeInsets.symmetric(vertical: 40.0),
                       child: ScorePdfTypesSelectorZF(),
                     ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
+                    MiuixButton(
+                      style: MiuixButton.styleFrom(
                         backgroundColor: colorScheme.primary,
                         foregroundColor: colorScheme.onPrimary,
                       ),

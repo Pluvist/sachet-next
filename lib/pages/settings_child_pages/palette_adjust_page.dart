@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:sachet/widgets/settingspage_widgets/miuix_settings_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
@@ -95,7 +96,7 @@ class _PaletteAdjustPageState extends State<PaletteAdjustPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: MiuixAppBar(
         title: const Text('配色调整'),
       ),
       body: MiuixSettingsList(
@@ -106,7 +107,7 @@ class _PaletteAdjustPageState extends State<PaletteAdjustPage> {
             itemCount: _courseColorData.length,
             physics: NeverScrollableScrollPhysics(),
             itemBuilder: (context, index) {
-              return ListTile(
+              return MiuixListTile(
                 title: Text(_courseColorData.keys.elementAt(index)),
                 trailing: GestureDetector(
                   onTap: () async {
@@ -134,7 +135,7 @@ class _PaletteAdjustPageState extends State<PaletteAdjustPage> {
           ),
           Padding(
             padding: EdgeInsets.symmetric(vertical: 8.0),
-            child: ListTile(
+            child: MiuixListTile(
               title: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.end,

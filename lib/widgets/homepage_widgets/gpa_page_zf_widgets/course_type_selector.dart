@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_select.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sachet/providers/gpa_page_zf_provider.dart';
@@ -13,7 +14,7 @@ class CourseTypeSelectorZF extends StatelessWidget {
     String courseType = context
         .select<GPAPageZFProvider, String>((provider) => provider.courseType);
 
-    return DropdownMenu<String>(
+    return MiuixSelect<String>(
       expandedInsets: EdgeInsets.zero,
       menuHeight: 600,
       initialSelection: courseType,

@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -54,7 +55,7 @@ class ExamTimeCardZF extends StatelessWidget {
   }) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Card(
+    return MiuixCard(
       clipBehavior: Clip.hardEdge,
       color: isFinished
           ? colorScheme.surfaceContainerHighest

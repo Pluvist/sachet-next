@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:flutter/material.dart';
 import 'package:sachet/services/zhengfang_jwxt/cultivation/models/curriculum_response_zf.dart';
 
@@ -55,7 +56,7 @@ class CurriculumCard extends StatelessWidget {
 
     final double scaledLeftIndent = textScaler.scale(24);
 
-    return Card(
+    return MiuixCard(
       clipBehavior: Clip.antiAlias,
       // elevation: 0.0,
       // color: colorScheme.surfaceContainer.withOpacity(0.85),

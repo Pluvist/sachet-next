@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_select.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sachet/providers/free_classroom_page_zf_provider.dart';
@@ -27,7 +28,7 @@ class ChooseTeachingBuilding extends StatelessWidget {
       direction: Axis.horizontal,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(4.0, 8.0, 0.0, 4.0),
-        child: DropdownMenu<String>(
+        child: MiuixSelect<String>(
           textStyle: TextStyle(fontSize: 14),
           width: 220,
           // menuHeight: 400,

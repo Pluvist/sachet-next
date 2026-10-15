@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:flutter/material.dart';
 import 'package:sachet/models/purchase_channel.dart';
 import 'package:sachet/services/zhengfang_jwxt/reserve_textbook/models/reserve_textbook_response_zf.dart';
@@ -124,7 +125,7 @@ class _ReserveTextbookCardListViewState
     /// 用于打开第三方软件进行搜索的字符串
     required String queryText,
   }) {
-    return Card(
+    return MiuixCard(
       clipBehavior: Clip.hardEdge,
       child: InkWell(
         onTap: () {},

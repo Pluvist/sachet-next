@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -82,7 +83,7 @@ class _GPACardZFState extends State<GPACardZF> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Card(
+    return MiuixCard(
       color: colorScheme.secondaryContainer,
       clipBehavior: Clip.antiAlias,
       child: Padding(

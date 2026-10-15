@@ -7,10 +7,14 @@ class DayOfTheWeekTopBar extends StatelessWidget {
   final double? timeRailWidth;
   final double rightTimeRailWidth;
   final int weekCount;
+  final int firstWeekday;
+  final int dayCount;
   final DateTime semesterStartDate;
   const DayOfTheWeekTopBar({
     super.key,
     this.timeRailWidth,
+    this.firstWeekday = 1,
+    this.dayCount = 7,
     this.rightTimeRailWidth = 0,
     required this.weekCount,
     required this.semesterStartDate,
@@ -32,7 +36,9 @@ class DayOfTheWeekTopBar extends StatelessWidget {
         else
           Expanded(flex: 4, child: _monthLabel()),
         // 周几几号
-        for (int weekday = 1; weekday <= DateTime.daysPerWeek; weekday++)
+        for (int weekday = firstWeekday;
+            weekday < firstWeekday + dayCount;
+            weekday++)
           Expanded(
             flex: 5,
             child: DateAndWeekday(

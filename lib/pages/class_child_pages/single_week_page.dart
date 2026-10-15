@@ -12,6 +12,7 @@ class SingleWeekPage extends StatefulWidget {
   const SingleWeekPage({
     super.key,
     required this.weekCount,
+    this.showWeekLabel = false,
     required this.courseScheduleItemsList,
     required this.classSessionSummerDataList,
     required this.classSessionWinterDataList,
@@ -20,6 +21,7 @@ class SingleWeekPage extends StatefulWidget {
     required this.pointerCount,
   });
   final int weekCount;
+  final bool showWeekLabel;
   final List<List<CourseSchedule>>? courseScheduleItemsList;
   final Map? courseColorData;
   final List? classSessionSummerDataList;
@@ -37,6 +39,8 @@ class _SingleWeekPageState extends State<SingleWeekPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    const firstWeekday = 1;
+    const dayCount = 7;
     final settings = context.watch<SettingsProvider>();
     final overrides = settings.courseRoutineOverrides;
     final axis = SchoolTimeAxis(widget.cardHeight);
@@ -75,8 +79,17 @@ class _SingleWeekPageState extends State<SingleWeekPage>
           ),
         );
     return Column(children: [
+      if (widget.showWeekLabel)
+        Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Text('第 ${widget.weekCount} 周',
+                key: ValueKey('week-heading-${widget.weekCount}'),
+                style: const TextStyle(
+                    fontSize: 14, fontWeight: FontWeight.w600))),
       DayOfTheWeekTopBar(
           weekCount: widget.weekCount,
+          firstWeekday: firstWeekday,
+          dayCount: dayCount,
           semesterStartDate: SettingsProvider.semesterStartDateDateTime,
           timeRailWidth: leftWidth,
           rightTimeRailWidth: rightWidth),
@@ -87,6 +100,8 @@ class _SingleWeekPageState extends State<SingleWeekPage>
       ]),
       Expanded(
           child: SingleChildScrollView(
+        key: PageStorageKey(
+            'course-scroll-${widget.weekCount}-$firstWeekday-$dayCount'),
         physics: widget.pointerCount >= 2
             ? const NeverScrollableScrollPhysics()
             : const AlwaysScrollableScrollPhysics(),
@@ -121,7 +136,9 @@ class _SingleWeekPageState extends State<SingleWeekPage>
                                             .colorScheme
                                             .onSurfaceVariant))))),
                   Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    for (int weekday = 1; weekday <= 7; weekday++)
+                    for (int weekday = firstWeekday;
+                        weekday < firstWeekday + dayCount;
+                        weekday++)
                       Expanded(
                           child: SizedBox(
                               height: axis.height,

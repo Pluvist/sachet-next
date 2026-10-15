@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:sachet/pages/home_child_pages/free_classroom_zf_child_pages/free_classroom_filter_page_zf.dart';
@@ -52,7 +53,7 @@ class _FreeClassroomPageZFViewState extends State<FreeClassroomPageZFView> {
       return FreeClassroomTodayAndTomorrow();
     } else {
       return Scaffold(
-        appBar: AppBar(
+        appBar: MiuixAppBar(
           elevation: !Theme.of(context).useMaterial3 ? 0 : null,
           title: const Text('空闲教室'),
           actions: [

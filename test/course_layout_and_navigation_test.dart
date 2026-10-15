@@ -192,7 +192,7 @@ void main() {
               widget.properties.selected == true),
           findsOneWidget);
       expect(tester.getSize(find.byTooltip('我')).width,
-          greaterThan(tester.getSize(find.byTooltip('主页')).width));
+          tester.getSize(find.byTooltip('主页')).width);
       await tester.tap(find.byTooltip('课程表'));
       await tester.pumpAndSettle();
       expect(ScreenNavProvider.currentPage, '/class');

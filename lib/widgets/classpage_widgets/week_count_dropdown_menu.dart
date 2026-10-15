@@ -2,9 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:sachet/utils/app_global.dart';
 import 'package:sachet/providers/settings_provider.dart';
 import 'package:sachet/providers/class_page_provider.dart';
-import 'package:sachet/widgets/modified_widgets/my_drop_down_menu.dart';
+import 'package:sachet/widgets/utils_widgets/liquid_dropdown_menu.dart';
+import 'package:sachet/widgets/utils_widgets/miuix_glyph.dart';
 import 'package:provider/provider.dart';
 
+/// Top-right control of the course schedule.
+///
+/// The old form opened a plain list of tabs; this uses the NexioSchedule
+/// control instead: one glass button in the app bar that grows into the week
+/// list panel in place (see [LiquidGlassDropdownMenu]).
 class WeekCountDropdownMenu extends StatefulWidget {
   const WeekCountDropdownMenu({super.key});
 
@@ -13,50 +19,35 @@ class WeekCountDropdownMenu extends StatefulWidget {
 }
 
 class _WeekCountDropdownMenuState extends State<WeekCountDropdownMenu> {
+  bool _show = false;
+
+  void _select(int page) {
+    setState(() => _show = false);
+    final settingsProvider = context.read<SettingsProvider>();
+    context.read<ClassPageProvider>().pageController.animateToPage(
+          context.read<ClassPageProvider>().pageForWeek(page),
+          duration: Duration(milliseconds: settingsProvider.curveDuration),
+          curve: curveTypes[settingsProvider.curveType] ?? Easing.standard,
+        );
+  }
+
   @override
   Widget build(BuildContext context) {
-    int curveDuration = context.select<SettingsProvider, int>(
-        (settingsProvider) => settingsProvider.curveDuration);
-    String curveType = context.select<SettingsProvider, String>(
-        (settingsProvider) => settingsProvider.curveType);
-    int currentWeekCount = context.select<ClassPageProvider, int>(
+    final currentWeekCount = context.select<ClassPageProvider, int>(
         (classPageModel) => classPageModel.currentWeekCount);
-    return MyDropdownMenu<int>(
-      width: 90,
-      initialSelection: currentWeekCount,
-      // trailingIcon: const SizedBox.shrink(),
-      selectedTrailingIcon: const SizedBox.shrink(),
-      menuHeight: 500,
-      textStyle: TextStyle(
-          color: Theme.of(context).useMaterial3
-              ? Theme.of(context).colorScheme.onSurface
-              : Theme.of(context).brightness == Brightness.light
-                  ? Theme.of(context).colorScheme.onPrimary
-                  : Theme.of(context).colorScheme.onSurface,
-          // OR:
-          // color: (!Theme.of(context).useMaterial3 && Theme.of(context).brightness == Brightness.light)
-          //     ? Theme.of(context).colorScheme.onPrimary
-          //     : Theme.of(context).colorScheme.onSurface,
-          fontSize: 18,
-          fontWeight: FontWeight.w500),
-      menuStyle: const MenuStyle(),
-      requestFocusOnTap: false,
-      inputDecorationTheme: const InputDecorationTheme(
-        filled: false,
-        border: UnderlineInputBorder(borderSide: BorderSide.none),
-      ),
-      onSelected: (int? page) {
-        if (page != null) {
-          context.read<ClassPageProvider>().pageController.animateToPage(
-                page - 1,
-                duration: Duration(milliseconds: curveDuration),
-                curve: curveTypes[curveType] ?? Easing.standard,
-              );
-        }
-      },
-      dropdownMenuEntries: pageMenuList.map((int value) {
-        return DropdownMenuEntry<int>(value: value, label: '第 $value 周');
-      }).toList(),
+    return LiquidGlassDropdownMenu(
+      show: _show,
+      itemCount: pageMenuList.length,
+      entryLabels: [for (final week in pageMenuList) '第 $week 周'],
+      icon: const MiuixGlyph(MiuixSymbol.calendar, size: 24),
+      tooltip: '选择周次',
+      semanticLabel: '选择周次',
+      trailingBuilder: (index) => index + 1 == currentWeekCount
+          ? const MiuixGlyph(MiuixSymbol.check, size: 18)
+          : null,
+      onExpanded: () => setState(() => _show = true),
+      onDismissed: () => setState(() => _show = false),
+      onSelected: (index) => _select(pageMenuList[index]),
     );
   }
 }

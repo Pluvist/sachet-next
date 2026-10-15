@@ -59,6 +59,6 @@ keyPassword=YOUR_KEY_PASSWORD
 
 ## 分发许可
 
-请同时保留根目录 `LICENSE`、`THIRD_PARTY_NOTICES.md` 与字体许可证。构建将项目 MIT 文本和 Noto 字体 OFL 文本作为资源打包，并在应用关于对话框的“查看许可”中展示。
+请同时保留根目录 `LICENSE`、`LICENSE-MIT`、`third_party/nexio/`、`THIRD_PARTY_NOTICES.md` 与字体许可证。构建将项目 AGPL、上游 MIT 和衍生着色器 Apache-2.0 文本和 Noto 字体 OFL 文本作为资源打包，并在应用关于对话框的“查看许可”中展示。
 
 公开构建使用 Noto Serif SC，不需要早期本地试验的 Anthropic 字体文件。上游地址与作者说明见 [README](README.md)。

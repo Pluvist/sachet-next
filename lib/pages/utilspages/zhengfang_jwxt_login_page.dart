@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sachet/constants/url_constants.dart';
@@ -18,19 +19,25 @@ import 'package:sachet/widgets/utilspages_widgets/login_page_widgets/username_fo
 import 'package:provider/provider.dart';
 
 class ZhengFangJwxtLoginPage extends StatelessWidget {
-  const ZhengFangJwxtLoginPage({super.key});
+  const ZhengFangJwxtLoginPage(
+      {super.key, this.title = '登录', this.onboarding = false});
+  final String title;
+  final bool onboarding;
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => LoginPageProvider(),
-      child: ZhengFangJwxtLoginPageView(),
+      child: ZhengFangJwxtLoginPageView(title: title, onboarding: onboarding),
     );
   }
 }
 
 class ZhengFangJwxtLoginPageView extends StatefulWidget {
-  const ZhengFangJwxtLoginPageView({super.key});
+  const ZhengFangJwxtLoginPageView(
+      {super.key, this.title = '登录', this.onboarding = false});
+  final String title;
+  final bool onboarding;
 
   @override
   State<ZhengFangJwxtLoginPageView> createState() =>
@@ -210,14 +217,20 @@ class _ZhengFangJwxtLoginPageViewState
     final TextTheme textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('登录')),
+      appBar: MiuixAppBar(title: Text(widget.title), actions: [
+        if (widget.onboarding)
+          TextButton(
+              key: const ValueKey('onboardLoginSkip'),
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('稍后登录'))
+      ]),
       body: Form(
         key: _loginFormKey,
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              MaterialBanner(
+              MiuixBanner(
                 forceActionsBelow: true,
                 content: Text('若您是使用初始密码首次登录，请先在浏览器登录教务系统后设置新密码'),
                 backgroundColor: colorScheme.primaryContainer,
@@ -226,7 +239,6 @@ class _ZhengFangJwxtLoginPageViewState
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.symmetric(horizontal: 0, vertical: 0),
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      textStyle: TextStyle(fontSize: 12),
                     ),
                     child: Text('在浏览器打开教务系统'),
                     onPressed: () {
@@ -329,67 +341,30 @@ class _ZhengFangJwxtLoginPageViewState
                     }),
               ),
 
-              // 手动登录
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 0.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ZhengFangManualLoginPage(
-                              initialUrl: newJwxtBaseUrl,
-                            ),
-                          ),
-                        );
-                      },
-                      child: const Text('手动登录'),
-                    ),
-                  ],
-                ),
-              ),
-
-              // 从信息门户登录
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ZhengFangManualLoginPage(
-                              initialUrl: xinXiMenHuBaseUrl,
-                            ),
-                          ),
-                        );
-                      },
-                      child: const Text('从信息门户登录'),
-                    ),
-                  ],
-                ),
-              ),
-              // 使用 Cookie 登录
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton.icon(
-                      onPressed: () async {
-                        await _loginUseCookie(context);
-                      },
-                      label: const Text('使用 Cookie 登录'),
-                      icon: const Icon(Icons.cookie),
-                    )
-                  ],
-                ),
-              )
+              MiuixCard(
+                  margin: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+                  child: Column(children: [
+                    MiuixListTile(
+                        leading: const Icon(Icons.open_in_browser),
+                        title: const Text('手动登录'),
+                        onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => ZhengFangManualLoginPage(
+                                    initialUrl: newJwxtBaseUrl)))),
+                    MiuixListTile(
+                        leading: const Icon(Icons.account_balance_outlined),
+                        title: const Text('从信息门户登录'),
+                        onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => ZhengFangManualLoginPage(
+                                    initialUrl: xinXiMenHuBaseUrl)))),
+                    MiuixListTile(
+                        leading: const Icon(Icons.cookie_outlined),
+                        title: const Text('使用 Cookie 登录'),
+                        onTap: () => _loginUseCookie(context)),
+                  ])),
             ],
           ),
         ),

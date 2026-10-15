@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_select.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sachet/providers/grade_page_zf_provider.dart';
@@ -15,7 +16,7 @@ class SemesterYearSelectorZF extends StatelessWidget {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final TextTheme textTheme = Theme.of(context).textTheme;
 
-    return DropdownMenu<String>(
+    return MiuixSelect<String>(
       // width: 150,
       // expandedInsets: EdgeInsets.zero,
       menuHeight: 400,

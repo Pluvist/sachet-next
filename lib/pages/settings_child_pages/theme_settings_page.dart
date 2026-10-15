@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:sachet/widgets/settingspage_widgets/miuix_settings_list.dart';
 import 'package:flutter/material.dart';
 import 'package:sachet/constants/app_constants.dart';
@@ -6,7 +7,6 @@ import 'package:sachet/widgets/settingspage_widgets/theme_settings_widgets/choos
 import 'package:sachet/widgets/settingspage_widgets/theme_settings_widgets/pick_theme_color_dialog.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:provider/provider.dart';
-import 'package:sachet/widgets/utils_widgets/switch_to_md2_confirm_dialog.dart';
 
 class ThemeSettingsPage extends StatelessWidget {
   const ThemeSettingsPage({super.key});
@@ -16,14 +16,14 @@ class ThemeSettingsPage extends StatelessWidget {
     final themeProvider = context.watch<ThemeProvider>();
 
     return Scaffold(
-      appBar: AppBar(title: const Text("应用主题")),
+      appBar: MiuixAppBar(title: const Text("应用主题")),
       body: MiuixSettingsList(
         children: [
           // 选择主题模式(系统、明亮、黑暗)
           Selector<ThemeProvider, int>(
               selector: (_, themeProvider) => themeProvider.themeMode,
               builder: (_, themeMode, __) {
-                return ListTile(
+                return MiuixListTile(
                   leading: Align(
                     widthFactor: 1,
                     alignment: Alignment.centerLeft,
@@ -44,52 +44,12 @@ class ThemeSettingsPage extends StatelessWidget {
                   },
                 );
               }),
-          // MD3 开关
-          ListTile(
-            leading: const Align(
-              widthFactor: 1,
-              alignment: Alignment.centerLeft,
-              child: Icon(Icons.fiber_new),
-            ),
-            title: const Text('Miuix 风格'),
-            subtitle: const Text('大标题、圆角分组与悬浮底栏'),
-            trailing: Switch(
-                value: themeProvider.isMD3,
-                onChanged: (value) {
-                  if (value == false) {
-                    showDialog(
-                      context: context,
-                      builder: (context) => SwitchToMD2ConfirmDialog(),
-                    );
-                  } else {
-                    // value == true
-                    context.read<ThemeProvider>().setIsMD3(value);
-                  }
-                }),
+          const MiuixListTile(
+            leading: Icon(Icons.auto_awesome_outlined),
+            title: Text('界面风格'),
+            subtitle: Text('Miuix · 大标题与圆角分组'),
           ),
 
-          // 动态取色开关
-          ListTile(
-            leading: Align(
-              widthFactor: 1,
-              alignment: Alignment.centerLeft,
-              child: Icon(
-                Icons.colorize,
-                color: themeProvider.isUsingDynamicColors
-                    ? Theme.of(context).colorScheme.primary
-                    : null,
-              ),
-            ),
-            title: const Text('动态取色'),
-            subtitle: const Text('从壁纸提取主题色'),
-            trailing: Switch(
-                value: themeProvider.isUsingDynamicColors,
-                onChanged: (value) {
-                  context.read<ThemeProvider>().setIsUsingDynamicColors(value);
-                }),
-          ),
-
-          // 如果启用动态取色，隐藏这个供用户自定义主题色的组件
           Offstage(
             offstage: themeProvider.isUsingDynamicColors,
             // 可折叠（可展开）选择主题颜色 ListTile
@@ -160,7 +120,7 @@ class _ChooseThemeColorState extends State<ChooseThemeColor> {
               child: SizedBox(
                 height: 100,
                 width: 70,
-                child: Card(
+                child: MiuixCard(
                   color: e,
                   shape: (themeColor.value == e.value)
                       ? RoundedRectangleBorder(
@@ -190,7 +150,7 @@ class _ChooseThemeColorState extends State<ChooseThemeColor> {
             child: SizedBox(
               height: 100,
               width: 70,
-              child: Card(
+              child: MiuixCard(
                 color: appBrandColor,
                 shape: (themeColor.value == appBrandColor.value)
                     ? RoundedRectangleBorder(
@@ -222,7 +182,7 @@ class _ChooseThemeColorState extends State<ChooseThemeColor> {
               height: 100,
               width: 70,
               // padding: EdgeInsets.symmetric(vertical: 4, horizontal: 4),
-              child: Card(
+              child: MiuixCard(
                 color: themeColor,
                 shape:
                     // 是否预设的 Global.themes 列表中没有 一项的值 == 当前主题颜色的值（即任意一项都不等于当前主题颜色），且不是 brand color, 说明当前颜色为用户自定义的颜色

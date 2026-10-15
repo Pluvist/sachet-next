@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:flutter/material.dart';
 import 'package:sachet/services/zhengfang_jwxt/reserve_textbook/models/reserve_textbook_response_zf.dart';
 
@@ -28,7 +29,7 @@ class ReserveTextbookSimpleListTileView extends StatelessWidget {
               Text('教材信息：', style: Theme.of(context).textTheme.titleMedium),
               ...List.generate(bookData.length, (index) {
                 final e = bookData[index];
-                return ListTile(
+                return MiuixListTile(
                   leading: CircleAvatar(
                     backgroundColor:
                         Theme.of(context).colorScheme.primaryContainer,

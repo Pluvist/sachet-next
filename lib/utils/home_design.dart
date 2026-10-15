@@ -3,16 +3,16 @@ import 'package:flutter/material.dart';
 /// Values approved in assets/json/HomeDesign.json, exported from the editor.
 abstract final class HomeDesign {
   static const title = 'Sachet Next';
-  static const headingSize = 44.0;
+  static const headingSize = 34.0;
   static const headingFont = 'sans';
-  static const headingHeight = 167.0;
-  static const headingOffset = 38.0;
+  static const headingHeight = 144.0;
+  static const headingOffset = 0.0;
   static const padding = 18.0;
   static const gap = 13.0;
-  static const columns = 3;
-  static const cardHeight = 114.0;
+  static const columns = 2;
+  static const cardHeight = 76.0;
   static const cardRadius = 28.0;
-  static const cardSize = 12.0;
+  static const cardSize = 15.0;
   static const iconSize = 29.0;
   static const iconRadius = 21.0;
   static const heroHeight = 109.0;

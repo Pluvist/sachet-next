@@ -19,7 +19,7 @@ const List defaultThemeColors = <MaterialColor>[
 ];
 
 /// 应用主题色（品牌色）
-const appBrandColor = Color(0xFF64C564);
+const appBrandColor = Color(0xFF3482FF);
 
 final List<Color> materialColorsShade400 = [
   Colors.amber.shade400,

@@ -1,3 +1,5 @@
+import 'package:sachet/models/course_card_settings.dart';
+import 'package:sachet/providers/course_card_settings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -15,6 +17,7 @@ import 'package:sachet/widgets/utils_widgets/liquid_dropdown_menu.dart';
 
 void main() {
   setUp(() {
+    AppGlobal.courseCardSettings = CourseCardSettings();
     AppGlobal.appSettings = AppSettings.fromJson({
       ...defaultAppSettingsConfig,
       'semesterStartDate': '2026-09-01',
@@ -128,6 +131,7 @@ void main() {
       providers: [
         ChangeNotifierProvider.value(value: navigation),
         ChangeNotifierProvider(create: (_) => SettingsProvider()),
+        ChangeNotifierProvider(create: (_) => CourseCardSettingsProvider()),
         ChangeNotifierProvider(create: (_) => ZhengFangUserProvider()),
       ],
       child: MaterialApp(

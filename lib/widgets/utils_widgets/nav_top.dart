@@ -18,7 +18,7 @@ class NavTop extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance
-        .addPostFrameCallback((_) => GlassBackdrop.capture());
+        .addPostFrameCallback((_) => GlassBackdrop.captureWhenIdle());
     final mask = Theme.of(context).brightness == Brightness.dark
         ? Colors.black
         : Colors.white;

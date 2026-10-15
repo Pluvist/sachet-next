@@ -33,6 +33,8 @@ class _NexioBottomTabsState extends State<NexioBottomTabs>
   double target = 0, down = 0, last = 0;
   bool dragging = false;
   int? pointer;
+  Widget? _fixedBackground;
+  bool? _backgroundIsDark;
   final SpringDescription valueSpring =
       SpringDescription.withDampingRatio(mass: 1, stiffness: 1000, ratio: 1);
   @override
@@ -67,7 +69,9 @@ class _NexioBottomTabsState extends State<NexioBottomTabs>
   @override
   void didUpdateWidget(NexioBottomTabs old) {
     super.didUpdateWidget(old);
-    if (old.selected != widget.selected && pointer == null) {
+    if (old.selected != widget.selected &&
+        pointer == null &&
+        (target - widget.selected).abs() > .001) {
       move(widget.selected.toDouble());
     }
   }
@@ -84,11 +88,15 @@ class _NexioBottomTabsState extends State<NexioBottomTabs>
   @override
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
+    if (_backgroundIsDark != dark) {
+      _backgroundIsDark = dark;
+      _fixedBackground = null;
+    }
     return LayoutBuilder(builder: (context, constraints) {
       final tabWidth = (constraints.maxWidth - 8) / widget.children.length;
       final rtl = Directionality.of(context) == TextDirection.rtl;
       double coordinate(double x) => rtl ? constraints.maxWidth - x : x;
-      final fixedBackground = Positioned.fill(
+      final fixedBackground = _fixedBackground ??= Positioned.fill(
           child: RepaintBoundary(
               key: const ValueKey('nexioFixedBackdrop'),
               child: LiquidGlassSurface(

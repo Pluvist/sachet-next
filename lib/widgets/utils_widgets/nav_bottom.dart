@@ -24,7 +24,7 @@ class NavBottom extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance
-        .addPostFrameCallback((_) => GlassBackdrop.capture());
+        .addPostFrameCallback((_) => GlassBackdrop.captureWhenIdle());
     final dark = Theme.of(context).brightness == Brightness.dark;
     final mask = dark ? Colors.black : Colors.white;
     final colors = Theme.of(context).colorScheme;

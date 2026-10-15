@@ -114,7 +114,7 @@ class _WithNavigationBarViewState extends State<WithNavigationBarView> {
       // 滚动结束时清理状态
       _scrollStartOffset = null;
       WidgetsBinding.instance
-          .addPostFrameCallback((_) => GlassBackdrop.capture());
+          .addPostFrameCallback((_) => GlassBackdrop.captureWhenIdle());
     }
 
     return false;

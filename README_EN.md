@@ -8,11 +8,11 @@ A modified version of [Sachet](https://github.com/wyvern1723/sachet) for Xiangta
 
 [Latest release](https://github.com/Pluvist/sachet-next/releases/latest)
 
-- [ARM64 v8a](https://github.com/Pluvist/sachet-next/releases/download/v0.10.1-next.1/sachet-next-v0.10.1-next.1-arm64-v8a.apk): most modern Android phones, including Xiaomi 17.
-- [ARM v7a](https://github.com/Pluvist/sachet-next/releases/download/v0.10.1-next.1/sachet-next-v0.10.1-next.1-armeabi-v7a.apk): 32-bit ARM devices.
-- [x86_64](https://github.com/Pluvist/sachet-next/releases/download/v0.10.1-next.1/sachet-next-v0.10.1-next.1-x86_64.apk): compatible 64-bit x86 Android devices/emulators.
+- [ARM64 v8a](https://github.com/Pluvist/sachet-next/releases/download/v0.19.58/sachet-next-v0.19.58-arm64-v8a.apk): most modern Android phones, including Xiaomi 17.
+- [ARM v7a](https://github.com/Pluvist/sachet-next/releases/download/v0.19.58/sachet-next-v0.19.58-armeabi-v7a.apk): 32-bit ARM devices.
+- [x86_64](https://github.com/Pluvist/sachet-next/releases/download/v0.19.58/sachet-next-v0.19.58-x86_64.apk): compatible 64-bit x86 Android devices/emulators.
 
-The first public release uses release/AOT compilation with package ID `io.github.wyvern1723.sachet.localtest` and the existing local development signing key. It can update earlier builds signed with that same key and installs separately from upstream Sachet. This is a development signature, not an upstream or dedicated production signature. CI test APK signatures can differ. SHA-256 checksums are provided with the release.
+The first stable release, **0.19.58**, switches the UI throughout to Miuix styling and adds tablet/landscape layouts with two full weeks side by side. It uses release/AOT compilation with package ID `io.github.wyvern1723.sachet.localtest` and the existing local development signing key. It can update earlier builds signed with that same key and installs separately from upstream Sachet. This is a development signature, not an upstream or dedicated production signature. CI test APK signatures can differ. SHA-256 checksums are provided with the release.
 
 ## Changes from upstream
 
@@ -21,7 +21,7 @@ The first public release uses release/AOT compilation with package ID `io.github
 - A home course-status card with current/next lesson, location and countdown; reorganized campus service shortcuts.
 - Shared Miuix-inspired Flutter headers, rounded groups, colored icon tiles, search, forms, dialogs, pickers and tables, a two-item floating navigation capsule, profile access from the home header, and a theme-aware bottom gradient. Light-mode inactive navigation is white; both themes have a thin gray outline.
 - An Android home-screen course widget, defaulting to 2×2, with adaptive layouts, dark/light themes and the same course matching rules as the home page. Compact padding is 20dp; larger layouts use 40dp.
-- Retained tab/week state, lazy week creation, shared cached reads and fewer touch-triggered rebuilds. iOS-style page transitions are fixed as the default.
+- Idle-time tab preparation, retained tab/week state, lazy week creation, shared cached reads, deferred glass backdrop sampling, and fewer touch-triggered rebuilds. iOS-style page transitions are fixed as the default.
 - Automatic timetable refresh on cold start and foreground resume, showing cached data first and retaining it on failures. Updates preserve colors and applicable manual settings and reschedule enabled course reminders.
 - Sachet Next branding and Pluvist credits, with explicit upstream acknowledgment. Upstream update checks and related settings were removed.
 

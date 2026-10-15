@@ -12,11 +12,11 @@
 
 | Android 架构 | 适用设备 | 下载 |
 | --- | --- | --- |
-| arm64-v8a | 多数现代安卓手机选择此版本 | [ARM64 APK](https://github.com/Pluvist/sachet-next/releases/download/v0.10.1-next.1/sachet-next-v0.10.1-next.1-arm64-v8a.apk) |
-| armeabi-v7a | 32 位 ARM 安卓设备 | [ARM v7a APK](https://github.com/Pluvist/sachet-next/releases/download/v0.10.1-next.1/sachet-next-v0.10.1-next.1-armeabi-v7a.apk) |
-| x86_64 | 64 位 x86 安卓设备或兼容模拟器 | [x86_64 APK](https://github.com/Pluvist/sachet-next/releases/download/v0.10.1-next.1/sachet-next-v0.10.1-next.1-x86_64.apk) |
+| arm64-v8a | 多数现代安卓手机选择此版本 | [ARM64 APK](https://github.com/Pluvist/sachet-next/releases/download/v0.19.58/sachet-next-v0.19.58-arm64-v8a.apk) |
+| armeabi-v7a | 32 位 ARM 安卓设备 | [ARM v7a APK](https://github.com/Pluvist/sachet-next/releases/download/v0.19.58/sachet-next-v0.19.58-armeabi-v7a.apk) |
+| x86_64 | 64 位 x86 安卓设备或兼容模拟器 | [x86_64 APK](https://github.com/Pluvist/sachet-next/releases/download/v0.19.58/sachet-next-v0.19.58-x86_64.apk) |
 
-首个公开版本采用 release/AOT 编译，包名为 `io.github.wyvern1723.sachet.localtest`，沿用现有本机开发签名，能够覆盖同签名测试版；与上游应用分开安装。此签名属于开发签名，不是上游官方签名或独立生产签名。
+首个正式版 **0.19.58** 的 UI 已完全切换至 Miuix 风格，并适配平板与横屏双周布局。安装包采用 release/AOT 编译，包名为 `io.github.wyvern1723.sachet.localtest`，沿用现有本机开发签名，能够覆盖同签名测试版；与上游应用分开安装。此签名属于开发签名，不是上游官方签名或独立生产签名。
 
 ## 相比上游的主要变化
 

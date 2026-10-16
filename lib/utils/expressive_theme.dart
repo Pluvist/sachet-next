@@ -1,3 +1,4 @@
+import 'package:sachet/utils/miuix_shapes.dart';
 import 'package:flutter/material.dart';
 
 /// Miuix-inspired Flutter styling. Keeps the existing theme preferences.
@@ -28,12 +29,9 @@ ThemeData applyExpressiveTheme(ThemeData theme,
         dark ? const Color(0xffeeeeee) : const Color(0xff191919),
     outlineVariant: dark ? const Color(0xff333333) : const Color(0xffe8e8e8),
   );
-  final roundedPanel = ContinuousRectangleBorder(
-    borderRadius: BorderRadius.circular(48),
-  );
+  const roundedPanel = MiuixRadii.panelShape;
   final buttonStyle = ButtonStyle(
-    shape: WidgetStatePropertyAll(
-        ContinuousRectangleBorder(borderRadius: BorderRadius.circular(38))),
+    shape: WidgetStatePropertyAll(MiuixRadii.controlShape),
     minimumSize: const WidgetStatePropertyAll(Size(48, 48)),
     padding: const WidgetStatePropertyAll(
       EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -67,11 +65,13 @@ ThemeData applyExpressiveTheme(ThemeData theme,
       fillColor: panel,
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
       border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
+          borderRadius: BorderRadius.circular(MiuixRadii.control),
+          borderSide: BorderSide.none),
       enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
+          borderRadius: BorderRadius.circular(MiuixRadii.control),
+          borderSide: BorderSide.none),
       focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(MiuixRadii.control),
           borderSide: BorderSide(color: colors.primary)),
     ),
     switchTheme: SwitchThemeData(
@@ -140,7 +140,7 @@ ThemeData applyExpressiveTheme(ThemeData theme,
         indicatorSize: TabBarIndicatorSize.tab,
         indicator: BoxDecoration(
             color: colors.surfaceContainerHigh,
-            borderRadius: BorderRadius.circular(20)),
+            borderRadius: BorderRadius.circular(MiuixRadii.control)),
         dividerColor: Colors.transparent),
     filledButtonTheme: FilledButtonThemeData(style: buttonStyle),
     elevatedButtonTheme: ElevatedButtonThemeData(
@@ -194,14 +194,16 @@ ThemeData applyExpressiveTheme(ThemeData theme,
       backgroundColor: colors.surfaceContainerLow,
       modalBackgroundColor: colors.surfaceContainerLow,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(MiuixRadii.panel)),
       ),
       clipBehavior: Clip.antiAlias,
     ),
     floatingActionButtonTheme: FloatingActionButtonThemeData(
       backgroundColor: colors.primaryContainer,
       foregroundColor: colors.onPrimaryContainer,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(MiuixRadii.control)),
     ),
     navigationBarTheme: NavigationBarThemeData(
       backgroundColor: colors.surfaceContainerHigh,
@@ -225,7 +227,8 @@ ThemeData applyExpressiveTheme(ThemeData theme,
     ),
     snackBarTheme: SnackBarThemeData(
       behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(MiuixRadii.control)),
     ),
   );
 }

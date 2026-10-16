@@ -64,3 +64,7 @@ key.properties
 .env
 .env.*
 !.env.example
+
+# Additional Android signing key containers
+*.p12
+*.pfx

@@ -1,3 +1,4 @@
+import 'package:sachet/utils/miuix_shapes.dart';
 import 'package:flutter/material.dart';
 
 /// Values approved in assets/json/HomeDesign.json, exported from the editor.
@@ -11,12 +12,12 @@ abstract final class HomeDesign {
   static const gap = 13.0;
   static const columns = 2;
   static const cardHeight = 76.0;
-  static const cardRadius = 28.0;
+  static const cardRadius = MiuixRadii.panel;
   static const cardSize = 15.0;
   static const iconSize = 29.0;
   static const iconRadius = 21.0;
-  static const heroHeight = 109.0;
-  static const heroRadius = 32.0;
+  static const heroHeight = 260.0;
+  static const heroRadius = MiuixRadii.panel;
   static const heroSize = 20.0;
   static const navDarken = 0.20;
   static const navBottom = 20.0;

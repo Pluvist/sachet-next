@@ -1,3 +1,4 @@
+import 'package:sachet/utils/miuix_shapes.dart';
 import 'package:flutter/material.dart';
 
 /// A preference-style selector: a filled row and an anchored, rounded menu.
@@ -50,7 +51,8 @@ class MiuixSelect<T> extends StatelessWidget {
                         WidgetStatePropertyAll(Size(360, menuHeight ?? 400)),
                     padding: const WidgetStatePropertyAll(EdgeInsets.all(8)),
                     shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24)))),
+                        borderRadius:
+                            BorderRadius.circular(MiuixRadii.control)))),
                 menuChildren: dropdownMenuEntries
                     .map((entry) => MenuItemButton(
                         onPressed: enabled && entry.enabled
@@ -65,7 +67,8 @@ class MiuixSelect<T> extends StatelessWidget {
                                 const WidgetStatePropertyAll(Size(120, 48)),
                             shape: WidgetStatePropertyAll(
                                 RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16)))),
+                                    borderRadius: BorderRadius.circular(
+                                        MiuixRadii.small)))),
                         child: Text(entry.label,
                             style: TextStyle(
                                 fontSize: 15, color: colors.onSurface))))
@@ -74,9 +77,10 @@ class MiuixSelect<T> extends StatelessWidget {
                     button: true,
                     child: Material(
                         color: colors.surfaceContainerLow,
-                        borderRadius: BorderRadius.circular(22),
+                        borderRadius: BorderRadius.circular(MiuixRadii.control),
                         child: InkWell(
-                            borderRadius: BorderRadius.circular(22),
+                            borderRadius:
+                                BorderRadius.circular(MiuixRadii.control),
                             onTap: enabled
                                 ? () => controller.isOpen
                                     ? controller.close()
@@ -167,10 +171,10 @@ class MiuixButton extends StatelessWidget {
         enabled: !disabled,
         child: Material(
             color: disabled ? colors.surfaceContainerHigh : colors.primary,
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(MiuixRadii.control),
             child: InkWell(
                 onTap: onPressed,
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(MiuixRadii.control),
                 child: ConstrainedBox(
                     constraints:
                         const BoxConstraints(minHeight: 50, minWidth: 96),

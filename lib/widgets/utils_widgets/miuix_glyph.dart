@@ -14,7 +14,8 @@ enum MiuixSymbol {
   share,
   view,
   tune,
-  check
+  check,
+  document
 }
 
 /// Original stroke icons, independent of external font or bitmap assets.
@@ -41,14 +42,40 @@ class _GlyphPainter extends CustomPainter {
   final Color color;
   @override
   void paint(Canvas canvas, Size size) {
+    canvas.save();
     canvas.scale(size.width / 24, size.height / 24);
+    final translucent = color.alpha < 255;
+    if (translucent) {
+      canvas.saveLayer(const Rect.fromLTWH(0, 0, 24, 24),
+          Paint()..color = Color.fromARGB(color.alpha, 255, 255, 255));
+    }
+    final solid = color.withAlpha(255);
     final pen = Paint()
-      ..color = color
+      ..color = solid
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.9
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round;
     switch (symbol) {
+      case MiuixSymbol.document:
+        canvas.drawPath(
+            Path()
+              ..moveTo(5, 17)
+              ..lineTo(5, 5)
+              ..quadraticBezierTo(5, 2, 8, 2)
+              ..lineTo(19, 2)
+              ..quadraticBezierTo(22, 2, 22, 5)
+              ..lineTo(22, 19)
+              ..quadraticBezierTo(22, 22, 19, 22)
+              ..lineTo(5, 22)
+              ..quadraticBezierTo(2, 22, 2, 19)
+              ..lineTo(2, 18)
+              ..lineTo(16, 18)
+              ..quadraticBezierTo(16, 22, 19, 22),
+            pen);
+        for (final y in [7.0, 11.0, 15.0]) {
+          canvas.drawLine(Offset(9, y), Offset(y == 15 ? 14 : 18, y), pen);
+        }
       case MiuixSymbol.home:
         canvas.drawRRect(
             RRect.fromRectAndRadius(
@@ -65,8 +92,8 @@ class _GlyphPainter extends CustomPainter {
         canvas.drawLine(const Offset(17, 3), const Offset(17, 7), pen);
         canvas.drawLine(const Offset(3, 10), const Offset(21, 10), pen);
         for (final x in [7.0, 12.0, 17.0]) {
-          canvas.drawCircle(Offset(x, 14), .8, Paint()..color = color);
-          canvas.drawCircle(Offset(x, 18), .8, Paint()..color = color);
+          canvas.drawCircle(Offset(x, 14), .8, Paint()..color = solid);
+          canvas.drawCircle(Offset(x, 18), .8, Paint()..color = solid);
         }
       case MiuixSymbol.person:
         canvas.drawCircle(const Offset(12, 8), 4, pen);
@@ -81,7 +108,7 @@ class _GlyphPainter extends CustomPainter {
         canvas.drawLine(const Offset(15.5, 15.5), const Offset(21, 21), pen);
       case MiuixSymbol.more:
         for (final y in [5.0, 12.0, 19.0]) {
-          canvas.drawCircle(Offset(12, y), 1.6, Paint()..color = color);
+          canvas.drawCircle(Offset(12, y), 1.6, Paint()..color = solid);
         }
       case MiuixSymbol.previous:
       case MiuixSymbol.next:
@@ -139,7 +166,7 @@ class _GlyphPainter extends CustomPainter {
           final y = 6.0 + i * 6;
           canvas.drawLine(Offset(3, y), Offset(21, y), pen);
           canvas.drawCircle(
-              Offset(i == 1 ? 15 : 8, y), 2, Paint()..color = color);
+              Offset(i == 1 ? 15 : 8, y), 2, Paint()..color = solid);
         }
       case MiuixSymbol.check:
         canvas.drawPath(
@@ -161,6 +188,8 @@ class _GlyphPainter extends CustomPainter {
               const Offset(12, 12) + delta, pen);
         }
     }
+    if (translucent) canvas.restore();
+    canvas.restore();
   }
 
   @override

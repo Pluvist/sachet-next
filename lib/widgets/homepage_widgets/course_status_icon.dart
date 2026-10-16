@@ -26,9 +26,17 @@ class _CourseStatusPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     canvas.save();
     canvas.scale(size.width / 100, size.height / 100);
-    final fill = Paint()..color = color;
+    // Composite opacity once for the complete silhouette. Applying alpha to
+    // individual overlapping strokes makes joints visibly darker.
+    final translucent = color.alpha < 255;
+    if (translucent) {
+      canvas.saveLayer(const Rect.fromLTWH(0, 0, 100, 100),
+          Paint()..color = Color.fromARGB(color.alpha, 255, 255, 255));
+    }
+    final solid = color.withAlpha(255);
+    final fill = Paint()..color = solid;
     final stroke = Paint()
-      ..color = color
+      ..color = solid
       ..style = PaintingStyle.stroke
       ..strokeWidth = 9
       ..strokeCap = StrokeCap.round
@@ -78,6 +86,7 @@ class _CourseStatusPainter extends CustomPainter {
             ..lineTo(71, 85),
           stroke);
     }
+    if (translucent) canvas.restore();
     canvas.restore();
   }
 

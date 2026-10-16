@@ -1,11 +1,10 @@
+import 'package:sachet/utils/miuix_shapes.dart';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 /// Shared HyperOS-style surfaces, headers and preference rows. Kept compatible
 /// with Flutter 3.24 so presentation changes do not replace the data layer.
-const miuixPanelShape = ContinuousRectangleBorder(
-  borderRadius: BorderRadius.all(Radius.circular(48)),
-);
+const miuixPanelShape = MiuixRadii.panelShape;
 
 Color miuixIconColor(IconData icon) {
   const palette = [
@@ -37,8 +36,8 @@ class MiuixIconBadge extends StatelessWidget {
   Widget build(BuildContext context) => DecoratedBox(
         decoration: ShapeDecoration(
             color: color ?? miuixIconColor(icon),
-            shape: ContinuousRectangleBorder(
-                borderRadius: BorderRadius.circular(size * .5))),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(size * .28))),
         child: SizedBox(
             width: size,
             height: size,
@@ -181,15 +180,7 @@ class MiuixCard extends StatelessWidget {
         shadowColor: shadowColor,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        shape: shape is RoundedRectangleBorder &&
-                ((shape as RoundedRectangleBorder)
-                        .borderRadius
-                        .resolve(Directionality.of(context))
-                        .topLeft
-                        .x <
-                    12)
-            ? shape
-            : miuixPanelShape,
+        shape: shape ?? miuixPanelShape,
         margin:
             margin ?? const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         clipBehavior: clipBehavior ?? Clip.antiAlias,
@@ -302,7 +293,7 @@ class MiuixListTile extends StatelessWidget {
       minLeadingWidth: minLeadingWidth ?? 36,
       minVerticalPadding: minVerticalPadding ?? 12,
       titleAlignment: titleAlignment ?? ListTileTitleAlignment.center,
-      shape: shape,
+      shape: shape ?? MiuixRadii.controlShape,
       tileColor: tileColor,
       selectedTileColor: selectedTileColor,
       iconColor: iconColor,

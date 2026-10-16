@@ -8,6 +8,24 @@ import 'package:sachet/utils/daily_course_status.dart';
 
 void main() {
   test(
+      'Live activity uses saved preference and waits until onboarding finishes',
+      () {
+    final settings = AppSettings.fromJson(defaultAppSettingsConfig);
+    final courses = List.generate(35, (_) => <CourseSchedule>[]);
+    expect(
+        buildCourseWidgetData(settings, courses)['liveActivityEnabled'], false);
+    settings.hasReadDisclaimer = true;
+    expect(
+        buildCourseWidgetData(settings, courses)['liveActivityEnabled'], true);
+    settings.isEnableCourseLiveActivity = false;
+    final saved = AppSettings.fromJson(settings.toJson());
+    expect(buildCourseWidgetData(saved, courses)['liveActivityEnabled'], false);
+    expect(buildCourseWidgetData(saved, courses)['ready'], true);
+    saved.isEnableCourseLiveActivity = true;
+    expect(buildCourseWidgetData(saved, courses)['liveActivityEnabled'], true);
+    expect(buildCourseWidgetData(saved, null)['ready'], false);
+  });
+  test(
       'Widget payload matches homepage lesson boundaries for all semester days',
       () {
     final settings = AppSettings.fromJson(

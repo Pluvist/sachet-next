@@ -20,7 +20,7 @@ void main() {
     });
     PackageInfo.setMockInitialValues(
         appName: 'Sachet Next',
-        packageName: 'io.github.wyvern1723.sachet.localtest',
+        packageName: 'com.pluvist.sachet.next.localtest',
         version: '0.10.1',
         buildNumber: '17',
         buildSignature: 'test');

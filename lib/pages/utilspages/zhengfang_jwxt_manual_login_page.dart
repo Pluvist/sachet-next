@@ -5,7 +5,6 @@ import 'package:sachet/constants/url_constants.dart';
 import 'package:sachet/models/user.dart';
 import 'package:sachet/providers/zhengfang_user_provider.dart';
 import 'package:sachet/services/zhengfang_jwxt/login/get_name.dart';
-import 'package:sachet/widgets/utilspages_widgets/manual_login_page_widgets/manual_login_successful_dialog.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:provider/provider.dart';
 
@@ -23,6 +22,8 @@ class ZhengFangManualLoginPage extends StatefulWidget {
 class _ZhengFangManualLoginPageState extends State<ZhengFangManualLoginPage> {
   final CookieManager _cookieManager = CookieManager.instance();
   InAppWebViewController? _webViewController;
+  bool _checking = false;
+  bool _completed = false;
 
   @override
   void dispose() {
@@ -36,6 +37,7 @@ class _ZhengFangManualLoginPageState extends State<ZhengFangManualLoginPage> {
     required String url,
     required InAppWebViewController? controller,
   }) async {
+    if (_checking || _completed || !mounted) return;
     if (controller == null) {
       showDialog(
         context: context,
@@ -53,8 +55,9 @@ class _ZhengFangManualLoginPageState extends State<ZhengFangManualLoginPage> {
         ),
       );
     } else {
-      final cookie = await _getCookie(url, controller);
+      _checking = true;
       try {
+        final cookie = await _getCookie(url, controller);
         final String name = await getNameZF(cookie);
 
         if (!context.mounted) return;
@@ -70,14 +73,8 @@ class _ZhengFangManualLoginPageState extends State<ZhengFangManualLoginPage> {
 
         if (!context.mounted) return;
 
-        // 显示获取登录信息成功的 Dialog
-        showDialog(
-          context: context,
-          builder: (context) => ManualLoginSuccessfulDialog(
-            userName: name,
-            cookie: cookie,
-          ),
-        );
+        _completed = true;
+        Navigator.pop(context, true);
       } catch (e) {
         if (!context.mounted) return;
 
@@ -97,6 +94,8 @@ class _ZhengFangManualLoginPageState extends State<ZhengFangManualLoginPage> {
             ],
           ),
         );
+      } finally {
+        _checking = false;
       }
     }
   }
@@ -142,8 +141,8 @@ class _ZhengFangManualLoginPageState extends State<ZhengFangManualLoginPage> {
             content: isXinXiMenHu
                 ? Text('1. 完成登录\n'
                     '2. 在 业务直通车 点击 「新教务系统」 ，跳转到新教务系统主页\n'
-                    '3. 等待自动弹出登录成功弹窗，如未弹出请点击「已完成登录」')
-                : Text('登录完成进入主页后会自动弹出登录成功弹窗，如未弹出请点击「已完成登录」'),
+                    '3. 登录后会自动返回，如未返回请点击「已完成登录」')
+                : Text('登录完成进入主页后会自动返回，如未返回请点击「已完成登录」'),
             backgroundColor: Theme.of(context).colorScheme.primaryContainer,
             actions: [
               TextButton(

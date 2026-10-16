@@ -120,6 +120,15 @@ class SettingsProvider extends ChangeNotifier {
   int get curveDuration => _appSettings.curveDuration ?? 1500;
   String get curveType => _appSettings.curveType ?? 'Easing.standard';
   bool get isEnableDevMode => _appSettings.isEnableDevMode ?? false;
+  bool get isEnableCourseLiveActivity =>
+      _appSettings.isEnableCourseLiveActivity ?? true;
+  void setEnableCourseLiveActivity(bool value) {
+    if (value == isEnableCourseLiveActivity) return;
+    _appSettings.isEnableCourseLiveActivity = value;
+    AppGlobal.saveAppSettings();
+    notifyListeners();
+  }
+
   bool get hasReadDisclaimer => _appSettings.hasReadDisclaimer ?? false;
   static String get navigationType =>
       _appSettings.navigationType ?? NavType.bottomNavigationBar.type;

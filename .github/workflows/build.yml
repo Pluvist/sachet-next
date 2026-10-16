@@ -40,6 +40,9 @@ jobs:
         run: flutter test
       - name: Build ARM64 test APK
         run: flutter build apk --release --target-platform android-arm64
+      - name: Native course timeline tests
+        working-directory: android
+        run: bash ./gradlew :app:testReleaseUnitTest --console=plain
       - name: Upload test APK
         uses: actions/upload-artifact@v7
         with:

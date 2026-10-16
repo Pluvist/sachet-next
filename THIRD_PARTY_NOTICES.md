@@ -28,4 +28,4 @@ Flutter 及 pubspec.yaml 中的依赖遵循各自许可证；Flutter 构建生�
 
 ## HyperCeiler
 
-首次账号引导布局转写自 ReChronoRain/HyperCeiler，Copyright (C) 2023-2026 HyperCeiler Contributions，AGPL-3.0。原始XML、固定提交和适配说明保存在 [来源目录](third_party/hyperceiler/SOURCES.md)。品牌改为Sachet Next，仅保留账号步骤，保留原glow.glsl与GlowPainter默认参数，转写为Flutter着色器；未包含其系统专属活动动画库。
+首次账号引导布局转写自 ReChronoRain/HyperCeiler，Copyright (C) 2023-2026 HyperCeiler Contributions，AGPL-3.0。原始XML、固定提交和适配说明保存在 [来源目录](third_party/hyperceiler/SOURCES.md)。品牌改为Sachet Next，仅保留账号步骤，保留原glow.glsl与GlowPainter默认参数，转写为Flutter着色器；未包含其系统专属活动动画库。来源控件捕获与展开入口另参考同一提交的 StartupFragment.java / ViewUtils.java；Flutter 版本保持目标页面原尺寸，通过完整控件边缘揭示下一页，时长和曲线为本项目适配参数。

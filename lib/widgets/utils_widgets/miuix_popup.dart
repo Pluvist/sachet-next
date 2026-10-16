@@ -1,3 +1,4 @@
+import 'package:sachet/utils/miuix_shapes.dart';
 // Flutter port of NexioSchedule LiquidGlassDropdownMenu.kt.
 // HaoZai000/NexioSchedule ab6c7a7, AGPL-3.0-only. See third_party/nexio/SOURCES.md.
 import 'dart:math' as math;
@@ -98,7 +99,7 @@ class _MiuixPopupState<T> extends State<MiuixPopup<T>> {
                   child: Opacity(
                       opacity: open ? 0 : 1,
                       child: LiquidGlassSurface(
-                          radius: 25,
+                          radius: MiuixRadii.panel,
                           child: SizedBox.square(
                               dimension: 42,
                               child: IconButton(
@@ -170,14 +171,16 @@ class _GlassMenuState<T> extends State<_GlassMenu<T>> {
                       key: ValueKey('liquidDropdownItem$i'),
                       height: rowHeight,
                       child: InkWell(
-                          borderRadius: BorderRadius.circular(17),
-                          onTap: (widget.route.items[i] as PopupMenuItem<T>).enabled
-                              ? () => choose(i)
-                              : null,
+                          borderRadius: BorderRadius.circular(MiuixRadii.small),
+                          onTap:
+                              (widget.route.items[i] as PopupMenuItem<T>).enabled
+                                  ? () => choose(i)
+                                  : null,
                           child: AnimatedContainer(
                               duration: const Duration(milliseconds: 150),
                               decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(17),
+                                  borderRadius:
+                                      BorderRadius.circular(MiuixRadii.small),
                                   color: hover == i
                                       ? colors.onSurface.withOpacity(.08)
                                       : Colors.transparent),
@@ -191,8 +194,7 @@ class _GlassMenuState<T> extends State<_GlassMenu<T>> {
                                   child: IconTheme(
                                       data: IconThemeData(
                                           size: 23, color: colors.onSurface),
-                                      child: (widget.route.items[i] as PopupMenuItem<T>).child ??
-                                          const SizedBox())))))
+                                      child: (widget.route.items[i] as PopupMenuItem<T>).child ?? const SizedBox())))))
           ]));
   @override
   Widget build(BuildContext context) {
@@ -219,12 +221,12 @@ class _GlassMenuState<T> extends State<_GlassMenu<T>> {
                 width: width,
                 height: 42 + (height - 42) * f,
                 child: LiquidGlassSurface(
-                    radius: 25,
+                    radius: MiuixRadii.panel,
                     blur: 8 + 16 * (f * 8).round() / 8,
                     lensHeight: 8,
                     lensAmount: 24,
                     child: ClipRRect(
-                        borderRadius: BorderRadius.circular(25),
+                        borderRadius: BorderRadius.circular(MiuixRadii.panel),
                         child: OverflowBox(
                             alignment: Alignment.topRight,
                             minWidth: 200,

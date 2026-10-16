@@ -12,11 +12,13 @@ import 'package:sachet/models/nav_destination.dart';
 import 'package:sachet/pages/about_page.dart';
 import 'package:sachet/pages/home_page.dart';
 import 'package:sachet/pages/intro_screen/intro_screen.dart';
+import 'package:sachet/pages/intro_screen/agreement_page.dart';
 import 'package:sachet/pages/profile_page.dart';
 import 'package:sachet/pages/settings_page.dart';
 import 'package:sachet/pages/settings_child_pages/advanced_settings_page.dart';
 import 'package:sachet/pages/settings_child_pages/customize_settings_page.dart';
 import 'package:sachet/pages/settings_child_pages/theme_settings_page.dart';
+import 'package:sachet/pages/settings_child_pages/course_live_activity_settings_page.dart';
 import 'package:sachet/pages/utilspages/zhengfang_jwxt_login_page.dart';
 import 'package:sachet/providers/settings_provider.dart';
 import 'package:sachet/providers/theme_provider.dart';
@@ -32,13 +34,16 @@ void main() {
   final pages = <String, Widget>{
     'home': const HomePage(),
     'intro': const IntroScreen(),
+    'agreement': const AgreementPage(),
     'settings': const SettingsPage(),
     'profile': const ProfilePage(openedFromHome: true),
     'about': const AboutPage(),
     'advanced': const AdvancedSettingsPage(),
     'appearance': const CustomizeSettingsPage(),
     'theme': const ThemeSettingsPage(),
+    'course activity': const CourseLiveActivitySettingsPage(),
     'login': const ZhengFangJwxtLoginPage(),
+    'onboarding login': const ZhengFangJwxtLoginPage(onboarding: true),
   };
   final previewDir = Platform.environment['SACHET_VISUAL_QA_DIR'];
   final fontFile = Platform.environment['SACHET_UI_FONT'];
@@ -70,7 +75,7 @@ void main() {
     AppGlobal.startupPage = '/class';
     PackageInfo.setMockInitialValues(
         appName: 'Sachet Next',
-        packageName: 'io.github.wyvern1723.sachet.localtest',
+        packageName: 'com.pluvist.sachet.next.localtest',
         version: '0.10.1-next.2',
         buildNumber: '19',
         buildSignature: 'test');

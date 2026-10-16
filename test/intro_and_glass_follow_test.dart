@@ -6,6 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:sachet/models/app_settings.dart';
 import 'package:sachet/pages/intro_screen/intro_screen.dart';
+import 'package:sachet/pages/intro_screen/agreement_page.dart';
+import 'package:sachet/widgets/intro_widgets/provision_page.dart';
 import 'package:sachet/pages/utilspages/zhengfang_jwxt_login_page.dart';
 import 'package:sachet/providers/settings_provider.dart';
 import 'package:sachet/providers/zhengfang_user_provider.dart';
@@ -72,14 +74,28 @@ void main() {
                     disableAnimations: true),
                 child: child!),
             routes: {'/navBarView': (_) => const Scaffold(body: Text('主界面'))},
-            home: const IntroScreen())));
+            home: IntroScreen(
+                homeBuilder: (_) => const Scaffold(body: Text('主界面'))))));
     await tester.pumpAndSettle();
     return settings;
   }
 
+  Future<void> agreeAndContinue(WidgetTester tester) async {
+    expect(find.byType(AgreementPage), findsOneWidget);
+    final button = find.byKey(const ValueKey('agreementContinue'));
+    expect(tester.widget<ProvisionButton>(button).onPressed, isNull);
+    await tester.ensureVisible(find.byKey(const ValueKey('agreementConsent')));
+    await tester.tap(find.byKey(const ValueKey('agreementConsent')));
+    await tester.pumpAndSettle();
+    expect(tester.widget<ProvisionButton>(button).onPressed, isNotNull);
+    await tester.tap(button);
+    await tester.pumpAndSettle();
+  }
+
   for (final brightness in Brightness.values) {
     for (final scale in [1.0, 2.0]) {
-      testWidgets('Only account onboarding remains $brightness $scale',
+      testWidgets(
+          'Agreement and account onboarding precede completion $brightness $scale',
           (tester) async {
         final settings = await intro(tester, brightness, scale);
         expect(find.text('Sachet Next'), findsOneWidget);
@@ -90,6 +106,7 @@ void main() {
         await tester.ensureVisible(find.byKey(const ValueKey('introNext')));
         await tester.tap(find.byKey(const ValueKey('introNext')));
         await tester.pumpAndSettle();
+        await agreeAndContinue(tester);
         expect(find.byType(ZhengFangJwxtLoginPage), findsOneWidget);
         expect(settings.completed, 0);
         Navigator.of(tester.element(find.byType(ZhengFangJwxtLoginPage)))
@@ -114,19 +131,42 @@ void main() {
     await tester.ensureVisible(find.byKey(const ValueKey('introNext')));
     await tester.tap(find.byKey(const ValueKey('introNext')));
     await tester.pumpAndSettle();
+    await agreeAndContinue(tester);
     expect(find.byType(ZhengFangJwxtLoginPage), findsOneWidget);
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+    expect(find.byType(AgreementPage), findsOneWidget);
     await tester.tap(find.byType(BackButton));
     await tester.pumpAndSettle();
     expect(find.byType(IntroScreen), findsOneWidget);
     expect(settings.completed, 0);
     expect(tester.takeException(), isNull);
   });
+  testWidgets('Existing login cannot bypass the consent page by backing out',
+      (tester) async {
+    final settings = await intro(tester, Brightness.dark, 1);
+    final account = tester
+        .element(find.byType(IntroScreen))
+        .read<ZhengFangUserProvider>() as _Account;
+    account.logged = true;
+    await tester.ensureVisible(find.byKey(const ValueKey('introNext')));
+    await tester.tap(find.byKey(const ValueKey('introNext')));
+    await tester.pumpAndSettle();
+    expect(find.byType(AgreementPage), findsOneWidget);
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('introFinish')), findsNothing);
+    expect(settings.completed, 0);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('Skip account login still visits completion before entering home',
       (tester) async {
     final settings = await intro(tester, Brightness.light, 1);
     await tester.ensureVisible(find.byKey(const ValueKey('introNext')));
     await tester.tap(find.byKey(const ValueKey('introNext')));
     await tester.pumpAndSettle();
+    await agreeAndContinue(tester);
     await tester.tap(find.byKey(const ValueKey('onboardLoginSkip')));
     await tester.pumpAndSettle();
     expect(find.text('设置完成'), findsOneWidget);

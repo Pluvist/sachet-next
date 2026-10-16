@@ -1,3 +1,4 @@
+import 'package:sachet/utils/miuix_shapes.dart';
 import 'package:sachet/widgets/utils_widgets/source_expand_route.dart';
 import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +13,6 @@ import 'package:sachet/pages/home_child_pages/reserve_textbook_page/reserve_text
 import 'package:sachet/pages/home_child_pages/score_pdf_page_zf.dart';
 import 'package:sachet/utils/app_global.dart';
 import 'package:sachet/providers/screen_nav_provider.dart';
-import 'package:sachet/pages/home_child_pages/free_classroom_page_zf.dart';
 import 'package:sachet/providers/settings_provider.dart';
 import 'package:sachet/utils/utils_functions.dart';
 import 'package:sachet/widgets/homepage_widgets/card_widget.dart';
@@ -46,18 +46,23 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
   late final AnimationController _entrance;
+  late final bool _animateEntrance;
+  Animation<double>? _handoffAnimation;
+  final _profileExpansionKey = GlobalKey();
+  final _linkExpansionKeys = <String, GlobalKey>{};
   @override
   void initState() {
     super.initState();
-    final animate = AppGlobal.homeEntrancePending;
+    final animate = _animateEntrance = AppGlobal.homeEntrancePending;
     AppGlobal.homeEntrancePending = false;
     _entrance = AnimationController(
         vsync: this,
-        duration: const Duration(milliseconds: 1100),
+        duration: const Duration(milliseconds: 650),
         value: animate ? 0 : 1);
     if (animate) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
+        if (_handoffAnimation != null) return;
         if (MediaQuery.disableAnimationsOf(context)) {
           _entrance.value = 1;
         } else {
@@ -68,13 +73,22 @@ class _HomePageState extends State<HomePage>
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (_animateEntrance && route is SourceExpandRoute && route.homeHandoff) {
+      _handoffAnimation = route.expansionAnimation;
+    }
+  }
+
+  @override
   void dispose() {
     _entrance.dispose();
     super.dispose();
   }
 
-  Widget _fly(int index, Widget child) =>
-      HomeEntrance(animation: _entrance, index: index, child: child);
+  Widget _fly(int index, Widget child) => HomeEntrance(
+      animation: _handoffAnimation ?? _entrance, index: index, child: child);
 
   Widget _buildFeatureCards(BuildContext context) {
     final cards = <Widget>[
@@ -217,17 +231,33 @@ class _HomePageState extends State<HomePage>
               actions: [
                 Padding(
                     padding: const EdgeInsets.only(right: 16),
-                    child: _fly(
-                        0,
-                        Builder(
-                            builder: (sourceContext) => IconButton(
+                    child: _fly(0, Builder(builder: (sourceContext) {
+                      final iconKey = _profileExpansionKey;
+                      return ExpansionAnchor(
+                          key: iconKey,
+                          child: Material(
+                              color: colorScheme.surfaceContainerHigh,
+                              shape: const CircleBorder(),
+                              clipBehavior: Clip.antiAlias,
+                              child: IconButton(
                                   key: const ValueKey('homeProfileButton'),
                                   tooltip: '个人中心',
+                                  style: IconButton.styleFrom(
+                                      fixedSize: const Size.square(44),
+                                      minimumSize: const Size.square(44),
+                                      padding: EdgeInsets.zero,
+                                      tapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
+                                      shape: const CircleBorder()),
                                   iconSize: 26,
                                   icon: const MiuixGlyph(MiuixSymbol.person),
                                   onPressed: () => expandPage(sourceContext,
-                                      const ProfilePage(openedFromHome: true)),
-                                )))),
+                                      const ProfilePage(openedFromHome: true),
+                                      sourceKey: iconKey,
+                                      sourceRadius: 22,
+                                      sourceColor:
+                                          colorScheme.surfaceContainerHigh))));
+                    }))),
               ],
               flexibleSpace: LayoutBuilder(builder: (context, constraints) {
                 final top = MediaQuery.paddingOf(context).top;
@@ -261,72 +291,6 @@ class _HomePageState extends State<HomePage>
                   children: [
                     _fly(1, const HomeCourseStatusCard()),
                     const SizedBox(height: 10),
-                    _fly(
-                        2,
-                        Builder(
-                            builder: (sourceContext) => MiuixCard(
-                                  key: const ValueKey('homeHeroCard'),
-                                  margin: EdgeInsets.zero,
-                                  elevation: 0,
-                                  shadowColor: primaryColor.withOpacity(0.4),
-                                  clipBehavior: Clip.hardEdge,
-                                  color: colorScheme.surfaceContainerLow,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(24),
-                                  ),
-                                  child: InkWell(
-                                    onTap: () => expandPage(
-                                        sourceContext, FreeClassroomPageZF()),
-                                    child: ConstrainedBox(
-                                      constraints: const BoxConstraints(
-                                          minHeight: HomeDesign.heroHeight),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(24.0),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    '空闲教室',
-                                                    style: TextStyle(
-                                                      fontSize:
-                                                          HomeDesign.heroSize,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color:
-                                                          colorScheme.onSurface,
-                                                    ),
-                                                  ),
-                                                  SizedBox(height: 4),
-                                                  Text(
-                                                    '快速查询自习室',
-                                                    style: TextStyle(
-                                                      fontSize: 12,
-                                                      color:
-                                                          colorScheme.onSurface,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            const SizedBox(width: 12),
-                                            Icon(
-                                              Icons.meeting_room_rounded,
-                                              size: 44,
-                                              color: colorScheme.onSurface,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ))),
-                    const SizedBox(height: 10),
                     Padding(
                       padding: EdgeInsets.zero,
                       child: _buildFeatureCards(context),
@@ -343,70 +307,71 @@ class _HomePageState extends State<HomePage>
                         MiuixCard(
                           margin: EdgeInsets.zero,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(24),
+                            borderRadius:
+                                BorderRadius.circular(MiuixRadii.panel),
                           ),
-                          clipBehavior: Clip.hardEdge,
+                          clipBehavior: Clip.antiAlias,
                           child: Column(
                             children: List.generate(openLinkListTileList.length,
                                 (index) {
                               return Column(
                                 children: [
-                                  _fly(
-                                      index + 12,
-                                      Builder(
-                                          builder: (sourceContext) =>
-                                              MiuixListTile(
-                                                contentPadding:
-                                                    const EdgeInsets.symmetric(
-                                                  horizontal: 20,
-                                                  vertical: 4,
-                                                ),
-                                                leading: Align(
-                                                  widthFactor: 1,
-                                                  alignment:
-                                                      Alignment.centerLeft,
-                                                  child: Icon(
-                                                    openLinkListTileList[index]
-                                                        .icon,
-                                                    color: primaryColor,
-                                                  ),
-                                                ),
-                                                title: Text(
+                                  Builder(builder: (sourceContext) {
+                                    final iconKey =
+                                        _linkExpansionKeys.putIfAbsent(
+                                            openLinkListTileList[index].link,
+                                            () => GlobalKey());
+                                    return ExpansionAnchor(
+                                        key: iconKey,
+                                        child: MiuixListTile(
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                            horizontal: 20,
+                                            vertical: 4,
+                                          ),
+                                          leading: Align(
+                                            widthFactor: 1,
+                                            alignment: Alignment.centerLeft,
+                                            child: Icon(
+                                                openLinkListTileList[index]
+                                                    .icon,
+                                                color: primaryColor),
+                                          ),
+                                          title: Text(
+                                            openLinkListTileList[index].title,
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w500),
+                                          ),
+                                          subtitle: Text(
+                                            openLinkListTileList[index]
+                                                .subtitle,
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color:
+                                                  colorScheme.onSurfaceVariant,
+                                            ),
+                                          ),
+                                          trailing: Icon(
+                                            // Icons.chevron_right,
+                                            Icons.chevron_right_rounded,
+                                            color: colorScheme.onSurfaceVariant,
+                                          ),
+                                          onTap: () => expandAction(
+                                              sourceContext,
+                                              () => openLink(
                                                   openLinkListTileList[index]
-                                                      .title,
-                                                  style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w500),
-                                                ),
-                                                subtitle: Text(
-                                                  openLinkListTileList[index]
-                                                      .subtitle,
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: colorScheme
-                                                        .onSurfaceVariant,
-                                                  ),
-                                                ),
-                                                trailing: Icon(
-                                                  // Icons.chevron_right,
-                                                  Icons.chevron_right_rounded,
-                                                  color: colorScheme
-                                                      .onSurfaceVariant,
-                                                ),
-                                                onTap: () => expandAction(
-                                                    sourceContext,
-                                                    () => openLink(
-                                                        openLinkListTileList[
-                                                                index]
-                                                            .link)),
-                                                onLongPress: () =>
-                                                    copyToClipboard(
-                                                  context,
-                                                  openLinkListTileList[index]
-                                                      .link,
-                                                  prefix: '链接',
-                                                ),
-                                              ))),
+                                                      .link),
+                                              sourceKey: iconKey,
+                                              sourceRadius: MiuixRadii.control,
+                                              sourceColor: colorScheme
+                                                  .surfaceContainerLow),
+                                          onLongPress: () => copyToClipboard(
+                                            context,
+                                            openLinkListTileList[index].link,
+                                            prefix: '链接',
+                                          ),
+                                        ));
+                                  }),
                                   // 添加分割线，除了最后一个
                                   if (index != openLinkListTileList.length - 1)
                                     Divider(

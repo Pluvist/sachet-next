@@ -12,3 +12,27 @@ HyperCeiler marks and text are replaced with Sachet Next branding. The original 
 GlowPainter uniform defaults are preserved in the Flutter fragment shader. The
 Android runtime shader entry point is adapted to FlutterFragCoord; system-specific
 MIUI/fan activity transitions are not included. The mark is redrawn in monochrome. Smaller screens and larger text scroll instead of overlapping.
+
+
+2026-10-17 source-view expansion correction: retain StartupFragment.java and
+ViewUtils.java from the same revision, specifically buildPickPageAnimationContext,
+captureRoundedBitmap and makeScaleUpAnim(..., 102). Upstream captures the next
+button bounds and rounded bitmap, then delegates the actual activity transition
+to fan.transition.ActivityOptionsHelper from fan.miuix:transition:1.0.13.0.
+That system library is not included in this Flutter app. source_expand_route.dart
+now captures the visible icon, hides its original during the transition and grows
+a rounded reveal from its original edges to cover every screen corner, keeping
+the destination at full layout size. Its 500ms cubic easing and foreground/content
+cross-fade are Flutter adaptation parameters, not verified library constants;
+pixel-identical/native-system timing is not claimed. Home navigation uses each
+icon's own bounds rather than the containing card or padded touch target.
+
+
+2026-10-17 control-boundary revision (supersedes the icon-only adaptation above):
+The captured source is now the entire visible card/button/row and its actual
+rounded shape. The reveal interpolates within viewport bounds rather than
+rendering an oversized circle. Source content fades at its natural size, and
+readback is capped at 200,000 pixels. Standard navigation uses 400ms; completion
+uses one 600ms route clock shared by home entrance effects. The welcome glow
+pauses while leaving. Completion and automatic refresh start after the handoff;
+no native fan.transition animation implementation is included.

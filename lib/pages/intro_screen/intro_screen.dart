@@ -1,3 +1,5 @@
+import 'package:sachet/pages/home_page.dart';
+import 'package:sachet/pages/with_navbar_view.dart';
 // HyperCeiler provision layout and glow adaptation. AGPL-3.0.
 // Copyright (C) 2023-2026 HyperCeiler Contributions; adaptation Pluvist.
 import 'dart:math' as math;
@@ -6,15 +8,15 @@ import 'package:sachet/widgets/utils_widgets/source_expand_route.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sachet/models/enums/nav_type.dart';
-import 'package:sachet/pages/utilspages/zhengfang_jwxt_login_page.dart';
+import 'package:sachet/pages/intro_screen/agreement_page.dart';
 import 'package:sachet/providers/settings_provider.dart';
-import 'package:sachet/providers/zhengfang_user_provider.dart';
 import 'package:sachet/utils/app_global.dart';
 import 'package:sachet/widgets/utils_widgets/hyperceiler_glow.dart';
 import 'package:sachet/widgets/utils_widgets/miuix_glyph.dart';
 
 class IntroScreen extends StatefulWidget {
-  const IntroScreen({super.key});
+  const IntroScreen({super.key, this.homeBuilder});
+  final WidgetBuilder? homeBuilder;
   @override
   State<IntroScreen> createState() => _IntroScreenState();
 }
@@ -24,16 +26,23 @@ class _IntroScreenState extends State<IntroScreen> {
   bool completed = false;
   bool opening = false;
   void _finish() {
-    context.read<SettingsProvider>().setStartupPage('/home');
+    if (opening) return;
+    setState(() => opening = true);
+    final settings = context.read<SettingsProvider>();
+    settings.setStartupPage('/home');
     AppGlobal.startupPage = '/home';
     AppGlobal.homeEntrancePending = true;
     context.read<ScreenNavProvider>().setCurrentPage('/home');
-    context.read<SettingsProvider>().setHasReadDisclaimer();
-    Navigator.of(context).pushNamedAndRemoveUntil(
-        SettingsProvider.navigationType == NavType.navigationDrawer.type
-            ? '/home'
-            : '/navBarView',
-        (_) => false);
+    final drawer =
+        SettingsProvider.navigationType == NavType.navigationDrawer.type;
+    expandHomeAndRemoveHistory(
+        context,
+        widget.homeBuilder?.call(context) ??
+            (drawer ? const HomePage() : const WithNavigationBarView()),
+        sourceKey: _arrowKey,
+        sourceColor: Theme.of(context).colorScheme.primary,
+        settings: RouteSettings(name: drawer ? '/home' : '/navBarView'),
+        onExpanded: settings.setHasReadDisclaimer);
   }
 
   Future<void> _next() async {
@@ -43,17 +52,14 @@ class _IntroScreenState extends State<IntroScreen> {
       return;
     }
     setState(() => opening = true);
-    final result = await Navigator.of(context).push<bool>(
-        SourceExpandRoute<bool>(
-            source: expansionSource(_arrowKey.currentContext!),
-            reduceMotion: MediaQuery.disableAnimationsOf(context),
-            builder: (_) =>
-                const ZhengFangJwxtLoginPage(title: '登录账号', onboarding: true)));
+    final result = await expandPage<bool>(context, const AgreementPage(),
+        sourceKey: _arrowKey,
+        sourceRadius: 35,
+        sourceColor: Colors.black.withOpacity(.6));
     if (!mounted) return;
     setState(() {
       opening = false;
-      completed =
-          result == true || context.read<ZhengFangUserProvider>().isLogin;
+      completed = result == true;
     });
   }
 
@@ -61,72 +67,78 @@ class _IntroScreenState extends State<IntroScreen> {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     const foreground = Colors.black;
-    return Scaffold(
-        body: Stack(fit: StackFit.expand, children: [
-      const Positioned.fill(child: IgnorePointer(child: HyperCeilerGlow())),
-      SafeArea(
-          child: LayoutBuilder(
-              builder: (context, constraints) => SingleChildScrollView(
-                  child: ConstrainedBox(
-                      constraints:
-                          BoxConstraints(minHeight: constraints.maxHeight),
-                      child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 35),
-                          child: Column(children: [
-                            SizedBox(
-                                height:
-                                    math.max(40, constraints.maxHeight * .27)),
-                            if (completed)
-                              const _IntroMark(completed: true)
-                            else
-                              const SizedBox(height: 90),
-                            const SizedBox(height: 24),
-                            FittedBox(
-                                fit: BoxFit.scaleDown,
-                                child: Padding(
-                                    padding:
-                                        const EdgeInsets.symmetric(vertical: 6),
-                                    child: Text(
-                                        completed ? '设置完成' : 'Sachet Next',
-                                        style: TextStyle(
-                                            fontSize: completed ? 32 : 38,
-                                            fontWeight: FontWeight.w700,
-                                            height: 1.25,
-                                            color: foreground)))),
-                            const SizedBox(height: 8),
-                            Text(completed ? '一切准备就绪' : '让每一天，井然有序',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    color: foreground.withOpacity(.65))),
-                            SizedBox(
-                                height:
-                                    math.max(40, constraints.maxHeight * .22)),
-                            Semantics(
-                                button: true,
-                                label: completed ? '开始使用' : '下一步',
-                                child: Material(
-                                    key: _arrowKey,
-                                    color: completed
-                                        ? colors.primary
-                                        : Colors.black.withOpacity(.6),
-                                    shape: const CircleBorder(),
-                                    child: InkWell(
-                                        key: ValueKey(completed
-                                            ? 'introFinish'
-                                            : 'introNext'),
-                                        customBorder: const CircleBorder(),
-                                        onTap: opening ? null : _next,
-                                        child: const SizedBox.square(
-                                            dimension: 70,
-                                            child: Center(
-                                                child: MiuixGlyph(
-                                                    MiuixSymbol.next,
-                                                    size: 26,
-                                                    color: Colors.white)))))),
-                            const SizedBox(height: 44),
-                          ])))))),
-    ]));
+    return TickerMode(
+        enabled: !opening,
+        child: Scaffold(
+            body: Stack(fit: StackFit.expand, children: [
+          const Positioned.fill(child: IgnorePointer(child: HyperCeilerGlow())),
+          SafeArea(
+              child: LayoutBuilder(
+                  builder: (context, constraints) => SingleChildScrollView(
+                      child: ConstrainedBox(
+                          constraints:
+                              BoxConstraints(minHeight: constraints.maxHeight),
+                          child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 35),
+                              child: Column(children: [
+                                SizedBox(
+                                    height: math.max(
+                                        40, constraints.maxHeight * .27)),
+                                if (completed)
+                                  const _IntroMark(completed: true)
+                                else
+                                  const SizedBox(height: 90),
+                                const SizedBox(height: 24),
+                                FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 6),
+                                        child: Text(
+                                            completed ? '设置完成' : 'Sachet Next',
+                                            style: TextStyle(
+                                                fontSize: completed ? 32 : 38,
+                                                fontWeight: FontWeight.w700,
+                                                height: 1.25,
+                                                color: foreground)))),
+                                const SizedBox(height: 8),
+                                Text(completed ? '一切准备就绪' : '让每一天，井然有序',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        color: foreground.withOpacity(.65))),
+                                SizedBox(
+                                    height: math.max(
+                                        40, constraints.maxHeight * .22)),
+                                Semantics(
+                                    button: true,
+                                    label: completed ? '开始使用' : '下一步',
+                                    child: ExpansionAnchor(
+                                        key: _arrowKey,
+                                        child: Material(
+                                            color: completed
+                                                ? colors.primary
+                                                : Colors.black.withOpacity(.6),
+                                            shape: const CircleBorder(),
+                                            child: InkWell(
+                                                key: ValueKey(completed
+                                                    ? 'introFinish'
+                                                    : 'introNext'),
+                                                customBorder:
+                                                    const CircleBorder(),
+                                                onTap: opening ? null : _next,
+                                                child: const SizedBox.square(
+                                                    dimension: 70,
+                                                    child: Center(
+                                                        child: MiuixGlyph(
+                                                            MiuixSymbol.next,
+                                                            size: 26,
+                                                            color: Colors
+                                                                .white))))))),
+                                const SizedBox(height: 44),
+                              ])))))),
+        ])));
   }
 }
 

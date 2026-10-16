@@ -29,7 +29,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace "io.github.wyvern1723.sachet"
+    namespace "com.pluvist.sachet.next"
     // compileSdkVersion flutter.compileSdkVersion
     compileSdkVersion 35
     // ndkVersion flutter.ndkVersion
@@ -41,6 +41,15 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
 
+    testOptions {
+        unitTests.includeAndroidResources = true
+        unitTests.all {
+            if (System.getenv('SACHET_MAVEN_MIRROR') == 'true') {
+                systemProperty 'robolectric.dependency.repo.url', 'https://maven.aliyun.com/repository/public'
+            }
+        }
+    }
+
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_17
     }
@@ -50,8 +59,8 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId "io.github.wyvern1723.sachet"
+        // Sachet Next has an independent Android identity from upstream Sachet.
+        applicationId "com.pluvist.sachet.next"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
         minSdkVersion flutter.minSdkVersion
@@ -125,4 +134,6 @@ flutter {
 
 dependencies {
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.robolectric:robolectric:4.14.1'
 }

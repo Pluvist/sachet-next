@@ -48,6 +48,8 @@ Map<String, dynamic> buildCourseWidgetData(
   lessons.sort((a, b) => (a['start'] as int).compareTo(b['start'] as int));
   return {
     'ready': courses != null,
+    'liveActivityEnabled': (settings.isEnableCourseLiveActivity ?? true) &&
+        settings.hasReadDisclaimer == true,
     'semester': semester.toIso8601String(),
     'themeMode': settings.themeMode ?? 0,
     'lessons': lessons
@@ -79,7 +81,9 @@ class CourseWidgetBridge {
       snapshot.classScheduleFilePath,
       snapshot.semesterStartDate,
       snapshot.courseRoutineOverrides,
-      snapshot.themeMode
+      snapshot.themeMode,
+      snapshot.isEnableCourseLiveActivity,
+      snapshot.hasReadDisclaimer
     ]);
     if (!force && _lastKey == key) return;
     _lastKey = key;

@@ -21,6 +21,7 @@ class AppSettings {
   String? pageTransition;
   bool? isPredictiveBack;
   bool? isFreeClassroomUseLegacyStyle;
+  bool? isEnableCourseLiveActivity;
   bool? isEnableCourseNotification;
   bool? isSilentNotification;
   List? freeClassroomSections;
@@ -51,6 +52,7 @@ class AppSettings {
     this.pageTransition,
     this.isPredictiveBack,
     this.isFreeClassroomUseLegacyStyle,
+    this.isEnableCourseLiveActivity,
     this.isEnableCourseNotification,
     this.isSilentNotification,
     this.freeClassroomSections,
@@ -83,6 +85,7 @@ class AppSettings {
     pageTransition = json['pageTransition'];
     isPredictiveBack = json['isPredictiveBack'];
     isFreeClassroomUseLegacyStyle = json['isFreeClassroomUseLegacyStyle'];
+    isEnableCourseLiveActivity = json['isEnableCourseLiveActivity'];
     isEnableCourseNotification = json['isEnableCourseNotification'];
     isSilentNotification = json['isSilentNotification'];
     freeClassroomSections = json['freeClassroomSections'];
@@ -115,6 +118,7 @@ class AppSettings {
     data['pageTransition'] = pageTransition;
     data['isPredictiveBack'] = isPredictiveBack;
     data['isFreeClassroomUseLegacyStyle'] = isFreeClassroomUseLegacyStyle;
+    data['isEnableCourseLiveActivity'] = isEnableCourseLiveActivity;
     data['isEnableCourseNotification'] = isEnableCourseNotification;
     data['isSilentNotification'] = isSilentNotification;
     data['freeClassroomSections'] = freeClassroomSections;

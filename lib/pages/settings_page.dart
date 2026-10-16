@@ -1,3 +1,4 @@
+import 'package:sachet/pages/settings_child_pages/course_live_activity_settings_page.dart';
 import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:sachet/widgets/settingspage_widgets/miuix_settings_list.dart';
 import 'package:flutter/material.dart';
@@ -177,6 +178,17 @@ class _SettingsPageState extends State<SettingsPage> {
                 },
               ),
             ),
+
+            MiuixListTile(
+                leading: const Icon(Icons.notifications_active_outlined),
+                title: const Text('课程实时活动'),
+                subtitle: const Text('课程状态与下课倒计时'),
+                trailing: const Icon(Icons.arrow_forward),
+                onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) =>
+                            const CourseLiveActivitySettingsPage()))),
 
             // 高级设置
             MiuixListTile(

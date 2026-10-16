@@ -17,6 +17,7 @@ import 'package:sachet/pages/settings_page.dart';
 import 'package:sachet/pages/settings_child_pages/advanced_settings_page.dart';
 import 'package:sachet/pages/settings_child_pages/customize_settings_page.dart';
 import 'package:sachet/pages/settings_child_pages/theme_settings_page.dart';
+import 'package:sachet/pages/settings_child_pages/course_live_activity_settings_page.dart';
 import 'package:sachet/pages/utilspages/zhengfang_jwxt_login_page.dart';
 import 'package:sachet/providers/settings_provider.dart';
 import 'package:sachet/providers/theme_provider.dart';
@@ -38,6 +39,7 @@ void main() {
     'advanced': const AdvancedSettingsPage(),
     'appearance': const CustomizeSettingsPage(),
     'theme': const ThemeSettingsPage(),
+    'course activity': const CourseLiveActivitySettingsPage(),
     'login': const ZhengFangJwxtLoginPage(),
   };
   final previewDir = Platform.environment['SACHET_VISUAL_QA_DIR'];

@@ -1,4 +1,4 @@
-package io.github.wyvern1723.sachet
+package com.pluvist.sachet.next
 
 import java.util.Calendar
 import java.util.TimeZone

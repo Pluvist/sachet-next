@@ -12,11 +12,13 @@
 
 | Android 架构 | 适用设备 | 下载 |
 | --- | --- | --- |
-| arm64-v8a | 多数现代安卓手机选择此版本 | [ARM64 APK](https://github.com/Pluvist/sachet-next/releases/download/v0.19.58/sachet-next-v0.19.58-arm64-v8a.apk) |
-| armeabi-v7a | 32 位 ARM 安卓设备 | [ARM v7a APK](https://github.com/Pluvist/sachet-next/releases/download/v0.19.58/sachet-next-v0.19.58-armeabi-v7a.apk) |
-| x86_64 | 64 位 x86 安卓设备或兼容模拟器 | [x86_64 APK](https://github.com/Pluvist/sachet-next/releases/download/v0.19.58/sachet-next-v0.19.58-x86_64.apk) |
+| arm64-v8a | 多数现代安卓手机选择此版本 | [ARM64 APK](https://github.com/Pluvist/sachet-next/releases/download/v0.19.59/sachet-next-v0.19.59-arm64-v8a.apk) |
+| armeabi-v7a | 32 位 ARM 安卓设备 | [ARM v7a APK](https://github.com/Pluvist/sachet-next/releases/download/v0.19.59/sachet-next-v0.19.59-armeabi-v7a.apk) |
+| x86_64 | 64 位 x86 安卓设备或兼容模拟器 | [x86_64 APK](https://github.com/Pluvist/sachet-next/releases/download/v0.19.59/sachet-next-v0.19.59-x86_64.apk) |
 
-首个正式版 **0.19.58** 的 UI 已完全切换至 Miuix 风格，并适配平板与横屏双周布局。安装包采用 release/AOT 编译，包名为 `io.github.wyvern1723.sachet.localtest`，沿用现有本机开发签名，能够覆盖同签名测试版；与上游应用分开安装。此签名属于开发签名，不是上游官方签名或独立生产签名。
+当前正式版 **0.19.59** 使用独立 Android 包名 `com.pluvist.sachet.next` 和 Pluvist 的专用发布签名，提供三种架构的 release/AOT 安装包。UI 采用 Miuix 风格，适配平板与横屏双周布局，并加入课程实时活动和新版启动引导。
+
+**从旧版迁移：** 0.19.58 及此前测试版使用不同包名，因此新版会独立安装，不能覆盖旧应用，也不会自动继承登录、课表和小组件配置。请在新版重新登录并同步课表，需要时重新添加桌面组件和授予通知权限；旧应用可保留，数据不会被本次安装删除。今后相同包名且相同发布签名的版本可正常覆盖升级。安装包校验见 Release 中的 `SHA256SUMS.txt`。
 
 ## 相比上游的主要变化
 
@@ -55,7 +57,7 @@
 
 原生层持久化整学期时间戳，在课程边界、跨日、重启和修改系统时间后更新，不要求应用一直在前台，也不要求添加桌面小组件。可在设置里允许通知、系统实时活动和准时更新权限；省电限制或未允许准时更新可能使状态切换延迟。上课期间使用前台倒计时服务保持通知标题为实时数字，课间或结束后停止；亮屏时每秒刷新数字标题，熄屏时暂停标题刷新，系统计时器继续驱动缩略计时。不会按秒设置闹钟，也不持有唤醒锁；系统限制后台服务启动时保留原生计时器兜底。通知的“今天不再显示”或系统清除操作会暂停当天活动，下一次有课日恢复。
 
-本功能当前为开发版本，自动测试与构建结果不能代替不同厂商系统上的提升显示验证；下载区仍指向已发布的 0.19.58。
+本功能已包含在 0.19.59。自动测试与构建结果不能代替不同厂商系统上的提升显示验证。
 
 登录时取消“正在登录”提醒和成功弹窗，账号与 Cookie 登录在会话保存后自动继续，网页登录识别成功后直接返回。登录失败仍显示错误并允许重试。欢迎页箭头及主页功能入口从完整控件边缘向外展开，目标页面保持正常排版；外部链接等待展开完成再打开，返回会取消打开。主页卡片、菜单与按钮采用统一的圆角层级，个人入口增加圆形底板。引导进入主页使用一段展开过渡，主页部件跟随同一个动画进度，动画完成后再开始后台课表刷新。此动画参照 HyperCeiler 的来源捕获流程，在 Flutter 中实现圆角揭示与渐变；原项目由系统动画库执行，未声称系统曲线或逐帧效果完全一致。
 
@@ -70,7 +72,7 @@ flutter test
 flutter build apk --release --target-platform android-arm64
 ```
 
-保留上游内部包标识与本地数据结构；测试构建可设置 `SACHET_LOCAL_TEST=1`，使用 `io.github.wyvern1723.sachet.localtest`，与上游应用分开安装。发布构建应使用维护者自己的签名；没有签名配置时构建脚本使用开发签名。不同签名的安装包不能直接相互覆盖。
+Android 正式包标识为 `com.pluvist.sachet.next`；测试构建可设置 `SACHET_LOCAL_TEST=1`，使用 `com.pluvist.sachet.next.localtest`。保留兼容的本地数据格式，但不同包名不会共享应用私有数据。正式 Release 使用维护者的发布签名；自行构建时请配置自己的签名，没有签名配置的构建仍使用开发签名。不同签名的安装包不能直接相互覆盖。
 
 已进行自动测试、静态分析和 Android ARM64 release 构建，并在小米 17 上验证安装和主要显示效果。需要真实账号的联网测试默认跳过；未提供量化帧率对比，也不保证学校接口变更后的持续可用性。仓库保留其他平台的工程文件，新增 Android 小组件仅适用于 Android。
 

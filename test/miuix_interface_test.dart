@@ -75,7 +75,7 @@ void main() {
     AppGlobal.startupPage = '/class';
     PackageInfo.setMockInitialValues(
         appName: 'Sachet Next',
-        packageName: 'io.github.wyvern1723.sachet.localtest',
+        packageName: 'com.pluvist.sachet.next.localtest',
         version: '0.10.1-next.2',
         buildNumber: '19',
         buildSignature: 'test');

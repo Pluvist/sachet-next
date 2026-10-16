@@ -1,4 +1,4 @@
-package io.github.wyvern1723.sachet
+package com.pluvist.sachet.next
 
 import android.app.AlarmManager
 import android.app.PendingIntent
@@ -32,7 +32,7 @@ class CourseWidgetProvider : AppWidgetProvider() {
         if (intent.action != AppWidgetManager.ACTION_APPWIDGET_UPDATE) refresh(context)
     }
     companion object {
-        private const val REFRESH = "io.github.wyvern1723.sachet.WIDGET_REFRESH"
+        private const val REFRESH = "com.pluvist.sachet.next.WIDGET_REFRESH"
         private fun refreshIntent(context: Context) = PendingIntent.getBroadcast(context, 772,
             Intent(context, CourseWidgetProvider::class.java).setAction(REFRESH),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)

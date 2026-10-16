@@ -1,4 +1,4 @@
-package io.github.wyvern1723.sachet
+package com.pluvist.sachet.next
 
 import android.app.Notification
 import android.app.NotificationManager

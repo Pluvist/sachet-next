@@ -34,7 +34,7 @@ SACHET_LOCAL_TEST=1 flutter build apk --release --target-platform android-arm64
 
 输出：`build/app/outputs/flutter-apk/app-release.apk`。
 
-测试包 ID 为 `io.github.wyvern1723.sachet.localtest`。没有配置签名密钥时使用本机开发签名，CI 使用运行环境的开发签名；不同机器或 CI 运行产生的签名可能不同，不能据此保证覆盖安装。
+测试包 ID 为 `com.pluvist.sachet.next.localtest`。没有配置签名密钥时使用本机开发签名，CI 使用运行环境的开发签名；不同机器或 CI 运行产生的签名可能不同，不能据此保证覆盖安装。
 
 ## 自行签名
 
@@ -49,9 +49,9 @@ keyPassword=YOUR_KEY_PASSWORD
 
 请勿提交该文件、密钥或实际密码；它们已加入忽略规则。也不需要上游作者的签名密钥。
 
-未设置 `SACHET_LOCAL_TEST=1` 的 release 构建保留上游内部包名 `io.github.wyvern1723.sachet`。维护公开修改版本时建议使用测试包隔离，或自行确定独立包名；若改变包名，会成为另一个应用，已有数据不会自动迁移。现有测试版要覆盖升级须保留原包名和原签名。
+未设置 `SACHET_LOCAL_TEST=1` 的 release 构建使用独立包名 `com.pluvist.sachet.next`。官方 Release 自 0.19.59 起使用专用发布密钥；仓库不包含该密钥。旧版 `io.github.wyvern1723.sachet.localtest` 与新版是两个应用，已有数据不会自动迁移。今后的覆盖升级必须保持包名和签名一致。
 
-可使用 `flutter build apk --release --split-per-abi` 生成多架构构建。这里主要验证 Android ARM64；其他平台的工程文件来自上游，新增桌面课程组件仅支持 Android。
+可使用 `flutter build apk --release --split-per-abi` 生成多架构构建。正式发布前会验证三种 APK 的包名、架构、版本和签名，并运行 Flutter 与原生测试；其他平台的工程文件来自上游，新增桌面课程组件仅支持 Android。
 
 ## GitHub Actions
 

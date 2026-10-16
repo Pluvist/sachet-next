@@ -1,4 +1,4 @@
-package io.github.wyvern1723.sachet
+package com.pluvist.sachet.next
 
 import android.Manifest
 import android.app.AlarmManager
@@ -16,8 +16,8 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 object CourseLiveActivity {
-    const val REFRESH = "io.github.wyvern1723.sachet.LIVE_REFRESH"
-    const val DISMISS = "io.github.wyvern1723.sachet.LIVE_DISMISS"
+    const val REFRESH = "com.pluvist.sachet.next.LIVE_REFRESH"
+    const val DISMISS = "com.pluvist.sachet.next.LIVE_DISMISS"
     private const val CHANNEL = "course_live_activity"
     private const val TAG = "course_live_activity"
     internal const val ID = -1958

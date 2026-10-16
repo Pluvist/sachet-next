@@ -1,4 +1,4 @@
-package io.github.wyvern1723.sachet
+package com.pluvist.sachet.next
 
 import android.Manifest
 import android.app.Application
@@ -26,7 +26,7 @@ import java.time.Instant
 import java.util.TimeZone
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [34], application = Application::class, instrumentedPackages = ["io.github.wyvern1723.sachet"])
+@Config(sdk = [34], application = Application::class, instrumentedPackages = ["com.pluvist.sachet.next"])
 @LooperMode(LooperMode.Mode.PAUSED)
 class CourseCountdownServiceTest {
     private val app get() = RuntimeEnvironment.getApplication() as Application

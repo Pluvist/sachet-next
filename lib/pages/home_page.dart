@@ -45,6 +45,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
   late final AnimationController _entrance;
+  final _profileExpansionKey = GlobalKey();
+  final _linkExpansionKeys = <String, GlobalKey>{};
   @override
   void initState() {
     super.initState();
@@ -216,17 +218,20 @@ class _HomePageState extends State<HomePage>
               actions: [
                 Padding(
                     padding: const EdgeInsets.only(right: 16),
-                    child: _fly(
-                        0,
-                        Builder(
-                            builder: (sourceContext) => IconButton(
-                                  key: const ValueKey('homeProfileButton'),
-                                  tooltip: '个人中心',
-                                  iconSize: 26,
-                                  icon: const MiuixGlyph(MiuixSymbol.person),
-                                  onPressed: () => expandPage(sourceContext,
-                                      const ProfilePage(openedFromHome: true)),
-                                )))),
+                    child: _fly(0, Builder(builder: (sourceContext) {
+                      final iconKey = _profileExpansionKey;
+                      return IconButton(
+                        key: const ValueKey('homeProfileButton'),
+                        tooltip: '个人中心',
+                        iconSize: 26,
+                        icon: ExpansionAnchor(
+                            key: iconKey,
+                            child: const MiuixGlyph(MiuixSymbol.person)),
+                        onPressed: () => expandPage(sourceContext,
+                            const ProfilePage(openedFromHome: true),
+                            sourceKey: iconKey, sourceRadius: 6),
+                      );
+                    }))),
               ],
               flexibleSpace: LayoutBuilder(builder: (context, constraints) {
                 final top = MediaQuery.paddingOf(context).top;
@@ -284,62 +289,58 @@ class _HomePageState extends State<HomePage>
                                 (index) {
                               return Column(
                                 children: [
-                                  _fly(
-                                      index + 12,
-                                      Builder(
-                                          builder: (sourceContext) =>
-                                              MiuixListTile(
-                                                contentPadding:
-                                                    const EdgeInsets.symmetric(
-                                                  horizontal: 20,
-                                                  vertical: 4,
-                                                ),
-                                                leading: Align(
-                                                  widthFactor: 1,
-                                                  alignment:
-                                                      Alignment.centerLeft,
-                                                  child: Icon(
-                                                    openLinkListTileList[index]
-                                                        .icon,
-                                                    color: primaryColor,
-                                                  ),
-                                                ),
-                                                title: Text(
-                                                  openLinkListTileList[index]
-                                                      .title,
-                                                  style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w500),
-                                                ),
-                                                subtitle: Text(
-                                                  openLinkListTileList[index]
-                                                      .subtitle,
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: colorScheme
-                                                        .onSurfaceVariant,
-                                                  ),
-                                                ),
-                                                trailing: Icon(
-                                                  // Icons.chevron_right,
-                                                  Icons.chevron_right_rounded,
-                                                  color: colorScheme
-                                                      .onSurfaceVariant,
-                                                ),
-                                                onTap: () => expandAction(
-                                                    sourceContext,
-                                                    () => openLink(
-                                                        openLinkListTileList[
-                                                                index]
-                                                            .link)),
-                                                onLongPress: () =>
-                                                    copyToClipboard(
-                                                  context,
-                                                  openLinkListTileList[index]
-                                                      .link,
-                                                  prefix: '链接',
-                                                ),
-                                              ))),
+                                  _fly(index + 12,
+                                      Builder(builder: (sourceContext) {
+                                    final iconKey =
+                                        _linkExpansionKeys.putIfAbsent(
+                                            openLinkListTileList[index].link,
+                                            () => GlobalKey());
+                                    return MiuixListTile(
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                        horizontal: 20,
+                                        vertical: 4,
+                                      ),
+                                      leading: Align(
+                                        widthFactor: 1,
+                                        alignment: Alignment.centerLeft,
+                                        child: ExpansionAnchor(
+                                            key: iconKey,
+                                            child: Icon(
+                                              openLinkListTileList[index].icon,
+                                              color: primaryColor,
+                                            )),
+                                      ),
+                                      title: Text(
+                                        openLinkListTileList[index].title,
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500),
+                                      ),
+                                      subtitle: Text(
+                                        openLinkListTileList[index].subtitle,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: colorScheme.onSurfaceVariant,
+                                        ),
+                                      ),
+                                      trailing: Icon(
+                                        // Icons.chevron_right,
+                                        Icons.chevron_right_rounded,
+                                        color: colorScheme.onSurfaceVariant,
+                                      ),
+                                      onTap: () => expandAction(
+                                          sourceContext,
+                                          () => openLink(
+                                              openLinkListTileList[index].link),
+                                          sourceKey: iconKey,
+                                          sourceRadius: 6),
+                                      onLongPress: () => copyToClipboard(
+                                        context,
+                                        openLinkListTileList[index].link,
+                                        prefix: '链接',
+                                      ),
+                                    );
+                                  })),
                                   // 添加分割线，除了最后一个
                                   if (index != openLinkListTileList.length - 1)
                                     Divider(

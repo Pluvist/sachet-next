@@ -29,6 +29,7 @@ class _HomeCourseStatusCardState extends State<HomeCourseStatusCard>
   int? _revision;
   int _generation = 0;
   Timer? _timer;
+  final _classroomExpansionKey = GlobalKey();
 
   @override
   void initState() {
@@ -312,13 +313,15 @@ class _HomeCourseStatusCardState extends State<HomeCourseStatusCard>
   }
 
   Widget _classroomCard(BuildContext context) {
+    final iconKey = _classroomExpansionKey;
     final colors = Theme.of(context).colorScheme;
     return Builder(
         builder: (sourceContext) => _surface(
             key: const ValueKey('homeHeroCard'),
             color: colors.surfaceContainerLow,
             child: InkWell(
-                onTap: () => expandPage(sourceContext, FreeClassroomPageZF()),
+                onTap: () => expandPage(sourceContext, FreeClassroomPageZF(),
+                    sourceKey: iconKey, sourceRadius: 6),
                 child: Padding(
                     padding: const EdgeInsets.all(18),
                     child: Column(
@@ -326,8 +329,10 @@ class _HomeCourseStatusCardState extends State<HomeCourseStatusCard>
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(Icons.meeting_room_rounded,
-                              size: 30, color: colors.primary),
+                          ExpansionAnchor(
+                              key: iconKey,
+                              child: Icon(Icons.meeting_room_rounded,
+                                  size: 30, color: colors.primary)),
                           const SizedBox(height: 10),
                           _line('空闲教室', 18, colors.onSurface,
                               weight: FontWeight.w700),

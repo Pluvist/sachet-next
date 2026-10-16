@@ -1,3 +1,10 @@
+import 'dart:io';
+import 'dart:ui' as ui;
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
+import 'package:sachet/pages/intro_screen/intro_screen.dart';
+import 'package:sachet/widgets/homepage_widgets/card_widget.dart';
+import 'package:sachet/utils/expressive_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -40,45 +47,237 @@ class _Refresh extends AutomaticCourseRefresh {
 }
 
 void main() {
-  testWidgets('Source page expands from tapped bounds and hides old page',
+  test(
+      'Reveal starts at icon edge and covers every corner in both orientations',
+      () {
+    for (final size in [const Size(400, 850), const Size(1200, 600)]) {
+      const source = Rect.fromLTWH(48, 490, 70, 70);
+      const initial =
+          IconExpansionClipper(source: source, sourceRadius: 35, progress: 0);
+      final path = initial.getClip(size);
+      expect(path.getBounds(), source);
+      expect(path.contains(source.center), true);
+      expect(path.contains(source.topLeft), false);
+      final halfway = IconExpansionClipper.bounds(source, size, .5);
+      expect(halfway.center, source.center);
+      expect(halfway.width, greaterThan(source.width));
+      final almost = const IconExpansionClipper(
+              source: source, sourceRadius: 35, progress: .9999)
+          .getClip(size);
+      for (final corner in [
+        Offset.zero,
+        Offset(size.width, 0),
+        Offset(0, size.height),
+        Offset(size.width, size.height)
+      ]) {
+        expect(almost.contains(corner), true);
+      }
+      expect(
+          const IconExpansionClipper(
+                  source: source, sourceRadius: 35, progress: 1)
+              .getClip(size)
+              .getBounds(),
+          Offset.zero & size);
+    }
+  });
+  testWidgets(
+      'Icon expands without scaling destination text; back restores source',
       (tester) async {
+    final iconKey = GlobalKey();
     await tester.pumpWidget(MaterialApp(
+        builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(context).copyWith(disableAnimations: false),
+            child: child!),
         home: Scaffold(
             body: Center(
                 child: Builder(
-                    builder: (context) => SizedBox(
-                        width: 70,
-                        height: 70,
-                        child: TextButton(
-                            onPressed: () => expandPage(context,
-                                const Scaffold(body: Text('Destination'))),
-                            child: const Text('Arrow'))))))));
-    final source = tester.getRect(find.byType(TextButton));
-    await tester.tap(find.text('Arrow'));
+                    builder: (context) => TextButton(
+                        onPressed: () => expandPage(context,
+                            const Scaffold(body: Center(child: SizedBox(width: 200, height: 40, child: Text('Destination')))),
+                            sourceKey: iconKey),
+                        child: ExpansionAnchor(
+                            key: iconKey,
+                            child: const SizedBox(
+                                width: 70,
+                                height: 70,
+                                child: Icon(Icons.arrow_forward)))))))));
+    final source = tester.getRect(find.byKey(iconKey));
+    await tester.tap(find.byType(TextButton));
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 1));
-    final reveal = find
-        .ancestor(
-            of: find.text('Destination'), matching: find.byType(ClipRRect))
-        .first;
-    expect(tester.getRect(reveal).width, closeTo(source.width, 8));
-    await tester.pump(const Duration(milliseconds: 200));
-    final middle = tester.getRect(reveal);
-    expect(middle.width, greaterThan(source.width));
-    expect(middle.width, lessThan(800));
+    await tester.pump();
+    final mask = find.byKey(const ValueKey('sourceExpansionMask'));
+    IconExpansionClipper clipper() =>
+        tester.widget<ClipPath>(mask).clipper! as IconExpansionClipper;
+    expect(clipper().source, source);
+    expect(clipper().getClip(const Size(800, 600)).getBounds(), source);
+    expect(find.byType(RawImage), findsOneWidget);
+    final destination = tester.getRect(find.text('Destination'));
+    expect(destination.size, const Size(200, 40));
+    await tester.pump(const Duration(milliseconds: 120));
+    expect(clipper().progress, greaterThan(.24));
+    expect(tester.getRect(find.text('Destination')), destination);
+    expect(
+        IconExpansionClipper.bounds(
+                source, const Size(800, 600), clipper().progress)
+            .center,
+        source.center);
     await tester.pumpAndSettle();
-    expect(tester.getRect(reveal), const Rect.fromLTWH(0, 0, 800, 600));
-    expect(find.text('Arrow'), findsNothing);
+    expect(find.text('Destination'), findsOneWidget);
+    expect(find.byType(FittedBox), findsNothing);
     Navigator.of(tester.element(find.text('Destination'))).pop();
     await tester.pumpAndSettle();
-    expect(find.text('Arrow'), findsOneWidget);
+    final opacity = find.descendant(
+        of: find.byKey(iconKey), matching: find.byType(Opacity));
+    expect(tester.widget<Opacity>(opacity).opacity, 1);
     expect(tester.takeException(), isNull);
+  });
+  for (final cancel in [false, true]) {
+    testWidgets('External action waits for completion, cancel=$cancel',
+        (tester) async {
+      var calls = 0;
+      final navigator = GlobalKey<NavigatorState>();
+      await tester.pumpWidget(MaterialApp(
+          navigatorKey: navigator,
+          builder: (context, child) => MediaQuery(
+              data: MediaQuery.of(context).copyWith(disableAnimations: false),
+              child: child!),
+          home: Scaffold(
+              body: Builder(
+                  builder: (context) => TextButton(
+                      onPressed: () => expandAction(context, () => calls++),
+                      child: const Text('Open'))))));
+      await tester.tap(find.text('Open'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(calls, 0);
+      if (cancel) navigator.currentState!.pop();
+      await tester.pumpAndSettle();
+      expect(calls, cancel ? 0 : 1);
+      expect(find.text('Open'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  }
+  testWidgets(
+      'Reduced motion opens immediately without snapshot and returns normally',
+      (tester) async {
+    await tester.pumpWidget(MaterialApp(
+        builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(context).copyWith(disableAnimations: true),
+            child: child!),
+        home: Scaffold(
+            body: Builder(
+                builder: (context) => TextButton(
+                    onPressed: () => expandPage(context,
+                        const Scaffold(body: Text('Reduced destination'))),
+                    child: const Text('Open'))))));
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+    expect(find.text('Reduced destination'), findsOneWidget);
+    expect(find.byType(RawImage), findsNothing);
+    Navigator.of(tester.element(find.text('Reduced destination'))).pop();
+    await tester.pumpAndSettle();
+    expect(find.text('Open'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+  testWidgets('Welcome arrow and home feature reveal from their actual icons',
+      (tester) async {
+    tester.view.physicalSize = const Size(400, 850);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final output = Platform.environment['SACHET_EXPANSION_PREVIEW_DIR'];
+    if (output != null) {
+      await tester.runAsync(() async {
+        final font = FontLoader('PreviewCJK')
+          ..addFont(File('C:/Windows/Fonts/msyh.ttc')
+              .readAsBytes()
+              .then((bytes) => ByteData.sublistView(bytes)));
+        await font.load();
+      });
+    }
+    for (final welcome in [true, false]) {
+      final root = GlobalKey();
+      await tester.pumpWidget(RepaintBoundary(
+          key: root,
+          child: MaterialApp(
+              theme: applyExpressiveTheme(ThemeData(
+                  brightness: Brightness.dark,
+                  fontFamily: output == null ? null : 'PreviewCJK')),
+              builder: (context, child) => MediaQuery(
+                  data:
+                      MediaQuery.of(context).copyWith(disableAnimations: false),
+                  child: child!),
+              home: welcome
+                  ? const IntroScreen()
+                  : const Scaffold(
+                      body: Center(
+                          child: SizedBox(
+                              width: 320,
+                              child: CardWidget(
+                                  title: '培养方案',
+                                  icon: Icons.school,
+                                  page: Scaffold(
+                                      body: Center(child: Text('培养方案'))))))))));
+      await tester.pump(const Duration(seconds: 2));
+      final anchor = find.byType(ExpansionAnchor);
+      final source = tester.getRect(anchor);
+      expect(source.width, welcome ? 70 : 34);
+      Future<void> capture(String suffix) async {
+        if (output == null) return;
+        final boundary =
+            root.currentContext!.findRenderObject()! as RenderRepaintBoundary;
+        await tester.runAsync(() async {
+          final image = await boundary.toImage(pixelRatio: 2);
+          final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+          await Directory(output).create(recursive: true);
+          await File('$output/${welcome ? 'welcome' : 'home'}-$suffix.png')
+              .writeAsBytes(bytes!.buffer.asUint8List());
+          image.dispose();
+        });
+      }
+
+      await capture('before');
+      await tester.tap(welcome
+          ? find.byKey(const ValueKey('introNext'))
+          : find.byType(CardWidget));
+      await tester.pump();
+      await tester.pump();
+      final mask = tester
+          .widget<ClipPath>(find.byKey(const ValueKey('sourceExpansionMask')));
+      expect((mask.clipper! as IconExpansionClipper).source, source);
+      final originOpacity =
+          find.descendant(of: anchor, matching: find.byType(Opacity));
+      expect(tester.widget<Opacity>(originOpacity).opacity, 0);
+      final raw = tester.widget<RawImage>(find.byType(RawImage));
+      expect(raw.image!.width, welcome ? 70 : 34);
+      if (output != null) {
+        await tester.runAsync(() async {
+          final data =
+              await raw.image!.toByteData(format: ui.ImageByteFormat.png);
+          await File('$output/${welcome ? 'welcome' : 'home'}-bitmap.png')
+              .writeAsBytes(data!.buffer.asUint8List());
+        });
+      }
+      await capture('000');
+      var time = 0;
+      for (final next in [40, 100, 200, 350, 500]) {
+        await tester.pump(Duration(milliseconds: next - time));
+        time = next;
+        await capture('$next');
+      }
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump();
+    }
   });
   testWidgets('Entrance uses nonlinear easing and reaches exact final geometry',
       (tester) async {
     final progress = ValueNotifier<double>(0);
     final animation = Animation<double>.fromValueListenable(progress);
     await tester.pumpWidget(MaterialApp(
+        builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(context).copyWith(disableAnimations: false),
+            child: child!),
         home: Center(
             child: HomeEntrance(
                 animation: animation, index: 0, child: const Text('Card')))));

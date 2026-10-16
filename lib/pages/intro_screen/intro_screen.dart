@@ -42,11 +42,10 @@ class _IntroScreenState extends State<IntroScreen> {
       return;
     }
     setState(() => opening = true);
-    final result = await Navigator.of(context).push<bool>(
-        SourceExpandRoute<bool>(
-            source: expansionSource(_arrowKey.currentContext!),
-            reduceMotion: MediaQuery.disableAnimationsOf(context),
-            builder: (_) => const AgreementPage()));
+    final result = await expandPage<bool>(context, const AgreementPage(),
+        sourceKey: _arrowKey,
+        sourceRadius: 35,
+        sourceColor: Colors.black.withOpacity(.6));
     if (!mounted) return;
     setState(() {
       opening = false;
@@ -102,25 +101,27 @@ class _IntroScreenState extends State<IntroScreen> {
                             Semantics(
                                 button: true,
                                 label: completed ? '开始使用' : '下一步',
-                                child: Material(
+                                child: ExpansionAnchor(
                                     key: _arrowKey,
-                                    color: completed
-                                        ? colors.primary
-                                        : Colors.black.withOpacity(.6),
-                                    shape: const CircleBorder(),
-                                    child: InkWell(
-                                        key: ValueKey(completed
-                                            ? 'introFinish'
-                                            : 'introNext'),
-                                        customBorder: const CircleBorder(),
-                                        onTap: opening ? null : _next,
-                                        child: const SizedBox.square(
-                                            dimension: 70,
-                                            child: Center(
-                                                child: MiuixGlyph(
-                                                    MiuixSymbol.next,
-                                                    size: 26,
-                                                    color: Colors.white)))))),
+                                    child: Material(
+                                        color: completed
+                                            ? colors.primary
+                                            : Colors.black.withOpacity(.6),
+                                        shape: const CircleBorder(),
+                                        child: InkWell(
+                                            key: ValueKey(completed
+                                                ? 'introFinish'
+                                                : 'introNext'),
+                                            customBorder: const CircleBorder(),
+                                            onTap: opening ? null : _next,
+                                            child: const SizedBox.square(
+                                                dimension: 70,
+                                                child: Center(
+                                                    child: MiuixGlyph(
+                                                        MiuixSymbol.next,
+                                                        size: 26,
+                                                        color:
+                                                            Colors.white))))))),
                             const SizedBox(height: 44),
                           ])))))),
     ]));

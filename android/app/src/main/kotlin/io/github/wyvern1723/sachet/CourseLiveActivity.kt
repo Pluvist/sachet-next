@@ -102,7 +102,9 @@ object CourseLiveActivity {
             when (state.phase) {
                 LiveCoursePhase.IN_CLASS -> {
                     val current = state.current!!
-                    title = current.title; compact = "${current.place} · ${time(current.end)} 下课"
+                    title = "下课倒计时"
+                    // Android 5/6 cannot count down a native chronometer.
+                    compact = if (Build.VERSION.SDK_INT >= 24) "" else "${time(current.end)} 下课"
                     body = "正在上课：${current.title}\n地点：${current.place}\n${time(current.start)}–${time(current.end)}\n" +
                         (state.next?.let { "下一节：${it.title} · ${time(it.start)} · ${it.place}" } ?: "今天没有下一节课啦")
                     if (Build.VERSION.SDK_INT >= 24) builder.setWhen(current.end).setShowWhen(true)
@@ -120,7 +122,11 @@ object CourseLiveActivity {
                     if (Build.VERSION.SDK_INT >= 26) builder.setTimeoutAfter(state.tomorrow - now)
                 }
             }
-            builder.setContentTitle(title).setContentText(compact).setStyle(Notification.BigTextStyle().bigText(body))
+            // Keep a meaningful title for promoted-notification eligibility. Course
+            // details belong only to the expanded view while class is in progress.
+            builder.setContentTitle(title).setContentText(compact).setStyle(Notification.BigTextStyle()
+                .setBigContentTitle(if (state.phase == LiveCoursePhase.IN_CLASS) state.current!!.title else title)
+                .bigText(body))
             if (!completed) {
                 if (Build.VERSION.SDK_INT >= 23) builder.addAction(Notification.Action.Builder(
                     null as android.graphics.drawable.Icon?, "今天不再显示", dismiss).build())

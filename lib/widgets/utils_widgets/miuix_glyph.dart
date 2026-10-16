@@ -14,7 +14,8 @@ enum MiuixSymbol {
   share,
   view,
   tune,
-  check
+  check,
+  document
 }
 
 /// Original stroke icons, independent of external font or bitmap assets.
@@ -56,6 +57,25 @@ class _GlyphPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round;
     switch (symbol) {
+      case MiuixSymbol.document:
+        canvas.drawPath(
+            Path()
+              ..moveTo(5, 17)
+              ..lineTo(5, 5)
+              ..quadraticBezierTo(5, 2, 8, 2)
+              ..lineTo(19, 2)
+              ..quadraticBezierTo(22, 2, 22, 5)
+              ..lineTo(22, 19)
+              ..quadraticBezierTo(22, 22, 19, 22)
+              ..lineTo(5, 22)
+              ..quadraticBezierTo(2, 22, 2, 19)
+              ..lineTo(2, 18)
+              ..lineTo(16, 18)
+              ..quadraticBezierTo(16, 22, 19, 22),
+            pen);
+        for (final y in [7.0, 11.0, 15.0]) {
+          canvas.drawLine(Offset(9, y), Offset(y == 15 ? 14 : 18, y), pen);
+        }
       case MiuixSymbol.home:
         canvas.drawRRect(
             RRect.fromRectAndRadius(

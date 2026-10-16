@@ -12,6 +12,7 @@ import 'package:sachet/models/nav_destination.dart';
 import 'package:sachet/pages/about_page.dart';
 import 'package:sachet/pages/home_page.dart';
 import 'package:sachet/pages/intro_screen/intro_screen.dart';
+import 'package:sachet/pages/intro_screen/agreement_page.dart';
 import 'package:sachet/pages/profile_page.dart';
 import 'package:sachet/pages/settings_page.dart';
 import 'package:sachet/pages/settings_child_pages/advanced_settings_page.dart';
@@ -33,6 +34,7 @@ void main() {
   final pages = <String, Widget>{
     'home': const HomePage(),
     'intro': const IntroScreen(),
+    'agreement': const AgreementPage(),
     'settings': const SettingsPage(),
     'profile': const ProfilePage(openedFromHome: true),
     'about': const AboutPage(),
@@ -41,6 +43,7 @@ void main() {
     'theme': const ThemeSettingsPage(),
     'course activity': const CourseLiveActivitySettingsPage(),
     'login': const ZhengFangJwxtLoginPage(),
+    'onboarding login': const ZhengFangJwxtLoginPage(onboarding: true),
   };
   final previewDir = Platform.environment['SACHET_VISUAL_QA_DIR'];
   final fontFile = Platform.environment['SACHET_UI_FONT'];

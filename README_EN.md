@@ -24,6 +24,7 @@ The first stable release, **0.19.58**, switches the UI throughout to Miuix styli
 - An Android home-screen course widget, defaulting to 2×2, with adaptive layouts, dark/light themes and the same course matching rules as the home page. Compact padding is 20dp; larger layouts use 40dp.
 - Idle-time tab preparation, retained tab/week state, lazy week creation, shared cached reads, deferred glass backdrop sampling, and fewer touch-triggered rebuilds. iOS-style page transitions are fixed as the default.
 - Automatic timetable refresh on cold start and foreground resume, showing cached data first and retaining it on failures. Updates preserve colors and applicable manual settings and reschedule enabled course reminders.
+- A four-step welcome → consent → account → completion setup, with offline usage/privacy notices and an explicit consent checkbox. Agreement and account screens share centered blue icons, large headings, rounded panels and bottom actions. The old login layout is replaced while password, web, portal and Cookie authentication remain available.
 - Sachet Next branding and Pluvist credits, with explicit upstream acknowledgment. Upstream update checks and related settings were removed.
 
 Upstream academic features remain the foundation: timetable, free classrooms, curriculum, textbooks, exams, grades, GPA ranking, transcripts, campus links and calendar export.

@@ -6,9 +6,8 @@ import 'package:sachet/widgets/utils_widgets/source_expand_route.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sachet/models/enums/nav_type.dart';
-import 'package:sachet/pages/utilspages/zhengfang_jwxt_login_page.dart';
+import 'package:sachet/pages/intro_screen/agreement_page.dart';
 import 'package:sachet/providers/settings_provider.dart';
-import 'package:sachet/providers/zhengfang_user_provider.dart';
 import 'package:sachet/utils/app_global.dart';
 import 'package:sachet/widgets/utils_widgets/hyperceiler_glow.dart';
 import 'package:sachet/widgets/utils_widgets/miuix_glyph.dart';
@@ -47,13 +46,11 @@ class _IntroScreenState extends State<IntroScreen> {
         SourceExpandRoute<bool>(
             source: expansionSource(_arrowKey.currentContext!),
             reduceMotion: MediaQuery.disableAnimationsOf(context),
-            builder: (_) =>
-                const ZhengFangJwxtLoginPage(title: '登录账号', onboarding: true)));
+            builder: (_) => const AgreementPage()));
     if (!mounted) return;
     setState(() {
       opening = false;
-      completed =
-          result == true || context.read<ZhengFangUserProvider>().isLogin;
+      completed = result == true;
     });
   }
 

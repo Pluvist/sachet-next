@@ -98,6 +98,15 @@ class CourseTimelineTest {
         assertEquals(23 * 60 * 60_000L, day.tomorrow - day.midnight)
     }
 
+    @Test fun numericCountdownRoundsWithoutWordsAndClampsAtZero() {
+        assertEquals("45:00", CourseTimeline.countdown(2_700_000))
+        assertEquals("42:18", CourseTimeline.countdown(2_538_000))
+        assertEquals("00:01", CourseTimeline.countdown(1))
+        assertEquals("00:00", CourseTimeline.countdown(-1))
+        assertEquals("01:00:00", CourseTimeline.countdown(3_600_000))
+        assertTrue(CourseTimeline.countdown(2_538_000).matches(Regex("[0-9:]+")))
+    }
+
     @Test fun compactChipRetainsTimeAndRecognizableBuildingName() {
         assertEquals("信科", CourseTimeline.compactPlace("信息科技大楼204"))
         assertEquals("逸夫", CourseTimeline.compactPlace("逸夫楼201"))

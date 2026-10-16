@@ -69,23 +69,25 @@ void main() {
     expect(titleText.style!.fontFamily, isNot('Anthropic Serif'));
     expect(titleText.data, 'Sachet Next');
     final heroFinder = find.byKey(const ValueKey('homeHeroCard'));
-    final heroSurface = find
-        .descendant(
-          of: heroFinder,
-          matching: find.byType(Material),
-        )
-        .first;
-    expect(tester.getSize(heroSurface).height,
-        (design['heroHeight'] as num).toDouble());
     final status = find.byKey(const ValueKey('homeCourseStatusCard'));
-    expect(tester.getSize(status).height, tester.getSize(heroFinder).height);
-    final statusCard = tester
-        .widget<Card>(find.descendant(of: status, matching: find.byType(Card)));
-    final heroCard = tester.widget<Card>(
-        find.descendant(of: heroFinder, matching: find.byType(Card)));
-    expect(statusCard.color, heroCard.color);
-    expect(tester.getRect(status).bottom,
-        lessThan(tester.getRect(heroFinder).top));
+    final next = find.byKey(const ValueKey('homeNextCourseCard'));
+    final statusBounds = tester.getRect(status);
+    final nextBounds = tester.getRect(next);
+    final heroBounds = tester.getRect(heroFinder);
+    expect(statusBounds.top, nextBounds.top);
+    expect(statusBounds.bottom, heroBounds.bottom);
+    expect(nextBounds.left, heroBounds.left);
+    expect(nextBounds.right, heroBounds.right);
+    expect(nextBounds.bottom, lessThan(heroBounds.top));
+    expect(statusBounds.right, lessThan(nextBounds.left));
+    expect(find.descendant(of: status, matching: find.byType(InkWell)),
+        findsNothing);
+    expect(
+        tester
+            .widget<InkWell>(
+                find.descendant(of: heroFinder, matching: find.byType(InkWell)))
+            .onTap,
+        isNotNull);
     final cards = find.byType(CardWidget);
     expect(cards, findsNWidgets(9));
     for (final title in ['馆藏检索', '大物实验', '校园网认证']) {
@@ -109,19 +111,15 @@ void main() {
     }
     final first = tester.getRect(cards.at(0));
     final second = tester.getRect(cards.at(1));
-    final heroBounds = tester.getRect(heroFinder);
-    final statusBounds = tester.getRect(status);
-    expect(statusBounds.left, heroBounds.left);
-    expect(statusBounds.right, heroBounds.right);
-    expect(first.left, heroBounds.left);
+    expect(first.left, statusBounds.left);
     expect(second.right, heroBounds.right);
     final last = tester.getRect(cards.last);
-    expect(last.left, heroBounds.left);
+    expect(last.left, statusBounds.left);
     expect(last.right, heroBounds.right);
     final fourth = tester.getRect(cards.at(2));
     expect(second.left - first.right, (design['gap'] as num).toDouble());
     expect(fourth.top - first.bottom, (design['gap'] as num).toDouble());
-    expect(first.top, greaterThan(tester.getRect(heroSurface).bottom));
+    expect(first.top, greaterThan(heroBounds.bottom));
     final colors = Theme.of(tester.element(cards.first)).colorScheme;
     expect(colors.surface, const Color(0xfff5f5f5));
     expect(colors.brightness, Brightness.light);

@@ -2,6 +2,7 @@ package io.github.wyvern1723.sachet
 
 import java.util.Calendar
 import java.util.TimeZone
+import java.util.Locale
 
 data class LiveLesson(val title: String, val place: String, val start: Long, val end: Long)
 enum class LiveCoursePhase { NONE, WAITING, IN_CLASS, COMPLETED }
@@ -48,6 +49,14 @@ object CourseTimeline {
         val promoteAt = if (promote(state, now)) null else
             state.next?.start?.minus(30*60_000L)?.takeIf { it > now }
         return listOfNotNull(boundary, promoteAt, state.tomorrow).minOrNull()
+    }
+
+    /** Digits only; ceil prevents showing zero while a positive fraction remains. */
+    fun countdown(remainingMillis: Long): String {
+        val millis = remainingMillis.coerceIn(0, 86_400_000L)
+        val seconds = millis / 1000 + if (millis % 1000 == 0L) 0 else 1
+        return if (seconds >= 3600) String.format(Locale.ROOT, "%02d:%02d:%02d", seconds / 3600, seconds / 60 % 60, seconds % 60)
+            else String.format(Locale.ROOT, "%02d:%02d", seconds / 60, seconds % 60)
     }
 
     fun compactPlace(place: String): String = when {

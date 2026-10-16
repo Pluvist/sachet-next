@@ -15,8 +15,8 @@ abstract final class HomeDesign {
   static const cardSize = 15.0;
   static const iconSize = 29.0;
   static const iconRadius = 21.0;
-  static const heroHeight = 109.0;
-  static const heroRadius = 32.0;
+  static const heroHeight = 260.0;
+  static const heroRadius = 28.0;
   static const heroSize = 20.0;
   static const navDarken = 0.20;
   static const navBottom = 20.0;

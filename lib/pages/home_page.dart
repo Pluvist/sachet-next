@@ -12,7 +12,6 @@ import 'package:sachet/pages/home_child_pages/reserve_textbook_page/reserve_text
 import 'package:sachet/pages/home_child_pages/score_pdf_page_zf.dart';
 import 'package:sachet/utils/app_global.dart';
 import 'package:sachet/providers/screen_nav_provider.dart';
-import 'package:sachet/pages/home_child_pages/free_classroom_page_zf.dart';
 import 'package:sachet/providers/settings_provider.dart';
 import 'package:sachet/utils/utils_functions.dart';
 import 'package:sachet/widgets/homepage_widgets/card_widget.dart';
@@ -260,72 +259,6 @@ class _HomePageState extends State<HomePage>
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     _fly(1, const HomeCourseStatusCard()),
-                    const SizedBox(height: 10),
-                    _fly(
-                        2,
-                        Builder(
-                            builder: (sourceContext) => MiuixCard(
-                                  key: const ValueKey('homeHeroCard'),
-                                  margin: EdgeInsets.zero,
-                                  elevation: 0,
-                                  shadowColor: primaryColor.withOpacity(0.4),
-                                  clipBehavior: Clip.hardEdge,
-                                  color: colorScheme.surfaceContainerLow,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(24),
-                                  ),
-                                  child: InkWell(
-                                    onTap: () => expandPage(
-                                        sourceContext, FreeClassroomPageZF()),
-                                    child: ConstrainedBox(
-                                      constraints: const BoxConstraints(
-                                          minHeight: HomeDesign.heroHeight),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(24.0),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    '空闲教室',
-                                                    style: TextStyle(
-                                                      fontSize:
-                                                          HomeDesign.heroSize,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color:
-                                                          colorScheme.onSurface,
-                                                    ),
-                                                  ),
-                                                  SizedBox(height: 4),
-                                                  Text(
-                                                    '快速查询自习室',
-                                                    style: TextStyle(
-                                                      fontSize: 12,
-                                                      color:
-                                                          colorScheme.onSurface,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            const SizedBox(width: 12),
-                                            Icon(
-                                              Icons.meeting_room_rounded,
-                                              size: 44,
-                                              color: colorScheme.onSurface,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ))),
                     const SizedBox(height: 10),
                     Padding(
                       padding: EdgeInsets.zero,

@@ -20,7 +20,7 @@ object CourseLiveActivity {
     const val DISMISS = "io.github.wyvern1723.sachet.LIVE_DISMISS"
     private const val CHANNEL = "course_live_activity"
     private const val TAG = "course_live_activity"
-    private const val ID = -1958
+    internal const val ID = -1958
     private fun prefs(context: Context) = context.getSharedPreferences("course_widget", Context.MODE_PRIVATE)
     private fun manager(context: Context) = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     private fun alarm(context: Context) = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -72,13 +72,15 @@ object CourseLiveActivity {
         val now = System.currentTimeMillis()
         val data = data(context)
         val manager = manager(context)
+        // Migrate the earlier tagged notification to the single service notification.
+        manager.cancel(TAG, ID)
         if (!data.optBoolean("liveActivityEnabled") || !data.optBoolean("ready") || !notificationsAllowed(context)) {
-            manager.cancel(TAG, ID); alarm(context).cancel(alarmIntent(context)); return
+            stopCountdown(context); manager.cancel(ID); alarm(context).cancel(alarmIntent(context)); return
         }
         val lessons = lessons(data)
         val state = CourseTimeline.resolve(now, lessons)
         val dismissed = prefs(context).getString("liveDismissedDay", "") == dayKey(now)
-        if (dismissed || state.phase == LiveCoursePhase.NONE) manager.cancel(TAG, ID)
+        if (dismissed || state.phase == LiveCoursePhase.NONE) { stopCountdown(context); manager.cancel(ID) }
         else {
             if (Build.VERSION.SDK_INT >= 26) {
                 manager.createNotificationChannel(NotificationChannel(CHANNEL, "课程实时活动", NotificationManager.IMPORTANCE_LOW).apply {
@@ -102,9 +104,8 @@ object CourseLiveActivity {
             when (state.phase) {
                 LiveCoursePhase.IN_CLASS -> {
                     val current = state.current!!
-                    title = "下课倒计时"
-                    // Android 5/6 cannot count down a native chronometer.
-                    compact = if (Build.VERSION.SDK_INT >= 24) "" else "${time(current.end)} 下课"
+                    title = CourseTimeline.countdown(current.end - now)
+                    compact = ""
                     body = "正在上课：${current.title}\n地点：${current.place}\n${time(current.start)}–${time(current.end)}\n" +
                         (state.next?.let { "下一节：${it.title} · ${time(it.start)} · ${it.place}" } ?: "今天没有下一节课啦")
                     if (Build.VERSION.SDK_INT >= 24) builder.setWhen(current.end).setShowWhen(true)
@@ -122,8 +123,8 @@ object CourseLiveActivity {
                     if (Build.VERSION.SDK_INT >= 26) builder.setTimeoutAfter(state.tomorrow - now)
                 }
             }
-            // Keep a meaningful title for promoted-notification eligibility. Course
-            // details belong only to the expanded view while class is in progress.
+            // A numeric title also satisfies promoted-notification eligibility.
+            // Full course details are confined to the expanded view.
             builder.setContentTitle(title).setContentText(compact).setStyle(Notification.BigTextStyle()
                 .setBigContentTitle(if (state.phase == LiveCoursePhase.IN_CLASS) state.current!!.title else title)
                 .bigText(body))
@@ -140,7 +141,10 @@ object CourseLiveActivity {
                 try { Notification.Builder::class.java.getMethod("setRequestPromotedOngoing", Boolean::class.javaPrimitiveType)
                     .invoke(builder, promote) } catch (_: Exception) { }
             }
-            try { manager.notify(TAG, ID, builder.build()) } catch (_: SecurityException) { }
+            val notification = builder.build()
+            try { manager.notify(ID, notification) } catch (_: SecurityException) { }
+            if (state.current != null) startCountdown(context, notification, state.current.end)
+            else stopCountdown(context)
         }
         val trigger = CourseTimeline.nextWake(now, lessons, state, dismissed)
         alarm(context).cancel(alarmIntent(context))
@@ -153,6 +157,35 @@ object CourseLiveActivity {
                 else alarm(context).setExact(AlarmManager.RTC_WAKEUP, trigger, alarmIntent(context))
             } catch (_: SecurityException) { alarm(context).set(AlarmManager.RTC_WAKEUP, trigger, alarmIntent(context)) }
         }
+    }
+    private fun startCountdown(context: Context, notification: Notification, end: Long) {
+        val intent = Intent(context, CourseCountdownService::class.java)
+            .putExtra("notification", notification).putExtra("end", end)
+        try {
+            if (Build.VERSION.SDK_INT >= 26) context.startForegroundService(intent) else context.startService(intent)
+        } catch (error: RuntimeException) {
+            // Systems may restrict background starts. The native chronometer remains
+            // the live chip's fallback; do not turn this into repeated alarm wakes.
+            android.util.Log.w("CourseActivity", "Countdown service start restricted", error)
+        }
+    }
+    private fun stopCountdown(context: Context) {
+        context.stopService(Intent(context, CourseCountdownService::class.java))
+    }
+    internal fun activeEnd(context: Context): Long? {
+        val now = System.currentTimeMillis()
+        val data = data(context)
+        if (!data.optBoolean("liveActivityEnabled") || !data.optBoolean("ready") || !notificationsAllowed(context) ||
+            prefs(context).getString("liveDismissedDay", "") == dayKey(now)) return null
+        return CourseTimeline.resolve(now, lessons(data)).current?.end
+    }
+    /** A foreground notification can only be cancelled after the service detaches. */
+    @Synchronized internal fun cleanupCountdown(context: Context) {
+        val now = System.currentTimeMillis()
+        val data = data(context)
+        if (!data.optBoolean("liveActivityEnabled") || !data.optBoolean("ready") || !notificationsAllowed(context) ||
+            prefs(context).getString("liveDismissedDay", "") == dayKey(now) ||
+            CourseTimeline.resolve(now, lessons(data)).phase == LiveCoursePhase.NONE) manager(context).cancel(ID)
     }
     private fun setShortText(builder: Notification.Builder, text: String) {
         if (Build.VERSION.SDK_INT < 36) return

@@ -6,6 +6,8 @@ import 'package:sachet/models/course_schedule.dart';
 import 'package:sachet/providers/settings_provider.dart';
 import 'package:sachet/utils/daily_course_status.dart';
 import 'package:sachet/utils/home_design.dart';
+import 'package:sachet/pages/home_child_pages/free_classroom_page_zf.dart';
+import 'package:sachet/widgets/utils_widgets/source_expand_route.dart';
 import 'package:sachet/widgets/homepage_widgets/course_status_icon.dart';
 
 class HomeCourseStatusCard extends StatefulWidget {
@@ -106,125 +108,232 @@ class _HomeCourseStatusCardState extends State<HomeCourseStatusCard>
     super.dispose();
   }
 
+  String _time(DateTime date) =>
+      '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+
   @override
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsProvider>();
-    final colors = Theme.of(context).colorScheme;
     final now = widget.now?.call() ?? DateTime.now();
+    final status = _courses == null
+        ? null
+        : DailyCourseStatus.resolve(
+            now: now,
+            semesterStart: SettingsProvider.semesterStartDateDateTime,
+            courses: _courses!,
+            overrides: settings.courseRoutineOverrides);
     String title;
-    String place = '';
-    String countdown = '';
     String hint = '';
+    String label = '今日课程';
     bool? completed;
     if (_loading) {
       title = '正在读取课表';
     } else if (_failed) {
       title = '课表读取失败';
       hint = '请检查或重新导入课表';
-    } else if (_courses == null) {
+    } else if (status == null) {
       title = '请先导入课表';
       hint = '导入后显示上课状态';
+    } else if (status.current != null) {
+      title = status.current!.course.title!;
+      label = '正在上课';
+      completed = false;
+    } else if (status.next != null) {
+      completed = false;
+      title = status.lessons.any((l) => !l.end.isAfter(now)) ? '课间休息' : '尚未上课';
+      hint = '下一节 ${_time(status.next!.start)} 开始';
     } else {
-      final status = DailyCourseStatus.resolve(
-          now: now,
-          semesterStart: SettingsProvider.semesterStartDateDateTime,
-          courses: _courses!,
-          overrides: settings.courseRoutineOverrides);
-      if (status.current != null) {
-        completed = false;
-        title = status.current!.course.title!;
-        place = status.current!.place;
-        countdown =
-            '剩余 ${lessonCountdown(status.current!.end.difference(now))}';
-        hint = status.next == null
-            ? '今天没有下一节课啦'
-            : '下一节：${status.next!.course.title} · ${status.next!.place}';
-      } else if (status.next != null) {
-        completed = false;
-        title = status.next!.course.title!;
-        place = status.next!.place;
-        hint =
-            '下一节 · ${status.next!.start.hour.toString().padLeft(2, '0')}:${status.next!.start.minute.toString().padLeft(2, '0')} 上课';
-      } else {
-        completed = true;
-        title = status.lessons.isEmpty ? '今日无课喵~' : '今日课程已结束喵~';
-      }
+      completed = true;
+      title = status.lessons.isEmpty ? '今日无课喵~' : '今日课程已结束喵~';
+      hint = status.lessons.isEmpty ? '好好享受今天吧' : '今天辛苦啦';
     }
-    Widget line(String text, double size, {FontWeight? weight}) => Tooltip(
-        message: text,
-        child: Text(text,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-                fontSize: size, fontWeight: weight, color: colors.onSurface)));
-    return MiuixCard(
-      margin: EdgeInsets.zero,
-      key: const ValueKey('homeCourseStatusCard'),
-      elevation: 0,
-      color: colors.surfaceContainerLow,
-      clipBehavior: Clip.hardEdge,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: HomeDesign.heroHeight),
-        child: Stack(
-          children: [
-            if (completed == true)
-              Positioned(
-                right: -20,
-                bottom: -26,
-                width: 112,
-                height: 112,
-                child: CourseStatusIcon(
-                  key: const ValueKey('courseStatusCompletedIcon'),
-                  completed: true,
-                  color: Color.alphaBlend(colors.onSurface.withOpacity(0.22),
-                      colors.surfaceContainerLow),
-                ),
-              ),
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Row(children: [
-                Expanded(
-                    child: Padding(
-                  padding: EdgeInsets.only(right: completed == true ? 40 : 0),
+    final current =
+        _currentCard(context, status, now, label, title, hint, completed);
+    final next = _nextCard(context, status);
+    final classroom = _classroomCard(context);
+    return LayoutBuilder(builder: (context, constraints) {
+      final stacked = constraints.maxWidth < 290 ||
+          MediaQuery.textScalerOf(context).scale(16) > 23;
+      if (stacked) {
+        return Column(
+            key: const ValueKey('homeCourseOverview'),
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              current,
+              const SizedBox(height: HomeDesign.gap),
+              next,
+              const SizedBox(height: HomeDesign.gap),
+              classroom,
+            ]);
+      }
+      return IntrinsicHeight(
+          child: Row(
+              key: const ValueKey('homeCourseOverview'),
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+            Expanded(child: current),
+            const SizedBox(width: HomeDesign.gap),
+            Expanded(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                  Expanded(child: next),
+                  const SizedBox(height: HomeDesign.gap),
+                  Expanded(child: classroom),
+                ])),
+          ]));
+    });
+  }
+
+  Widget _line(String text, double size, Color color,
+          {int lines = 1, FontWeight weight = FontWeight.normal}) =>
+      Tooltip(
+          message: text,
+          child: Text(text,
+              maxLines: lines,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                  fontSize: size,
+                  height: 1.3,
+                  fontWeight: weight,
+                  color: color)));
+
+  Widget _surface(
+          {required Key key, required Color color, required Widget child}) =>
+      MiuixCard(
+          key: key,
+          margin: EdgeInsets.zero,
+          elevation: 0,
+          color: color,
+          clipBehavior: Clip.hardEdge,
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(HomeDesign.heroRadius)),
+          child: child);
+
+  Widget _currentCard(BuildContext context, DailyCourseStatus? status,
+      DateTime now, String label, String title, String hint, bool? completed) {
+    final colors = Theme.of(context).colorScheme;
+    final ink = colors.onPrimaryContainer;
+    final lesson = status?.current;
+    return _surface(
+        key: const ValueKey('homeCourseStatusCard'),
+        color: colors.primaryContainer,
+        child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: HomeDesign.heroHeight),
+            child: Stack(children: [
+              if (completed != null)
+                Positioned(
+                    right: -22,
+                    bottom: -24,
+                    width: 150,
+                    height: 150,
+                    child: CourseStatusIcon(
+                        key: ValueKey(completed
+                            ? 'courseStatusCompletedIcon'
+                            : 'courseStatusGoingIcon'),
+                        completed: completed,
+                        color: ink.withOpacity(.14))),
+              Padding(
+                  padding: const EdgeInsets.all(18),
                   child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        line(title, HomeDesign.heroSize,
-                            weight: FontWeight.bold),
-                        if (place.isNotEmpty || countdown.isNotEmpty) ...[
-                          const SizedBox(height: 4),
-                          Row(children: [
-                            Expanded(child: line(place, 12)),
-                            if (countdown.isNotEmpty) ...[
-                              const SizedBox(width: 8),
-                              Flexible(child: line(countdown, 12))
-                            ],
-                          ]),
+                        _line(label, 12, ink.withOpacity(.7),
+                            weight: FontWeight.w600),
+                        const SizedBox(height: 12),
+                        _line(title, 22, ink,
+                            lines: 3, weight: FontWeight.w700),
+                        if (lesson != null) ...[
+                          const SizedBox(height: 10),
+                          _line(lesson.place, 13, ink, lines: 3),
+                          const SizedBox(height: 6),
+                          _line('${_time(lesson.start)}–${_time(lesson.end)}',
+                              12, ink.withOpacity(.75)),
+                          const SizedBox(height: 22),
+                          FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                  lessonCountdown(lesson.end.difference(now)),
+                                  key: const ValueKey('homeCourseCountdown'),
+                                  style: TextStyle(
+                                      fontSize: 27,
+                                      fontWeight: FontWeight.w700,
+                                      fontFeatures: const [
+                                        FontFeature.tabularFigures()
+                                      ],
+                                      color: ink))),
+                        ] else ...[
+                          const SizedBox(height: 12),
+                          if (hint.isNotEmpty)
+                            _line(hint, 12, ink.withOpacity(.75), lines: 3),
+                          const SizedBox(height: 72),
                         ],
-                        if (hint.isNotEmpty) ...[
+                      ])),
+            ])));
+  }
+
+  Widget _nextCard(BuildContext context, DailyCourseStatus? status) {
+    final colors = Theme.of(context).colorScheme;
+    final next = status?.next;
+    final hint = _loading
+        ? '正在读取课表'
+        : _failed
+            ? '课表读取失败'
+            : status == null
+                ? '导入后显示下一节'
+                : status.lessons.isEmpty
+                    ? '今天没有课程'
+                    : '今天没有下一节课啦';
+    return _surface(
+        key: const ValueKey('homeNextCourseCard'),
+        color: colors.surfaceContainerLow,
+        child: Padding(
+            padding: const EdgeInsets.all(18),
+            child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _line('下一节课', 12, colors.onSurfaceVariant,
+                      weight: FontWeight.w600),
+                  const SizedBox(height: 8),
+                  _line(next?.course.title ?? '暂无下一节课', 17, colors.onSurface,
+                      lines: 2, weight: FontWeight.w700),
+                  const SizedBox(height: 6),
+                  if (next != null) ...[
+                    _line('${_time(next.start)}–${_time(next.end)}', 13,
+                        colors.onSurfaceVariant),
+                    const SizedBox(height: 5),
+                    _line(next.place, 12, colors.onSurfaceVariant, lines: 2),
+                  ] else
+                    _line(hint, 12, colors.onSurfaceVariant, lines: 2),
+                ])));
+  }
+
+  Widget _classroomCard(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Builder(
+        builder: (sourceContext) => _surface(
+            key: const ValueKey('homeHeroCard'),
+            color: colors.surfaceContainerLow,
+            child: InkWell(
+                onTap: () => expandPage(sourceContext, FreeClassroomPageZF()),
+                child: Padding(
+                    padding: const EdgeInsets.all(18),
+                    child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(Icons.meeting_room_rounded,
+                              size: 30, color: colors.primary),
+                          const SizedBox(height: 10),
+                          _line('空闲教室', 18, colors.onSurface,
+                              weight: FontWeight.w700),
                           const SizedBox(height: 4),
-                          line(hint, 10)
-                        ],
-                      ]),
-                )),
-                if (completed == false) ...[
-                  const SizedBox(width: 12),
-                  SizedBox(
-                    width: 52,
-                    height: 52,
-                    child: CourseStatusIcon(
-                        key: const ValueKey('courseStatusGoingIcon'),
-                        completed: false,
-                        color: colors.onSurface),
-                  ),
-                ],
-              ]),
-            ),
-          ],
-        ),
-      ),
-    );
+                          _line('快速查询自习室', 12, colors.onSurfaceVariant,
+                              lines: 2),
+                        ])))));
   }
 }

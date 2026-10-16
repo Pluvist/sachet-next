@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/idle_frame_work.dart';
 import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
@@ -19,6 +20,7 @@ class CourseRefreshCoordinator extends StatefulWidget {
 class _CourseRefreshCoordinatorState extends State<CourseRefreshCoordinator>
     with WidgetsBindingObserver {
   late final _refresh = widget.refresh ?? AutomaticCourseRefresh();
+  final _idleRefresh = IdleFrameWork();
   bool _wasBackground = false;
   bool _loggedIn = false;
   ZhengFangUserProvider? _user;
@@ -67,10 +69,13 @@ class _CourseRefreshCoordinatorState extends State<CourseRefreshCoordinator>
 
   void _run() {
     if (!mounted || !_introFinished) return;
-    unawaited(_refresh
-        .refresh(context.read<SettingsProvider>(), _user!,
-            isAlive: () => mounted)
-        .catchError((Object _) => false));
+    _idleRefresh.schedule(() {
+      if (!mounted || !_introFinished) return;
+      unawaited(_refresh
+          .refresh(context.read<SettingsProvider>(), _user!,
+              isAlive: () => mounted)
+          .catchError((Object _) => false));
+    });
   }
 
   @override
@@ -86,6 +91,7 @@ class _CourseRefreshCoordinatorState extends State<CourseRefreshCoordinator>
 
   @override
   void dispose() {
+    _idleRefresh.cancel();
     _user?.removeListener(_onUserChanged);
     _settings?.removeListener(_onSettingsChanged);
     WidgetsBinding.instance.removeObserver(this);

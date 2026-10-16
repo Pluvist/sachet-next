@@ -47,41 +47,36 @@ class _Refresh extends AutomaticCourseRefresh {
 }
 
 void main() {
-  test(
-      'Reveal starts at icon edge and covers every corner in both orientations',
+  test('Control contours remain bounded while every edge reaches the viewport',
       () {
     for (final size in [const Size(400, 850), const Size(1200, 600)]) {
-      const source = Rect.fromLTWH(48, 490, 70, 70);
-      const initial =
-          IconExpansionClipper(source: source, sourceRadius: 35, progress: 0);
-      final path = initial.getClip(size);
-      expect(path.getBounds(), source);
-      expect(path.contains(source.center), true);
-      expect(path.contains(source.topLeft), false);
-      final halfway = IconExpansionClipper.bounds(source, size, .5);
-      expect(halfway.center, source.center);
-      expect(halfway.width, greaterThan(source.width));
-      final almost = const IconExpansionClipper(
-              source: source, sourceRadius: 35, progress: .9999)
-          .getClip(size);
-      for (final corner in [
-        Offset.zero,
-        Offset(size.width, 0),
-        Offset(0, size.height),
-        Offset(size.width, size.height)
+      for (final source in [
+        const Rect.fromLTWH(40, 490, 320, 76),
+        const Rect.fromLTWH(320, 40, 44, 44),
+        const Rect.fromLTWH(18, 200, 170, 260)
       ]) {
-        expect(almost.contains(corner), true);
+        final initial = ControlExpansionClipper(
+            source: source, sourceRadius: 22, progress: 0);
+        expect(initial.getClip(size).getBounds(), source);
+        expect(initial.getClip(size).contains(source.topLeft), false);
+        expect(ControlExpansionClipper.bounds(source, size, .5),
+            Rect.lerp(source, Offset.zero & size, .5));
+        for (final value in [0.0, .25, .5, .75, 1.0]) {
+          final bounds = ControlExpansionClipper.bounds(source, size, value);
+          expect(bounds.width, lessThanOrEqualTo(size.width));
+          expect(bounds.height, lessThanOrEqualTo(size.height));
+        }
+        expect(
+            ControlExpansionClipper(
+                    source: source, sourceRadius: 22, progress: 1)
+                .getClip(size)
+                .getBounds(),
+            Offset.zero & size);
       }
-      expect(
-          const IconExpansionClipper(
-                  source: source, sourceRadius: 35, progress: 1)
-              .getClip(size)
-              .getBounds(),
-          Offset.zero & size);
     }
   });
   testWidgets(
-      'Icon expands without scaling destination text; back restores source',
+      'Control expands without scaling destination text; back restores source',
       (tester) async {
     final iconKey = GlobalKey();
     await tester.pumpWidget(MaterialApp(
@@ -106,8 +101,8 @@ void main() {
     await tester.pump();
     await tester.pump();
     final mask = find.byKey(const ValueKey('sourceExpansionMask'));
-    IconExpansionClipper clipper() =>
-        tester.widget<ClipPath>(mask).clipper! as IconExpansionClipper;
+    ControlExpansionClipper clipper() =>
+        tester.widget<ClipPath>(mask).clipper! as ControlExpansionClipper;
     expect(clipper().source, source);
     expect(clipper().getClip(const Size(800, 600)).getBounds(), source);
     expect(find.byType(RawImage), findsOneWidget);
@@ -117,10 +112,12 @@ void main() {
     expect(clipper().progress, greaterThan(.24));
     expect(tester.getRect(find.text('Destination')), destination);
     expect(
-        IconExpansionClipper.bounds(
+        ControlExpansionClipper.bounds(
                 source, const Size(800, 600), clipper().progress)
             .center,
-        source.center);
+        Rect.lerp(source, const Rect.fromLTWH(0, 0, 800, 600),
+                clipper().progress)!
+            .center);
     await tester.pumpAndSettle();
     expect(find.text('Destination'), findsOneWidget);
     expect(find.byType(FittedBox), findsNothing);
@@ -179,7 +176,8 @@ void main() {
     expect(find.text('Open'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
-  testWidgets('Welcome arrow and home feature reveal from their actual icons',
+  testWidgets(
+      'Welcome arrow and home feature reveal from their full control edges',
       (tester) async {
     tester.view.physicalSize = const Size(400, 850);
     tester.view.devicePixelRatio = 1;
@@ -220,8 +218,10 @@ void main() {
                                       body: Center(child: Text('培养方案'))))))))));
       await tester.pump(const Duration(seconds: 2));
       final anchor = find.byType(ExpansionAnchor);
+      final originKey = tester.widget<ExpansionAnchor>(anchor).key!;
       final source = tester.getRect(anchor);
-      expect(source.width, welcome ? 70 : 34);
+      expect(source.width, welcome ? 70 : 320);
+      if (!welcome) expect(source.height, 76);
       Future<void> capture(String suffix) async {
         if (output == null) return;
         final boundary =
@@ -244,12 +244,12 @@ void main() {
       await tester.pump();
       final mask = tester
           .widget<ClipPath>(find.byKey(const ValueKey('sourceExpansionMask')));
-      expect((mask.clipper! as IconExpansionClipper).source, source);
+      expect((mask.clipper! as ControlExpansionClipper).source, source);
       final originOpacity =
-          find.descendant(of: anchor, matching: find.byType(Opacity));
+          find.descendant(of: find.byKey(originKey), matching: find.byType(Opacity));
       expect(tester.widget<Opacity>(originOpacity).opacity, 0);
       final raw = tester.widget<RawImage>(find.byType(RawImage));
-      expect(raw.image!.width, welcome ? 70 : 34);
+      expect(raw.image!.width, welcome ? 70 : 320);
       if (output != null) {
         await tester.runAsync(() async {
           final data =
@@ -313,7 +313,7 @@ void main() {
     await tester.pump();
     expect(refresh.calls, 0);
     settings.finish();
-    await tester.pump();
+    await tester.pumpAndSettle();
     expect(refresh.calls, 1);
     settings.notifyListeners();
     await tester.pump();

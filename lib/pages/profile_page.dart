@@ -1,3 +1,4 @@
+import 'package:sachet/utils/miuix_shapes.dart';
 import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:sachet/widgets/settingspage_widgets/miuix_settings_list.dart';
 import 'package:flutter/material.dart';
@@ -65,7 +66,8 @@ class _ProfilePageState extends State<ProfilePage> {
                               .colorScheme
                               .primary
                               .withOpacity(0.12),
-                          borderRadius: BorderRadius.circular(16)),
+                          borderRadius:
+                              BorderRadius.circular(MiuixRadii.small)),
                       child: Icon(Icons.person_rounded,
                           color: Theme.of(context).colorScheme.primary,
                           size: 30),

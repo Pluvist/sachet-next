@@ -26,3 +26,13 @@ the destination at full layout size. Its 500ms cubic easing and foreground/conte
 cross-fade are Flutter adaptation parameters, not verified library constants;
 pixel-identical/native-system timing is not claimed. Home navigation uses each
 icon's own bounds rather than the containing card or padded touch target.
+
+
+2026-10-17 control-boundary revision (supersedes the icon-only adaptation above):
+The captured source is now the entire visible card/button/row and its actual
+rounded shape. The reveal interpolates within viewport bounds rather than
+rendering an oversized circle. Source content fades at its natural size, and
+readback is capped at 200,000 pixels. Standard navigation uses 400ms; completion
+uses one 600ms route clock shared by home entrance effects. The welcome glow
+pauses while leaving. Completion and automatic refresh start after the handoff;
+no native fan.transition animation implementation is included.

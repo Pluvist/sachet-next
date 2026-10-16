@@ -1,3 +1,4 @@
+import 'package:sachet/utils/miuix_shapes.dart';
 import 'package:flutter/material.dart';
 import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:sachet/widgets/utils_widgets/miuix_glyph.dart';
@@ -112,10 +113,10 @@ class ProvisionButton extends StatelessWidget {
             color: enabled || loading
                 ? colors.primary
                 : colors.primary.withOpacity(.10),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(MiuixRadii.control),
             child: InkWell(
                 onTap: onPressed,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(MiuixRadii.control),
                 child: Padding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 20, vertical: 17),
@@ -200,6 +201,7 @@ class ProvisionPanel extends StatelessWidget {
       margin: EdgeInsets.zero,
       elevation: 0,
       color: Theme.of(context).colorScheme.surfaceContainerLow,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(MiuixRadii.panel)),
       child: Padding(padding: padding, child: child));
 }

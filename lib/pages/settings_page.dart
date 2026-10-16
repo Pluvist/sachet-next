@@ -1,3 +1,4 @@
+import 'package:sachet/utils/miuix_shapes.dart';
 import 'package:sachet/pages/settings_child_pages/course_live_activity_settings_page.dart';
 import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:sachet/widgets/settingspage_widgets/miuix_settings_list.dart';
@@ -282,7 +283,7 @@ class _SettingsPageState extends State<SettingsPage> {
     return MiuixCard(
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(MiuixRadii.panel),
         side: BorderSide(color: colorScheme.outlineVariant.withOpacity(0.5)),
       ),
       color: colorScheme.primaryContainer.withOpacity(0.25),
@@ -369,7 +370,7 @@ class _SettingsPageState extends State<SettingsPage> {
     return MiuixCard(
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(MiuixRadii.panel),
         side: BorderSide(color: colorScheme.outlineVariant.withOpacity(0.5)),
       ),
       color: colorScheme.surfaceContainerLow,
@@ -385,7 +386,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: colorScheme.primaryContainer.withOpacity(0.5),
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(MiuixRadii.control),
                   ),
                   child: Icon(
                     Icons.school_outlined,

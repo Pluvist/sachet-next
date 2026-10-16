@@ -1,3 +1,4 @@
+import 'package:sachet/utils/miuix_shapes.dart';
 import 'package:flutter/material.dart';
 
 class SectionCard extends StatelessWidget {
@@ -27,7 +28,7 @@ class SectionCard extends StatelessWidget {
         color: Theme.of(
           context,
         ).colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(MiuixRadii.panel),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

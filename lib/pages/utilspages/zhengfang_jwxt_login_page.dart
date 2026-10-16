@@ -1,3 +1,4 @@
+import 'package:sachet/utils/miuix_shapes.dart';
 import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:sachet/widgets/intro_widgets/provision_page.dart';
 import 'package:sachet/widgets/utils_widgets/miuix_glyph.dart';
@@ -174,7 +175,8 @@ class _ZhengFangJwxtLoginPageViewState
         context: context,
         backgroundColor: colors.surfaceContainerLow,
         shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
+            borderRadius:
+                BorderRadius.vertical(top: Radius.circular(MiuixRadii.panel))),
         builder: (sheet) => SafeArea(
             child: Padding(
                 padding: const EdgeInsets.fromLTRB(12, 16, 12, 20),

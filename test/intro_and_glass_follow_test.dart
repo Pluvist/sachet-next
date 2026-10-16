@@ -74,7 +74,8 @@ void main() {
                     disableAnimations: true),
                 child: child!),
             routes: {'/navBarView': (_) => const Scaffold(body: Text('主界面'))},
-            home: const IntroScreen())));
+            home: IntroScreen(
+                homeBuilder: (_) => const Scaffold(body: Text('主界面'))))));
     await tester.pumpAndSettle();
     return settings;
   }

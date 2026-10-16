@@ -206,7 +206,7 @@ class _HomeCourseStatusCardState extends State<HomeCourseStatusCard>
           margin: EdgeInsets.zero,
           elevation: 0,
           color: color,
-          clipBehavior: Clip.hardEdge,
+          clipBehavior: Clip.antiAlias,
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(HomeDesign.heroRadius)),
           child: child);
@@ -316,29 +316,32 @@ class _HomeCourseStatusCardState extends State<HomeCourseStatusCard>
     final iconKey = _classroomExpansionKey;
     final colors = Theme.of(context).colorScheme;
     return Builder(
-        builder: (sourceContext) => _surface(
-            key: const ValueKey('homeHeroCard'),
-            color: colors.surfaceContainerLow,
-            child: InkWell(
-                onTap: () => expandPage(sourceContext, FreeClassroomPageZF(),
-                    sourceKey: iconKey, sourceRadius: 6),
-                child: Padding(
-                    padding: const EdgeInsets.all(18),
-                    child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ExpansionAnchor(
-                              key: iconKey,
-                              child: Icon(Icons.meeting_room_rounded,
-                                  size: 30, color: colors.primary)),
-                          const SizedBox(height: 10),
-                          _line('空闲教室', 18, colors.onSurface,
-                              weight: FontWeight.w700),
-                          const SizedBox(height: 4),
-                          _line('快速查询自习室', 12, colors.onSurfaceVariant,
-                              lines: 2),
-                        ])))));
+        builder: (sourceContext) => ExpansionAnchor(
+            key: iconKey,
+            child: _surface(
+                key: const ValueKey('homeHeroCard'),
+                color: colors.surfaceContainerLow,
+                child: InkWell(
+                    onTap: () => expandPage(
+                        sourceContext, FreeClassroomPageZF(),
+                        sourceKey: iconKey,
+                        sourceRadius: HomeDesign.heroRadius,
+                        sourceColor: colors.surfaceContainerLow),
+                    child: Padding(
+                        padding: const EdgeInsets.all(18),
+                        child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Icon(Icons.meeting_room_rounded,
+                                  size: 30, color: colors.primary),
+                              const SizedBox(height: 10),
+                              _line('空闲教室', 18, colors.onSurface,
+                                  weight: FontWeight.w700),
+                              const SizedBox(height: 4),
+                              _line('快速查询自习室', 12, colors.onSurfaceVariant,
+                                  lines: 2),
+                            ]))))));
   }
 }

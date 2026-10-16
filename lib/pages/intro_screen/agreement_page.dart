@@ -1,3 +1,4 @@
+import 'package:sachet/utils/miuix_shapes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:sachet/constants/app_notices.dart';
@@ -14,17 +15,17 @@ class AgreementPage extends StatefulWidget {
 }
 
 class _AgreementPageState extends State<AgreementPage> {
+  final _continueKey = GlobalKey();
   bool accepted = false;
   bool opening = false;
   Future<void> _continue(BuildContext source) async {
     if (!accepted || opening) return;
     setState(() => opening = true);
-    final result = await Navigator.of(context).push<bool>(
-        SourceExpandRoute<bool>(
-            source: expansionSource(source),
-            reduceMotion: MediaQuery.disableAnimationsOf(context),
-            builder: (_) =>
-                const ZhengFangJwxtLoginPage(title: '登录账号', onboarding: true)));
+    final result = await expandPage<bool>(
+        context, const ZhengFangJwxtLoginPage(title: '登录账号', onboarding: true),
+        sourceKey: _continueKey,
+        sourceRadius: MiuixRadii.control,
+        sourceColor: Theme.of(context).colorScheme.primary);
     if (!mounted) return;
     setState(() => opening = false);
     if (result == true) Navigator.of(context).pop(true);
@@ -75,11 +76,14 @@ class _AgreementPageState extends State<AgreementPage> {
                   opening ? null : (value) => setState(() => accepted = value)),
         ]),
         action: Builder(
-            builder: (source) => ProvisionButton(
-                key: const ValueKey('agreementContinue'),
-                label: '同意并继续',
-                onPressed:
-                    accepted && !opening ? () => _continue(source) : null)));
+            builder: (source) => ExpansionAnchor(
+                key: _continueKey,
+                child: ProvisionButton(
+                    key: const ValueKey('agreementContinue'),
+                    label: '同意并继续',
+                    onPressed: accepted && !opening
+                        ? () => _continue(source)
+                        : null))));
   }
 }
 

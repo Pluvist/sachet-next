@@ -1,3 +1,4 @@
+import 'package:sachet/utils/miuix_shapes.dart';
 import 'package:sachet/widgets/utils_widgets/miuix_select.dart';
 import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'dart:convert';
@@ -628,7 +629,7 @@ class _ExamTimeViewZF extends StatelessWidget {
       color: colorScheme.surfaceContainerHigh,
       margin: const EdgeInsets.fromLTRB(12.0, 4.0, 12.0, 12.0),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(MiuixRadii.control),
       ),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 14.0),

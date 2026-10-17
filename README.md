@@ -12,11 +12,11 @@
 
 | Android 架构 | 适用设备 | 下载 |
 | --- | --- | --- |
-| arm64-v8a | 多数现代安卓手机选择此版本 | [ARM64 APK](https://github.com/Pluvist/sachet-next/releases/download/v0.19.60/sachet-next-v0.19.60-arm64-v8a.apk) |
-| armeabi-v7a | 32 位 ARM 安卓设备 | [ARM v7a APK](https://github.com/Pluvist/sachet-next/releases/download/v0.19.60/sachet-next-v0.19.60-armeabi-v7a.apk) |
-| x86_64 | 64 位 x86 安卓设备或兼容模拟器 | [x86_64 APK](https://github.com/Pluvist/sachet-next/releases/download/v0.19.60/sachet-next-v0.19.60-x86_64.apk) |
+| arm64-v8a | 多数现代安卓手机选择此版本 | [ARM64 APK](https://github.com/Pluvist/sachet-next/releases/download/v0.19.74/sachet-next-v0.19.74-arm64-v8a.apk) |
+| armeabi-v7a | 32 位 ARM 安卓设备 | [ARM v7a APK](https://github.com/Pluvist/sachet-next/releases/download/v0.19.74/sachet-next-v0.19.74-armeabi-v7a.apk) |
+| x86_64 | 64 位 x86 安卓设备或兼容模拟器 | [x86_64 APK](https://github.com/Pluvist/sachet-next/releases/download/v0.19.74/sachet-next-v0.19.74-x86_64.apk) |
 
-当前正式版 **0.19.60** 使用独立 Android 包名 `com.pluvist.sachet.next` 和 Pluvist 的专用发布签名，提供三种架构的 release/AOT 安装包。UI 采用 Miuix 风格，适配平板与横屏双周布局，包含课程实时活动、2×2 / 4×2 桌面组件、双月视图和新版启动引导。可直接覆盖升级 0.19.59 及同签名的 0.19.60 测试版。
+当前正式版 **0.19.74** 使用独立 Android 包名 `com.pluvist.sachet.next` 和 Pluvist 的专用发布签名，提供三种架构的 release/AOT 安装包。UI 采用 Miuix 风格，适配平板与横屏双周布局，包含课程实时活动、2×2 / 4×2 桌面组件、双月视图和新版启动引导。可直接覆盖升级 0.19.59、原 0.19.60 及其同签名测试版。
 
 **从旧版迁移：** 0.19.58 及此前测试版使用不同包名，因此新版会独立安装，不能覆盖旧应用，也不会自动继承登录、课表和小组件配置。请在新版重新登录并同步课表，需要时重新添加桌面组件和授予通知权限；旧应用可保留，数据不会被本次安装删除。今后相同包名且相同发布签名的版本可正常覆盖升级。安装包校验见 Release 中的 `SHA256SUMS.txt`。
 
@@ -50,9 +50,9 @@
 
 界面改造的页面范围、设计参数和验证方式见 [Miuix 界面说明](docs/miuix-redesign.md)。
 
-0.19.60 为两种组件加入静态彩色流光与渐变边缘辉光，随明暗模式切换；卡片上下各收紧 6dp。默认最小高度由 110dp 改为 100dp，桌面格数保持不变，实际占位高度由启动器网格决定。
+0.19.74 为两种组件加入静态彩色流光与渐变边缘辉光，随明暗模式切换；卡片上下各收紧 6dp。默认最小高度由 110dp 改为 100dp，桌面格数保持不变，实际占位高度由启动器网格决定。
 
-0.19.60 完整移除了旧实验性功能及上课前通知，保留独立课程实时活动。引导新增可跳过的后台、自启动与桌面组件步骤；主页预加载并复用页面状态，控件动画支持中途返回和并行。已有用户可从设置进入“后台与桌面”。顶栏采用随明暗切换的黑白渐变遮罩；成绩查询改用居中圆环。详见 [引导与动画说明](docs/onboarding-and-interruptible-motion.md) 和 [本次发布说明](docs/releases/0.19.60.md)。
+0.19.74 完整移除了旧实验性功能及上课前通知，保留独立课程实时活动。引导新增可跳过的后台、自启动与桌面组件步骤；主页预加载并复用页面状态，控件动画支持中途返回和并行。已有用户可从设置进入“后台与桌面”。顶栏采用随明暗切换的黑白渐变遮罩；成绩查询改用居中圆环。详见 [引导与动画说明](docs/onboarding-and-interruptible-motion.md) 和 [本次发布说明](docs/releases/0.19.74.md)。
 
 ## Android 课程实时活动
 

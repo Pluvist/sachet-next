@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/ios_page_route.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -120,14 +121,20 @@ class MyApp extends StatelessWidget {
               : SettingsProvider.navigationType == NavType.navigationDrawer.type
                   ? AppGlobal.appSettings.startupPage ?? '/class'
                   : '/navBarView',
-      routes: {
-        '/class': (context) => ClassPage(),
-        '/home': (context) => HomePage(),
-        '/settings': (context) => SettingsPage(),
-        '/about': (context) => AboutPage(),
-        '/profile': (context) => ProfilePage(),
-        '/navBarView': (context) => WithNavigationBarView(),
-        '/intro': (context) => IntroScreen(),
+      onGenerateRoute: (settings) {
+        final pages = <String, WidgetBuilder>{
+          '/class': (_) => const ClassPage(),
+          '/home': (_) => const HomePage(),
+          '/settings': (_) => const SettingsPage(),
+          '/about': (_) => const AboutPage(),
+          '/profile': (_) => const ProfilePage(),
+          '/navBarView': (_) => const WithNavigationBarView(),
+          '/intro': (_) => const IntroScreen(),
+        };
+        final builder = pages[settings.name];
+        return builder == null
+            ? null
+            : IOSPageRoute(builder: builder, settings: settings);
       },
     );
   }

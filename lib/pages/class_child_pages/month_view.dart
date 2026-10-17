@@ -32,9 +32,16 @@ class _MonthViewState extends State<MonthView> {
   double _baseCardHeight = 10.0;
   int _pointerCount = 0;
 
+  void _changePointers(int delta) {
+    final wasScaling = _pointerCount >= 2;
+    _pointerCount = (_pointerCount + delta).clamp(0, 10);
+    if (wasScaling != (_pointerCount >= 2)) setState(() {});
+  }
+
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       final currentWeekCount =
           context.read<ClassPageProvider>().currentWeekCount;
 
@@ -49,15 +56,56 @@ class _MonthViewState extends State<MonthView> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final model = context.read<ClassPageProvider>();
+    model.configureMonthPaging(
+        MediaQuery.orientationOf(context) == Orientation.portrait);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      model.updateMonthPage(model.pageForMonthIndex(model.currentMonthIndex));
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final List<MonthData> monthList =
-        context.select<ClassPageProvider, List<MonthData>>(
-            (provider) => provider.monthList);
+    context.select<ClassPageProvider, List<MonthData>>(
+        (provider) => provider.monthList);
+    final model = context.read<ClassPageProvider>();
+    final monthList = model.displayMonths;
+    final count = model.monthsPerPage;
+    final portrait = MediaQuery.orientationOf(context) == Orientation.portrait;
+
+    Widget month(MonthData data) => RepaintBoundary(
+          child: Column(children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              child: Text(data.label,
+                  key: ValueKey('month-heading-${data.monthDate}'),
+                  style: const TextStyle(
+                      fontSize: 15, fontWeight: FontWeight.w600)),
+            ),
+            Expanded(
+              child: SingleMonthPage(
+                key: ValueKey(data.monthDate),
+                month: data.month,
+                monthDate: data.monthDate,
+                courseScheduleItemsList: widget.courseScheduleItemsList,
+                courseColorData: widget.courseColorData,
+                classSessionSummerDataList: widget.classSessionSummerDataList,
+                classSessionWinterDataList: widget.classSessionWinterDataList,
+                cardHeight: _cardHeight,
+                pointerCount: _pointerCount >= 2 ? 2 : 0,
+                fitToViewport: portrait,
+              ),
+            ),
+          ]),
+        );
 
     return Listener(
-      onPointerDown: (event) => setState(() => _pointerCount++),
-      onPointerUp: (event) => setState(() => _pointerCount--),
-      onPointerCancel: (event) => setState(() => _pointerCount--),
+      onPointerDown: (event) => _changePointers(1),
+      onPointerUp: (event) => _changePointers(-1),
+      onPointerCancel: (event) => _changePointers(-1),
       child: GestureDetector(
         onScaleStart: (details) {
           _baseCardHeight = _cardHeight;
@@ -69,28 +117,31 @@ class _MonthViewState extends State<MonthView> {
                 .clamp(_minCardHeight, _maxCardHeight);
           });
         },
-        child: PageView(
-          controller: context.read<ClassPageProvider>().pageController,
-          onPageChanged: (value) {
-            context.read<ClassPageProvider>().updateCurrentMonthByIndex(value);
-          },
+        child: PageView.builder(
+          key: ValueKey('month-pager-$count'),
+          scrollDirection: portrait ? Axis.vertical : Axis.horizontal,
+          controller: model.monthPageController,
+          onPageChanged: model.updateMonthPage,
           physics: _pointerCount >= 2
               ? const NeverScrollableScrollPhysics()
               : const AlwaysScrollableScrollPhysics(),
-          allowImplicitScrolling: true,
-          children: [
-            for (final monthData in monthList)
-              SingleMonthPage(
-                month: monthData.month,
-                monthDate: monthData.monthDate,
-                courseScheduleItemsList: widget.courseScheduleItemsList,
-                courseColorData: widget.courseColorData,
-                classSessionSummerDataList: widget.classSessionSummerDataList,
-                classSessionWinterDataList: widget.classSessionWinterDataList,
-                cardHeight: _cardHeight,
-                pointerCount: _pointerCount,
-              ),
-          ],
+          // Prebuilding adjacent pages can lay out six calendars on a swipe.
+          allowImplicitScrolling: false,
+          itemCount: (monthList.length / count).ceil(),
+          itemBuilder: (context, page) => Padding(
+            // Leave room for the floating pill without covering the last row.
+            padding: EdgeInsets.only(bottom: portrait ? 104 : 0),
+            child: Column(children: [
+              for (var offset = 0; offset < count; offset++) ...[
+                if (offset > 0) const Divider(height: 12, thickness: .5),
+                Expanded(
+                  child: page * count + offset < monthList.length
+                      ? month(monthList[page * count + offset])
+                      : const SizedBox.expand(),
+                ),
+              ],
+            ]),
+          ),
         ),
       ),
     );

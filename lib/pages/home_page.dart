@@ -77,6 +77,7 @@ class _HomePageState extends State<HomePage>
     super.didChangeDependencies();
     final route = ModalRoute.of(context);
     if (_animateEntrance && route is SourceExpandRoute && route.homeHandoff) {
+      _entrance.stop();
       _handoffAnimation = route.expansionAnimation;
     }
   }
@@ -88,7 +89,10 @@ class _HomePageState extends State<HomePage>
   }
 
   Widget _fly(int index, Widget child) => HomeEntrance(
-      animation: _handoffAnimation ?? _entrance, index: index, child: child);
+      animation: _handoffAnimation ?? _entrance,
+      index: index,
+      hasCurvedClock: _handoffAnimation != null,
+      child: child);
 
   Widget _buildFeatureCards(BuildContext context) {
     final cards = <Widget>[

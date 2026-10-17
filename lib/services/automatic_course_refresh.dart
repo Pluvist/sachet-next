@@ -12,7 +12,6 @@ import 'package:sachet/services/zhengfang_jwxt/class_schedule/class_schedule_ser
 import 'package:sachet/services/zhengfang_jwxt/class_schedule/fetch_class_schedule.dart';
 import 'package:sachet/services/zhengfang_jwxt/class_schedule/parse_class_schedule.dart';
 import 'package:sachet/utils/storage/path_provider_utils.dart';
-import 'package:sachet/services/refresh_course_notifications.dart';
 
 /// One refresh at a time; a failed fetch never reaches the cache commit.
 /// Callbacks also make failure, concurrency and account changes testable.
@@ -135,7 +134,6 @@ class AutomaticCourseRefresh {
             colorPath: colorFile.path,
             colors: colors,
             semesterStart: data.semesterStart);
-        await refreshCourseNotifications(settings);
         // Keep the previous snapshot as fallback; bound unattended cache growth.
         for (final folder in [scheduleFile.parent, colorFile.parent]) {
           final files = await folder

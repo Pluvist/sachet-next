@@ -4,7 +4,7 @@ description: "An app designed for Xiangtan University students, offering easy-to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 0.19.59+36
+version: 0.19.60+41
 
 homepage: https://github.com/Pluvist/sachet-next
 repository: https://github.com/Pluvist/sachet-next
@@ -40,10 +40,6 @@ dependencies:
   flutter_inappwebview: ^6.1.5    # 应用内显示 webview, 用于手动登录
 
   # 本地通知
-  flutter_local_notifications: ^19.4.2  # 本地通知,用于发送课程通知(上课提醒)
-  app_settings: ^6.1.1                  # 用于打开系统设置中的应用设置页面
-  timezone: ^0.10.1                     # flutter_local_notifications 用到的
-  disable_battery_optimization: ^1.1.2  # 打开自启动/电池优化设置 (Android)
 
   # 其他
   url_launcher: ^6.3.1            # (调起浏览器)打开链接

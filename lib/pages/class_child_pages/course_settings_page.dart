@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/ios_page_route.dart';
 import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -71,7 +72,7 @@ class CourseSettingsPage extends StatelessWidget {
             trailing: Icon(Icons.arrow_forward_outlined),
             onTap: () {
               Navigator.of(context).push(
-                MaterialPageRoute(
+                IOSPageRoute(
                   builder: (BuildContext context) {
                     return const CustomizeSettingsPage();
                   },
@@ -92,7 +93,7 @@ class CourseSettingsPage extends StatelessWidget {
             trailing: Icon(Icons.arrow_forward_outlined),
             onTap: () {
               Navigator.of(context).push(
-                MaterialPageRoute(
+                IOSPageRoute(
                   builder: (BuildContext context) {
                     return const ColorSettingsPage();
                   },
@@ -113,7 +114,7 @@ class CourseSettingsPage extends StatelessWidget {
             trailing: Icon(Icons.arrow_forward_outlined),
             onTap: () {
               Navigator.of(context).push(
-                MaterialPageRoute(
+                IOSPageRoute(
                   builder: (BuildContext context) {
                     return const PaletteSettingsPage();
                   },

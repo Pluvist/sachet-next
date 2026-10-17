@@ -20,12 +20,12 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
-class CourseWidgetProvider : AppWidgetProvider() {
+open class CourseWidgetProvider : AppWidgetProvider() {
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) = refresh(context)
     override fun onAppWidgetOptionsChanged(context: Context, manager: AppWidgetManager,
         id: Int, options: Bundle) = refresh(context)
     override fun onDisabled(context: Context) {
-        (context.getSystemService(Context.ALARM_SERVICE) as AlarmManager).cancel(refreshIntent(context))
+        refresh(context)
     }
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
@@ -33,18 +33,23 @@ class CourseWidgetProvider : AppWidgetProvider() {
     }
     companion object {
         private const val REFRESH = "com.pluvist.sachet.next.WIDGET_REFRESH"
-        private fun refreshIntent(context: Context) = PendingIntent.getBroadcast(context, 772,
+        internal fun refreshIntent(context: Context) = PendingIntent.getBroadcast(context, 772,
             Intent(context, CourseWidgetProvider::class.java).setAction(REFRESH),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
-        fun refresh(context: Context) {
+        fun refresh(context: Context, now: Long = System.currentTimeMillis()) {
             val manager = AppWidgetManager.getInstance(context)
-            val ids = manager.getAppWidgetIds(ComponentName(context, CourseWidgetProvider::class.java))
-            if (ids.isEmpty()) return
+            val squareIds = manager.getAppWidgetIds(ComponentName(context, CourseWidgetProvider::class.java))
+            val wideIds = manager.getAppWidgetIds(ComponentName(context, CourseWidgetWideProvider::class.java))
+            val widgets = squareIds.map { it to false } + wideIds.map { it to true }
+            if (widgets.isEmpty()) {
+                (context.getSystemService(Context.ALARM_SERVICE) as AlarmManager).cancel(refreshIntent(context))
+                return
+            }
             val data = try { JSONObject(context.getSharedPreferences("course_widget", Context.MODE_PRIVATE)
                 .getString("data", "{}") ?: "{}") } catch (_: Exception) { JSONObject() }
-            val now = System.currentTimeMillis()
             val midnight = Calendar.getInstance().apply {
+                timeInMillis = now
                 set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
                 set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
             }
@@ -53,7 +58,8 @@ class CourseWidgetProvider : AppWidgetProvider() {
             val all = (0 until (array?.length() ?: 0)).map { array!!.getJSONObject(it) }
             val today = all.filter { it.getLong("start") >= midnight.timeInMillis && it.getLong("start") < tomorrow }
             val current = today.firstOrNull { it.getLong("start") <= now && it.getLong("end") > now }
-            val next = today.firstOrNull { it.getLong("start") > now }
+            val next = today.sortedBy { it.getLong("start") }.firstOrNull {
+                it.getLong("start") > now && (current == null || it.getLong("start") >= current.getLong("end")) }
             val shown = current ?: next
             val remaining = today.filter { it.getLong("start") > now && it.optString("group") != shown?.optString("group") }
                 .distinctBy { it.optString("group") }
@@ -61,22 +67,39 @@ class CourseWidgetProvider : AppWidgetProvider() {
             val dark = mode == 2 || (mode == 0 && context.resources.configuration.uiMode and
                 Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES)
             val fg = if (dark) 0xffeeeeee.toInt() else 0xff171717.toInt()
-            val muted = if (dark) 0xff999999.toInt() else 0xff747474.toInt()
+            val muted = if (dark) 0xffb0b6c8.toInt() else 0xff626977.toInt()
             val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ROOT)
             val start = try { dateFormat.parse(data.optString("semester").take(10))?.time } catch (_: Exception) { null }
             val week = if (start == null || midnight.timeInMillis < start) 0 else
                 ((midnight.timeInMillis - start) / (7 * 86400000L) + 1).toInt()
             val weekday = SimpleDateFormat("EEEE", Locale.CHINA).format(now)
             val timeFormat = SimpleDateFormat("HH:mm", Locale.ROOT)
-            for (id in ids) {
+            for ((id, wide) in widgets) {
                 val options = manager.getAppWidgetOptions(id)
                 val width = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 110)
                 val height = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 110)
+                if (wide) {
+                    manager.updateAppWidget(id, CourseWidgetWideRenderer.render(context, data, now, width, height))
+                    continue
+                }
                 val compact = width < 230 || height < 220
                 val view = RemoteViews(context.packageName,
                     if (compact) R.layout.course_widget_compact else R.layout.course_widget)
-                view.setInt(R.id.widget_root, "setBackgroundResource",
-                    if (dark) R.drawable.course_widget_dark else R.drawable.course_widget_light)
+                CourseWidgetGlow.apply(context, view, dark, wide = false, width = width, height = height)
+                if (compact) {
+                    val density = context.resources.displayMetrics.density
+                    fun dp(value: Int) = (value * density + .5f).toInt()
+                    val contentHeight = height - 12
+                    val vertical = if (contentHeight < 130) 8 else 20
+                    view.setViewPadding(R.id.widget_content, dp(20), dp(vertical), dp(20), dp(vertical))
+                    view.setViewVisibility(R.id.widget_header, if (contentHeight < 150) View.GONE else View.VISIBLE)
+                    view.setViewVisibility(R.id.widget_footer_row, if (contentHeight < 115) View.GONE else View.VISIBLE)
+                    val scale = maxOf(1f, context.resources.configuration.fontScale / 1.25f)
+                    view.setTextViewTextSize(R.id.widget_title, android.util.TypedValue.COMPLEX_UNIT_SP, 16f / scale)
+                    for (text in listOf(R.id.widget_date, R.id.widget_week, R.id.widget_time, R.id.widget_place))
+                        view.setTextViewTextSize(text, android.util.TypedValue.COMPLEX_UNIT_SP, 10f / scale)
+                    view.setTextViewTextSize(R.id.widget_footer, android.util.TypedValue.COMPLEX_UNIT_SP, 9f / scale)
+                }
                 view.setTextViewText(R.id.widget_date,
                     if (compact && width < 150) weekday.replace("星期", "周")
                     else if (compact) "今天 / ${weekday.replace("星期", "周")}" else "今天 / $weekday")

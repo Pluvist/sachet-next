@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/ios_page_route.dart';
 import 'package:sachet/widgets/utils_widgets/miuix_select.dart';
 import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'dart:io';
@@ -166,7 +167,7 @@ class _QueryViewState extends State<_QueryView> {
       } else {
         Navigator.push(
           context,
-          MaterialPageRoute(
+          IOSPageRoute(
             builder: (context) => PdfViewPage(
               tmpfilePath: tmpfilePath,
               fileName: fileName,

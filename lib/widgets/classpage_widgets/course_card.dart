@@ -342,6 +342,9 @@ class CourseCardCompact extends StatelessWidget {
             }
           },
           child: Builder(builder: (context) {
+            // Very dense month overviews use colour marks. A cropped sliver of
+            // title text is unreadable; tapping the mark still opens details.
+            if (visibleHeight < 12) return const SizedBox.expand();
             final maxLines = (visibleHeight / 11).floor().clamp(1, 100);
             return Padding(
               padding: EdgeInsets.only(top: maxLines > 1 ? 2.0 : 0.0),

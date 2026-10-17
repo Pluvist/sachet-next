@@ -1,3 +1,5 @@
+import 'package:sachet/widgets/utils_widgets/course_widget_picker.dart';
+import 'package:sachet/widgets/utils_widgets/ios_page_route.dart';
 import 'package:sachet/utils/miuix_shapes.dart';
 import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:sachet/widgets/settingspage_widgets/miuix_settings_list.dart';
@@ -12,8 +14,6 @@ import 'package:sachet/utils/utils_functions.dart';
 import 'package:sachet/widgets/settingspage_widgets/settings_section_title.dart';
 import 'package:sachet/widgets/utils_widgets/page_heading.dart';
 import 'package:sachet/utils/home_design.dart';
-import 'package:sachet/services/course_widget_bridge.dart';
-import 'package:sachet/utils/app_global.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key, this.openedFromHome = false});
@@ -84,7 +84,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   onTap: () => Navigator.push(
                     context,
-                    MaterialPageRoute(
+                    IOSPageRoute(
                       builder: (context) => const ZhengFangJwxtLoginPage(),
                     ),
                   ),
@@ -96,16 +96,8 @@ class _ProfilePageState extends State<ProfilePage> {
             MiuixListTile(
               leading: const Icon(Icons.widgets_outlined),
               title: const Text('桌面课程小组件'),
-              subtitle: const Text('在桌面显示当前或下一节课程'),
-              onTap: () async {
-                await CourseWidgetBridge.sync(AppGlobal.appSettings);
-                final supported = await CourseWidgetBridge.pin();
-                if (!supported && context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text('请长按桌面，在小组件列表中添加 Sachet Next'),
-                  ));
-                }
-              },
+              subtitle: const Text('选择 2×2 紧凑布局或 4×2 横向双栏'),
+              onTap: () => showCourseWidgetPicker(context),
             ),
 
             MiuixListTile(
@@ -115,7 +107,7 @@ class _ProfilePageState extends State<ProfilePage> {
               leading: Icon(Icons.settings_outlined),
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(
+                IOSPageRoute(
                   builder: (BuildContext context) => const SettingsPage(),
                 ),
               ),
@@ -127,7 +119,7 @@ class _ProfilePageState extends State<ProfilePage> {
               leading: Icon(Icons.info_outline),
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const AboutPage()),
+                IOSPageRoute(builder: (context) => const AboutPage()),
               ),
             )
           ],

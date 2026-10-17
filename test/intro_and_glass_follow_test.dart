@@ -1,3 +1,4 @@
+import 'package:sachet/pages/intro_screen/background_setup_page.dart';
 import 'package:sachet/providers/screen_nav_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -109,8 +110,12 @@ void main() {
         await agreeAndContinue(tester);
         expect(find.byType(ZhengFangJwxtLoginPage), findsOneWidget);
         expect(settings.completed, 0);
-        Navigator.of(tester.element(find.byType(ZhengFangJwxtLoginPage)))
-            .pop(true);
+        await tester.tap(find.byKey(const ValueKey('onboardLoginSkip')));
+        await tester.pumpAndSettle();
+        expect(find.byType(BackgroundSetupPage), findsOneWidget);
+        await tester.ensureVisible(
+            find.byKey(const ValueKey('backgroundSetupContinue')));
+        await tester.tap(find.byKey(const ValueKey('backgroundSetupContinue')));
         await tester.pumpAndSettle();
         expect(find.text('设置完成'), findsOneWidget);
         expect(settings.completed, 0);
@@ -168,6 +173,12 @@ void main() {
     await tester.pumpAndSettle();
     await agreeAndContinue(tester);
     await tester.tap(find.byKey(const ValueKey('onboardLoginSkip')));
+    await tester.pumpAndSettle();
+    expect(find.byType(BackgroundSetupPage), findsOneWidget);
+    expect(settings.completed, 0);
+    await tester
+        .ensureVisible(find.byKey(const ValueKey('backgroundSetupContinue')));
+    await tester.tap(find.byKey(const ValueKey('backgroundSetupContinue')));
     await tester.pumpAndSettle();
     expect(find.text('设置完成'), findsOneWidget);
     expect(settings.completed, 0);

@@ -31,6 +31,57 @@ class ClassPageProvider extends ChangeNotifier {
 
   int _currentMonth = DateTime.now().month;
   int get currentMonth => _currentMonth;
+  PageController? _monthPageController;
+  int _monthsPerPage = 2;
+  int get monthsPerPage => _monthsPerPage;
+  int get currentMonthIndex => _monthList
+      .indexWhere((entry) => entry.month == _currentMonth)
+      .clamp(0, _monthList.length - 1);
+  int pageForMonthIndex(int index) => index ~/ _monthsPerPage;
+  PageController get monthPageController => _monthPageController ??=
+      PageController(initialPage: pageForMonthIndex(currentMonthIndex));
+  List<MonthData> get displayMonths {
+    if (_monthsPerPage == 1 || _monthList.length.isEven) return _monthList;
+    final next =
+        DateTime(_monthList.last.monthDate.year, _monthList.last.month + 1);
+    return [
+      ..._monthList,
+      MonthData(
+          _monthList.length, next.month, next, '${next.year}年${next.month}月'),
+    ];
+  }
+
+  List<MonthData> get visibleMonths {
+    final start = pageForMonthIndex(currentMonthIndex) * _monthsPerPage;
+    return displayMonths.skip(start).take(_monthsPerPage).toList();
+  }
+
+  String get visibleMonthLabel {
+    final months = visibleMonths;
+    if (months.length == 1) return months.first.label;
+    final first = months.first.monthDate;
+    final last = months.last.monthDate;
+    return first.year == last.year
+        ? '${first.year}年${first.month}–${last.month}月'
+        : '${months.first.label}–${months.last.label}';
+  }
+
+  // Month paging has its own controller, so returning to the week view cannot
+  // reinterpret a month page as a week (or lose a landscape two-week position).
+  void configureMonthPaging(bool portrait) {
+    final count = portrait ? 2 : 1;
+    if (_monthsPerPage == count) return;
+    _monthsPerPage = count;
+    final previous = _monthPageController;
+    _monthPageController =
+        PageController(initialPage: pageForMonthIndex(currentMonthIndex));
+    if (previous != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => previous.dispose());
+    }
+  }
+
+  void updateMonthPage(int page) =>
+      updateCurrentMonthByIndex(page * _monthsPerPage);
 
   PageController _pageController = PageController(
       initialPage: weekCountOfToday(SettingsProvider.semesterStartDateDateTime)
@@ -143,11 +194,13 @@ class ClassPageProvider extends ChangeNotifier {
   @override
   void dispose() {
     _pageController.dispose();
+    _monthPageController?.dispose();
     super.dispose();
   }
 
   // 更新当前月份
   void updateCurrentMonth(int month) {
+    if (_currentMonth == month) return;
     _currentMonth = month;
     notifyListeners();
   }
@@ -158,7 +211,9 @@ class ClassPageProvider extends ChangeNotifier {
       return;
     }
     _currentMonth = newMonth;
-    updateCurrentMonth(_currentMonth);
+    // Also refresh the month-range title after a change of orientation, when
+    // the first visible month may stay the same but the page capacity changes.
+    notifyListeners();
   }
 
   /// 动画跳到指定月（通过月份）
@@ -167,23 +222,24 @@ class ClassPageProvider extends ChangeNotifier {
     if (index == null) {
       return;
     }
-    pageController.animateToPage(
-      index,
-      duration: duration ?? Duration(milliseconds: 1500),
-      curve: curve ?? Easing.standard,
-    );
-    notifyListeners();
+    animateToMonthIndex(monthIndex: index, duration: duration, curve: curve);
   }
 
   /// 动画跳到指定月（通过 Index）
   void animateToMonthIndex(
       {required int monthIndex, Duration? duration, Curve? curve}) {
-    pageController.animateToPage(
-      monthIndex,
-      duration: duration ?? Duration(milliseconds: 1500),
-      curve: curve ?? Easing.standard,
-    );
-    notifyListeners();
+    final index = monthIndex.clamp(0, monthList.length - 1);
+    final page = pageForMonthIndex(index);
+    if (monthPageController.hasClients) {
+      monthPageController.animateToPage(
+        page,
+        duration: duration ?? const Duration(milliseconds: 420),
+        curve: curve ?? Curves.easeOutCubic,
+      );
+    } else {
+      _resetMonthController(page);
+      updateMonthPage(page);
+    }
   }
 
   /// 动画跳到上个月
@@ -193,7 +249,7 @@ class ClassPageProvider extends ChangeNotifier {
     if (currentMonthIndex == null) {
       return;
     }
-    final lastMonthIndex = currentMonthIndex - 1;
+    final lastMonthIndex = currentMonthIndex - _monthsPerPage;
     animateToMonthIndex(
         monthIndex: lastMonthIndex, duration: duration, curve: curve);
   }
@@ -205,15 +261,24 @@ class ClassPageProvider extends ChangeNotifier {
     if (currentMonthIndex == null) {
       return;
     }
-    final nextMonthIndex = currentMonthIndex + 1;
+    final nextMonthIndex = currentMonthIndex + _monthsPerPage;
     animateToMonthIndex(
         monthIndex: nextMonthIndex, duration: duration, curve: curve);
   }
 
   /// 回到本月（今天所在的月份）
   void animateToTodayMonth({Duration? duration, Curve? curve}) {
-    final int todayMonth = DateTime.now().month;
-    animateToMonth(month: todayMonth, duration: duration, curve: curve);
+    final now = DateTime.now();
+    final index = monthList.indexWhere((entry) =>
+        entry.monthDate.year == now.year && entry.month == now.month);
+    animateToMonthIndex(
+        monthIndex: index >= 0
+            ? index
+            : (now.isBefore(monthList.first.monthDate)
+                ? 0
+                : monthList.length - 1),
+        duration: duration,
+        curve: curve);
   }
 
   /// 无动画跳到指定月
@@ -222,8 +287,21 @@ class ClassPageProvider extends ChangeNotifier {
     if (newIndex == null) {
       return;
     }
-    pageController.jumpToPage(newIndex);
-    notifyListeners();
+    final page = pageForMonthIndex(newIndex);
+    if (monthPageController.hasClients) {
+      monthPageController.jumpToPage(page);
+    } else {
+      _resetMonthController(page);
+    }
+    updateMonthPage(page);
+  }
+
+  void _resetMonthController(int page) {
+    final previous = _monthPageController;
+    _monthPageController = PageController(initialPage: page);
+    if (previous != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => previous.dispose());
+    }
   }
 
   void updateMonthList() {
@@ -234,6 +312,12 @@ class ClassPageProvider extends ChangeNotifier {
           weekCount: 20,
           weekday: 7,
         ));
+    if (!monthList.any((entry) => entry.month == _currentMonth)) {
+      _currentMonth = monthList.first.month;
+    }
+    final page = pageForMonthIndex(currentMonthIndex);
+    // The rebuilt pager reattaches to a correctly bounded month position.
+    _resetMonthController(page);
     notifyListeners();
   }
 

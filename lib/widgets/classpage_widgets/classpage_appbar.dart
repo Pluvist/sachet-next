@@ -1,9 +1,9 @@
+import 'package:sachet/widgets/utils_widgets/ios_page_route.dart';
 import 'package:sachet/widgets/utils_widgets/liquid_dropdown_menu.dart';
 import 'package:sachet/widgets/utils_widgets/miuix_glyph.dart';
 import 'package:sachet/widgets/utils_widgets/miuix_popup.dart';
 import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:provider/provider.dart';
 import 'package:sachet/models/enums/app_folder.dart';
 import 'package:sachet/utils/time_manager.dart';
@@ -11,14 +11,10 @@ import 'package:sachet/pages/class_child_pages/course_settings_page.dart';
 import 'package:sachet/utils/app_global.dart';
 import 'package:sachet/providers/class_page_provider.dart';
 import 'package:sachet/providers/settings_provider.dart';
-import 'package:sachet/widgets/classpage_widgets/course_notification_enable_prompt_dialog.dart';
-import 'package:sachet/widgets/classpage_widgets/course_notification_reset_dialog.dart';
 import 'package:sachet/widgets/classpage_widgets/export_class_schedule_dialog.dart';
-import 'package:sachet/widgets/classpage_widgets/month_count_dropdown_menu.dart';
 import 'package:sachet/widgets/classpage_widgets/switch_actived_app_file_dialog.dart';
 import 'package:sachet/widgets/classpage_widgets/update_class_schedule_zf_dialog.dart';
 import 'package:path/path.dart' as path;
-import 'package:collection/collection.dart';
 
 class ClassPageAppBar extends StatefulWidget implements PreferredSizeWidget {
   ClassPageAppBar({super.key})
@@ -57,9 +53,6 @@ class _ClassPageAppBarState extends State<ClassPageAppBar> {
   }
 
   Future showUpdateClassScheduleDialog(BuildContext context) async {
-    final String oldClassScheduleFilePath =
-        context.read<SettingsProvider>().classScheduleFilePath;
-
     final bool? result = await showDialog(
       context: context,
       builder: (BuildContext context) => const UpdateClassScheduleZFDialog(),
@@ -110,50 +103,6 @@ class _ClassPageAppBarState extends State<ClassPageAppBar> {
         ),
       );
     }
-
-    if (!context.mounted) {
-      return;
-    }
-
-    final String newClassScheduleFilePath =
-        context.read<SettingsProvider>().classScheduleFilePath;
-
-    // 判断是否成功更新课表
-    if (oldClassScheduleFilePath == newClassScheduleFilePath) {
-      // 课表未更新，无需处理课程通知
-      return;
-    }
-
-    // 以下为课表更新成功后的处理逻辑
-    final isEnableCourseNotification =
-        context.read<SettingsProvider>().isEnableCourseNotification;
-    if (isEnableCourseNotification) {
-      // ===== 用户之前启用了课程通知 =====
-      // 取消之前安排的课程通知
-      final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-          FlutterLocalNotificationsPlugin();
-      await flutterLocalNotificationsPlugin.cancelAllPendingNotifications();
-
-      if (!context.mounted) return;
-
-      // 将「启用课程通知」状态设为关闭
-      context.read<SettingsProvider>().setIsEnableCourseNotification(false);
-
-      // 显示「课程通知已重置（关闭），需要重新设置课程通知」Dialog
-      await showDialog(
-        context: context,
-        builder: (BuildContext context) =>
-            const CourseNotificationResetDialog(),
-      );
-    } else {
-      //  ===== 用户之前未启用课程通知 =====
-      // 显示「课程通知已关闭，是否要开启课程通知」Dialog
-      await showDialog(
-        context: context,
-        builder: (BuildContext context) =>
-            const CourseNotificationEnablePromptDialog(),
-      );
-    }
   }
 
   /// 去上一周
@@ -195,24 +144,6 @@ class _ClassPageAppBarState extends State<ClassPageAppBar> {
         curve: curveTypes[settingsProvider.curveType] ?? Easing.standard);
   }
 
-  /// 去上个月
-  void navToLastMonth(BuildContext context) {
-    final settingsProvider = context.read<SettingsProvider>();
-
-    context.read<ClassPageProvider>().animateToLastMonth(
-        duration: Duration(milliseconds: settingsProvider.curveDuration),
-        curve: curveTypes[settingsProvider.curveType]);
-  }
-
-  /// 去下个月
-  void navToNextMonth(BuildContext context) {
-    final settingsProvider = context.read<SettingsProvider>();
-
-    context.read<ClassPageProvider>().animateToNextMonth(
-        duration: Duration(milliseconds: settingsProvider.curveDuration),
-        curve: curveTypes[settingsProvider.curveType]);
-  }
-
   /// 回到本月
   void navToThisMonth(BuildContext context) {
     final settingsProvider = context.read<SettingsProvider>();
@@ -243,8 +174,7 @@ class _ClassPageAppBarState extends State<ClassPageAppBar> {
 
   @override
   Widget build(BuildContext context) {
-    // 标题只作显示；周次/月份的选择统一由右上角的玻璃按钮展开，与
-    // NexioSchedule 的顶栏一致（标题不再是可点击的选项卡）。
+    // Titles stay readable and non-interactive; month navigation uses swipes.
     final title = Selector<ClassPageProvider, ClassScheduleViewMode>(
         selector: (_, provider) => provider.currentViewMode,
         builder: (_, currentViewMode, __) {
@@ -266,20 +196,10 @@ class _ClassPageAppBarState extends State<ClassPageAppBar> {
             case ClassScheduleViewMode.month:
               return FittedBox(
                 fit: BoxFit.scaleDown,
-                child: Selector<ClassPageProvider, (List<MonthData>, int)>(
-                    selector: (_, provider) =>
-                        (provider.monthList, provider.currentMonth),
-                    builder: (_, data, __) {
-                      final (monthList, currentMonth) = data;
-                      return Text(
-                        monthList
-                                .firstWhereOrNull(
-                                    (entry) => entry.month == currentMonth)
-                                ?.label ??
-                            '$currentMonth 月',
-                        style: const TextStyle(fontSize: 18),
-                      );
-                    }),
+                child: Selector<ClassPageProvider, String>(
+                    selector: (_, provider) => provider.visibleMonthLabel,
+                    builder: (_, label, __) =>
+                        Text(label, style: const TextStyle(fontSize: 18))),
               );
             case ClassScheduleViewMode.semester:
               return Selector<SettingsProvider, String>(
@@ -311,7 +231,7 @@ class _ClassPageAppBarState extends State<ClassPageAppBar> {
             );
           }),
 
-      // 上一页（上一周/上个月）和下一页（下一周/下个月）的翻页箭头（方便大屏设备/桌面端）
+      // Weekly arrows remain available for large screens and desktop input.
       Selector<SettingsProvider, bool>(
           selector: (_, settingsProvider) =>
               settingsProvider.isShowPageTurnArrow,
@@ -346,21 +266,6 @@ class _ClassPageAppBarState extends State<ClassPageAppBar> {
                           ],
                         );
                       case ClassScheduleViewMode.month:
-                        return Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const MiuixGlyph(MiuixSymbol.previous),
-                              tooltip: '上个月',
-                              onPressed: () => navToLastMonth(context),
-                            ),
-                            IconButton(
-                              icon: const MiuixGlyph(MiuixSymbol.next),
-                              tooltip: '下个月',
-                              onPressed: () => navToNextMonth(context),
-                            ),
-                          ],
-                        );
                       case ClassScheduleViewMode.semester:
                         return const SizedBox.shrink();
                     }
@@ -392,20 +297,6 @@ class _ClassPageAppBarState extends State<ClassPageAppBar> {
             }
           }),
 
-      // 选择周次/月份：玻璃按钮就地展开为列表面板
-      Selector<ClassPageProvider, ClassScheduleViewMode>(
-          selector: (_, provider) => provider.currentViewMode,
-          builder: (_, currentViewMode, __) {
-            switch (currentViewMode) {
-              case ClassScheduleViewMode.week:
-                return const SizedBox.shrink();
-              case ClassScheduleViewMode.month:
-                return const MonthCountDropdownMenu();
-              case ClassScheduleViewMode.semester:
-                return const SizedBox.shrink();
-            }
-          }),
-
       // 更多操作：与周次/月份选择器一致，使用 NexioSchedule 的玻璃变形面板
       _MoreActionsMenu(
         onUpdateClassSchedule: () => showUpdateClassScheduleDialog(context),
@@ -416,7 +307,7 @@ class _ClassPageAppBarState extends State<ClassPageAppBar> {
         ),
         onOpenCourseSettings: () async {
           final semesterStartDate = SettingsProvider.semesterStartDate;
-          await Navigator.of(context).push(MaterialPageRoute(
+          await Navigator.of(context).push(IOSPageRoute(
             maintainState: false,
             builder: (BuildContext context) {
               return const CourseSettingsPage();
@@ -430,7 +321,7 @@ class _ClassPageAppBarState extends State<ClassPageAppBar> {
             context.read<ClassPageProvider>().updateMonthList();
             context
                 .read<ClassPageProvider>()
-                .updateCurrentMonth(DateTime.now().month);
+                .animateToTodayMonth();
           }
         },
       ),

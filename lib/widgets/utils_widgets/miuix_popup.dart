@@ -1,3 +1,4 @@
+import 'package:sachet/utils/ios_motion.dart';
 import 'package:sachet/utils/miuix_shapes.dart';
 // Flutter port of NexioSchedule LiquidGlassDropdownMenu.kt.
 // HaoZai000/NexioSchedule ab6c7a7, AGPL-3.0-only. See third_party/nexio/SOURCES.md.
@@ -111,7 +112,20 @@ class _MiuixPopupState<T> extends State<MiuixPopup<T>> {
                                           size: 23))))))));
 }
 
-class _GlassMenuRoute<T> extends PopupRoute<int> {
+class _GlassMenuRoute<T> extends PopupRoute<int>
+    implements DepthExpansionRoute {
+  @override
+  Animation<double> get expansionAnimation => controller!;
+  CurvedAnimation? _motion;
+  @override
+  Animation<double> get depthProgressAnimation =>
+      _motion ??= IOSMotion.routeCurve(expansionAnimation);
+  @override
+  void dispose() {
+    _motion?.dispose();
+    super.dispose();
+  }
+
   _GlassMenuRoute(
       {required this.rect,
       required this.items,
@@ -130,9 +144,9 @@ class _GlassMenuRoute<T> extends PopupRoute<int> {
   @override
   String get barrierLabel => label;
   @override
-  Duration get transitionDuration => const Duration(milliseconds: 420);
+  Duration get transitionDuration => IOSMotion.duration;
   @override
-  Duration get reverseTransitionDuration => const Duration(milliseconds: 340);
+  Duration get reverseTransitionDuration => IOSMotion.closingDuration;
   @override
   Widget buildPage(BuildContext context, Animation<double> animation,
           Animation<double> secondaryAnimation) =>
@@ -212,7 +226,7 @@ class _GlassMenuState<T> extends State<_GlassMenu<T>> {
     return AnimatedBuilder(
         animation: widget.animation,
         builder: (context, _) {
-          final f = Curves.easeOutCubic.transform(widget.animation.value);
+          final f = widget.route.depthProgressAnimation.value;
           final width = 42 + (200 - 42) * f;
           return Stack(children: [
             Positioned(

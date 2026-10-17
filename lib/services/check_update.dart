@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/ios_page_route.dart';
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -175,7 +176,7 @@ class NavigatorGlobal {
   static void showIntroScreen() {
     final context = NavigatorGlobal.navigatorKey.currentContext!;
     Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (context) => IntroScreen()),
+      IOSPageRoute(builder: (context) => IntroScreen()),
       (Route route) => false,
     );
   }

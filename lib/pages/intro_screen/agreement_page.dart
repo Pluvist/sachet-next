@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/ios_page_route.dart';
 import 'package:sachet/utils/miuix_shapes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -9,7 +10,8 @@ import 'package:sachet/widgets/utils_widgets/miuix_glyph.dart';
 import 'package:sachet/widgets/utils_widgets/source_expand_route.dart';
 
 class AgreementPage extends StatefulWidget {
-  const AgreementPage({super.key});
+  const AgreementPage({super.key, this.afterAccount});
+  final WidgetBuilder? afterAccount;
   @override
   State<AgreementPage> createState() => _AgreementPageState();
 }
@@ -22,7 +24,11 @@ class _AgreementPageState extends State<AgreementPage> {
     if (!accepted || opening) return;
     setState(() => opening = true);
     final result = await expandPage<bool>(
-        context, const ZhengFangJwxtLoginPage(title: '登录账号', onboarding: true),
+        context,
+        ZhengFangJwxtLoginPage(
+            title: '登录账号',
+            onboarding: true,
+            nextOnboardingPage: widget.afterAccount),
         sourceKey: _continueKey,
         sourceRadius: MiuixRadii.control,
         sourceColor: Theme.of(context).colorScheme.primary);
@@ -31,9 +37,8 @@ class _AgreementPageState extends State<AgreementPage> {
     if (result == true) Navigator.of(context).pop(true);
   }
 
-  void _read(bool privacy) =>
-      Navigator.of(context).push(MaterialPageRoute<void>(
-          builder: (_) => NoticeDetailsPage(privacy: privacy)));
+  void _read(bool privacy) => Navigator.of(context).push(
+      IOSPageRoute<void>(builder: (_) => NoticeDetailsPage(privacy: privacy)));
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;

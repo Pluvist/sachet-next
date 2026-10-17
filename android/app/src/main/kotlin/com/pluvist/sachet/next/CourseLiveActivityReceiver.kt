@@ -10,6 +10,7 @@ class CourseLiveActivityReceiver : BroadcastReceiver() {
         val pending = goAsync()
         executor.execute {
             try {
+                LegacyReminderCleanup.run(context)
                 if (intent.action == CourseLiveActivity.DISMISS)
                     CourseLiveActivity.dismissToday(context, intent.getStringExtra("day"))
                 else CourseLiveActivity.refresh(context)

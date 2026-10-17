@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/ios_page_route.dart';
 import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:sachet/widgets/settingspage_widgets/miuix_settings_list.dart';
 import 'dart:io';
@@ -298,7 +299,7 @@ Dart 版本: $dartVersion
             leading: Icon(Icons.cruelty_free),
             onTap: () {
               Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (context) => IntroScreen()),
+                IOSPageRoute(builder: (context) => IntroScreen()),
                 (Route route) => false,
               );
             },

@@ -43,10 +43,6 @@ class CourseTimingEditor extends StatelessWidget {
             if (value != null) settings.setCourseRoutine(course, item, value);
           },
         ),
-        if (settings.isEnableCourseNotification)
-          const Padding(
-              padding: EdgeInsets.only(top: 8),
-              child: Text('更改作息后，请重新设置课程通知以更新已有提醒。')),
       ]),
     );
   }

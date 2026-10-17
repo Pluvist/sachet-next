@@ -5,6 +5,7 @@ import 'package:sachet/models/nav_destination.dart';
 import 'package:sachet/providers/screen_nav_provider.dart';
 import 'package:sachet/widgets/utils_widgets/nexio_bottom_tabs.dart';
 import 'package:sachet/widgets/utils_widgets/glass_backdrop.dart';
+import 'package:sachet/widgets/utils_widgets/top_edge_mask.dart';
 
 class NavTop extends StatelessWidget {
   const NavTop(
@@ -19,31 +20,13 @@ class NavTop extends StatelessWidget {
   Widget build(BuildContext context) {
     WidgetsBinding.instance
         .addPostFrameCallback((_) => GlassBackdrop.captureWhenIdle());
-    final mask = Theme.of(context).brightness == Brightness.dark
-        ? Colors.black
-        : Colors.white;
     final colors = Theme.of(context).colorScheme;
     return SizedBox(
         height: MediaQuery.paddingOf(context).top + 84,
         child: Stack(children: [
-          Positioned.fill(
-              child: IgnorePointer(
-                  child: DecoratedBox(
-                      key: const ValueKey('floatingNavTopMask'),
-                      decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                            mask,
-                            mask.withOpacity(.94),
-                            mask.withOpacity(0)
-                          ],
-                              stops: const [
-                            0,
-                            .25,
-                            1
-                          ]))))),
+          const Positioned.fill(
+              child:
+                  TopEdgeMask(decorationKey: ValueKey('floatingNavTopMask'))),
           SafeArea(
               bottom: false,
               child: Padding(

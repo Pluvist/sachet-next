@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root" android:layout_width="match_parent" android:layout_height="match_parent"
+    android:paddingTop="6dp" android:paddingBottom="6dp">
+    <FrameLayout android:id="@+id/widget_surface" android:layout_width="match_parent" android:layout_height="match_parent"
+        android:background="@drawable/course_widget_dark" android:clipToOutline="true">
+        <ImageView android:id="@+id/widget_glow" android:layout_width="match_parent" android:layout_height="match_parent"
+            android:scaleType="fitXY" android:importantForAccessibility="no" />
+<LinearLayout
+    android:id="@+id/widget_content" android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:padding="20dp">
+    <LinearLayout android:id="@+id/widget_wide_header" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
+        <TextView android:id="@+id/widget_date" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="今天 / 周四" android:textSize="10sp" android:textColor="#999999" android:maxLines="1" android:ellipsize="end" />
+        <TextView android:id="@+id/widget_week" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="第5周" android:textSize="10sp" android:textColor="#999999" />
+        <ImageView android:id="@+id/widget_state_icon" android:layout_width="16dp" android:layout_height="16dp" android:layout_marginStart="8dp" android:src="@drawable/widget_going" />
+    </LinearLayout>
+    <LinearLayout android:id="@+id/widget_wide_body" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_marginTop="8dp" android:orientation="horizontal" android:baselineAligned="false">
+        <LinearLayout android:id="@+id/widget_current_panel" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:orientation="vertical" android:gravity="center_vertical">
+            <TextView android:id="@+id/widget_current_status" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="正在上课" android:textSize="10sp" android:textColor="#999999" android:maxLines="1" />
+            <TextView android:id="@+id/widget_title" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="高等数学" android:textSize="16sp" android:textStyle="bold" android:textColor="#eeeeee" android:maxLines="2" android:ellipsize="end" />
+            <TextView android:id="@+id/widget_place" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="逸夫楼 201" android:textSize="11sp" android:textColor="#999999" android:maxLines="1" android:ellipsize="end" />
+            <TextView android:id="@+id/widget_countdown" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="距下课 28 分钟" android:textSize="10sp" android:textColor="#999999" android:maxLines="1" android:ellipsize="end" />
+            <TextView android:id="@+id/widget_footer" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textSize="10sp" android:textColor="#999999" android:maxLines="2" android:ellipsize="end" android:visibility="gone" />
+        </LinearLayout>
+        <ImageView android:id="@+id/widget_divider" android:layout_width="1dp" android:layout_height="match_parent" android:layout_marginStart="12dp" android:layout_marginEnd="12dp" android:layout_marginTop="4dp" android:layout_marginBottom="4dp" android:src="@android:color/darker_gray" android:scaleType="fitXY" android:importantForAccessibility="no" />
+        <LinearLayout android:id="@+id/widget_next_panel" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:orientation="vertical" android:gravity="center_vertical">
+            <TextView android:id="@+id/widget_next_label" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="下一节课" android:textSize="10sp" android:textColor="#999999" android:maxLines="1" />
+            <TextView android:id="@+id/widget_next_title" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="大学英语" android:textSize="16sp" android:textStyle="bold" android:textColor="#eeeeee" android:maxLines="1" android:ellipsize="end" />
+            <TextView android:id="@+id/widget_next_time" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="09:05–09:50" android:textSize="11sp" android:textColor="#999999" android:maxLines="1" android:ellipsize="end" />
+            <TextView android:id="@+id/widget_next_place" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="信息科技大楼 305" android:textSize="11sp" android:textColor="#999999" android:maxLines="2" android:ellipsize="end" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>
+
+    </FrameLayout>
+</FrameLayout>

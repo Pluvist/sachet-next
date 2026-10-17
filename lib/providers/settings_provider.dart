@@ -10,8 +10,6 @@ import 'package:sachet/models/app_settings.dart';
 import 'package:sachet/models/course_schedule.dart';
 import 'package:sachet/models/enums/app_update_channel.dart';
 import 'package:sachet/models/enums/nav_type.dart';
-import 'package:sachet/models/course_reminder.dart';
-import 'package:sachet/utils/time_manager.dart';
 import 'package:sachet/utils/app_global.dart';
 import 'package:sachet/utils/storage/path_provider_utils.dart';
 
@@ -136,9 +134,6 @@ class SettingsProvider extends ChangeNotifier {
       _appSettings.isOpenLinkInExternalBrowser ?? false;
   bool get isFreeClassroomUseLegacyStyle =>
       _appSettings.isFreeClassroomUseLegacyStyle ?? true;
-  bool get isEnableCourseNotification =>
-      _appSettings.isEnableCourseNotification ?? false;
-  bool get isSilentNotification => _appSettings.isSilentNotification ?? false;
   List<List<int>> get freeClassroomSections =>
       _appSettings.freeClassroomSections
           ?.map((innerList) => List<int>.from(innerList))
@@ -281,22 +276,6 @@ class SettingsProvider extends ChangeNotifier {
     }
   }
 
-  void setIsEnableCourseNotification(bool value) {
-    if (value != isEnableCourseNotification) {
-      _appSettings.isEnableCourseNotification = value;
-      AppGlobal.saveAppSettings();
-      notifyListeners();
-    }
-  }
-
-  void setIsSilentNotification(bool value) {
-    if (value != isSilentNotification) {
-      _appSettings.isSilentNotification = value;
-      AppGlobal.saveAppSettings();
-      notifyListeners();
-    }
-  }
-
   void setFreeClassroomSections(List value) {
     if (value != freeClassroomSections) {
       _appSettings.freeClassroomSections = value;
@@ -384,99 +363,5 @@ class SettingsProvider extends ChangeNotifier {
       classSessionSummerDataList: classSessionSummerDataList,
       classSessionWinterDataList: classSessionWinterDataList,
     );
-  }
-
-  /// 生成课程通知的信息 (CourseReminders)
-  Future<List<CourseReminder>> generateCourseScheduleReminders() async {
-    List courseScheduleItemsList = [];
-    final jsonData = await CachedDataStorage.getDecodedList(
-      classScheduleFilePath,
-    );
-    if (jsonData.isNotEmpty) {
-      courseScheduleItemsList = jsonData;
-      if (courseScheduleItemsList.length != 35) {
-        throw '无有效课程表文件';
-      }
-    } else {
-      throw '课程信息为空/无有效课程表文件';
-    }
-    List<CourseReminder> reminders = [];
-    for (final courseScheduleItems in courseScheduleItemsList) {
-      for (final courseScheduleItem in courseScheduleItems) {
-        CourseSchedule courseSchedule =
-            CourseSchedule.fromJson(courseScheduleItem);
-
-        final int? courseItem = courseSchedule.item;
-        final String? courseTitle = courseSchedule.title;
-        final String courseInstructor = courseSchedule.instructor ?? '';
-        final String coursePlace = courseSchedule.place ?? '';
-        final List? courseWeeks = courseSchedule.weeks;
-        final int courseLength = courseSchedule.length ?? 2;
-
-        if (courseTitle != null &&
-            courseTitle.isNotEmpty &&
-            courseWeeks != null &&
-            courseWeeks.isNotEmpty &&
-            courseItem != null) {
-          for (final courseWeek in courseWeeks) {
-            final result = getWeekdayAndSessionFromItem(courseItem);
-            final int courseWeekday = result.weekday;
-
-            // 课程开始节次，有 1/3/5/7/9
-            final int courseStartSession = result.session;
-
-            /// 这节课的日期（如 2025-09-08 00:00:00，日期精确，时间为0点）
-            final DateTime courseDate = getDateFromWeekCountAndWeekday(
-              semesterStartDate: semesterStartDateDateTime,
-              weekCount: courseWeek,
-              weekday: courseWeekday,
-            );
-
-            final routine = BuildingSchedule.resolve(
-                courseSchedule, courseItem, courseRoutineOverrides);
-            final actual = BuildingSchedule.course(
-                courseStartSession, courseLength, routine);
-            final courseStartTimeStr = formatMinute(actual.start);
-            final courseEndTimeStr = formatMinute(actual.end);
-
-            /// 这节课的开始日期和时间（如 2025-09-08 08:00:00，日期精确，时间精确）
-            final DateTime courseStartDateTime = courseDate.add(
-              Duration(
-                hours: int.parse(courseStartTimeStr.split(':')[0]),
-                minutes: int.parse(courseStartTimeStr.split(':')[1]),
-              ),
-            );
-            if (courseStartDateTime.isBefore(DateTime.now())) {
-              // 如果这节课的开始时间在「现在」之前，则跳过（用户不一定是在学期开始即开启通知/使用本软件）
-              continue;
-            }
-
-            final DateTime courseEndDateTime = courseDate.add(
-              Duration(
-                hours: int.parse(courseEndTimeStr.split(':')[0]),
-                minutes: int.parse(courseEndTimeStr.split(':')[1]),
-              ),
-            );
-
-            // 这节课上多久（用于通知经过多长时间后自动消失）
-            final int courseDurationInMilliseconds = courseEndDateTime
-                .difference(courseStartDateTime)
-                .inMilliseconds;
-
-            // 添加这个时段的课的一个周次的通知信息
-            reminders.add(CourseReminder(
-              courseStartDateTime: courseStartDateTime,
-              courseDurationInMilliseconds: courseDurationInMilliseconds,
-              courseTitle: courseTitle,
-              coursePlace: coursePlace,
-              courseInstructor: courseInstructor,
-              courseStartTimeStr: courseStartTimeStr,
-              courseEndTimeStr: courseEndTimeStr,
-            ));
-          }
-        }
-      }
-    }
-    return reminders;
   }
 }

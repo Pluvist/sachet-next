@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root" android:layout_width="match_parent" android:layout_height="match_parent"
-    android:orientation="vertical" android:padding="40dp" android:background="@drawable/course_widget_dark">
+    android:paddingTop="6dp" android:paddingBottom="6dp">
+    <FrameLayout android:id="@+id/widget_surface" android:layout_width="match_parent" android:layout_height="match_parent"
+        android:background="@drawable/course_widget_dark" android:clipToOutline="true">
+        <ImageView android:id="@+id/widget_glow" android:layout_width="match_parent" android:layout_height="match_parent"
+            android:scaleType="fitXY" android:importantForAccessibility="no" />
+<LinearLayout
+    android:id="@+id/widget_content" android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:padding="40dp">
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
         <ImageView android:layout_width="18dp" android:layout_height="18dp" android:src="@mipmap/launcher_icon" android:contentDescription="Sachet Next" />
         <TextView android:id="@+id/widget_date" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="今天 / 星期四" android:textSize="12sp" android:textColor="#999999" android:maxLines="1" />
@@ -26,3 +33,6 @@
         <ImageView android:id="@+id/widget_state_icon" android:layout_width="24dp" android:layout_height="24dp" android:layout_marginStart="6dp" android:src="@drawable/widget_check" />
     </LinearLayout>
 </LinearLayout>
+
+    </FrameLayout>
+</FrameLayout>

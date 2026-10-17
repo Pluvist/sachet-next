@@ -1,3 +1,5 @@
+import 'package:sachet/widgets/utils_widgets/source_expand_route.dart';
+import 'package:sachet/widgets/utils_widgets/ios_page_route.dart';
 import 'package:sachet/utils/miuix_shapes.dart';
 import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
 import 'package:sachet/widgets/intro_widgets/provision_page.dart';
@@ -21,9 +23,11 @@ class ZhengFangJwxtLoginPage extends StatelessWidget {
       {super.key,
       this.title = '登录',
       this.onboarding = false,
+      this.nextOnboardingPage,
       this.authenticator = const AccountAuthenticator()});
   final String title;
   final bool onboarding;
+  final WidgetBuilder? nextOnboardingPage;
   final AccountAuthenticator authenticator;
 
   @override
@@ -31,7 +35,10 @@ class ZhengFangJwxtLoginPage extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => LoginPageProvider(),
       child: ZhengFangJwxtLoginPageView(
-          title: title, onboarding: onboarding, authenticator: authenticator),
+          title: title,
+          onboarding: onboarding,
+          nextOnboardingPage: nextOnboardingPage,
+          authenticator: authenticator),
     );
   }
 }
@@ -41,9 +48,11 @@ class ZhengFangJwxtLoginPageView extends StatefulWidget {
       {super.key,
       this.title = '登录',
       this.onboarding = false,
+      this.nextOnboardingPage,
       this.authenticator = const AccountAuthenticator()});
   final String title;
   final bool onboarding;
+  final WidgetBuilder? nextOnboardingPage;
   final AccountAuthenticator authenticator;
 
   @override
@@ -58,6 +67,20 @@ class _ZhengFangJwxtLoginPageViewState
   final passwordTextController = TextEditingController();
 
   String? showErrorText;
+  final _nextKey = GlobalKey();
+  bool _advancing = false;
+  Future<void> _finishLogin() async {
+    if (!mounted || _advancing) return;
+    if (widget.nextOnboardingPage == null) {
+      Navigator.pop(context, true);
+      return;
+    }
+    setState(() => _advancing = true);
+    await expandPage<void>(context, widget.nextOnboardingPage!(context),
+        sourceKey: _nextKey,
+        sourceColor: Theme.of(context).colorScheme.primary);
+    if (mounted) setState(() => _advancing = false);
+  }
 
   /// 获取储存的 学号和密码
   Future loadDataFromSecureStorage() async {
@@ -98,7 +121,7 @@ class _ZhengFangJwxtLoginPageViewState
         if (!context.mounted) return;
 
         context.read<LoginPageProvider>().setIsLoggingIn(false);
-        Navigator.pop(context, true);
+        _finishLogin();
       } catch (e) {
         // *****有异常*****
 
@@ -128,7 +151,7 @@ class _ZhengFangJwxtLoginPageViewState
       await context.read<ZhengFangUserProvider>().setUser(user);
       if (!context.mounted) return;
       context.read<LoginPageProvider>().setIsLoggingIn(false);
-      Navigator.pop(context, true);
+      _finishLogin();
     } catch (e) {
       if (!context.mounted) return;
 
@@ -211,12 +234,12 @@ class _ZhengFangJwxtLoginPageViewState
     } else {
       final result = await Navigator.push<bool>(
           context,
-          MaterialPageRoute(
+          IOSPageRoute(
               builder: (_) => ZhengFangManualLoginPage(
                   initialUrl: method == 'portal'
                       ? xinXiMenHuBaseUrl
                       : newJwxtBaseUrl)));
-      if (mounted && result == true) Navigator.pop(context, true);
+      if (mounted && result == true) _finishLogin();
     }
   }
 
@@ -224,7 +247,7 @@ class _ZhengFangJwxtLoginPageViewState
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final login = context.watch<LoginPageProvider>();
-    final busy = login.isLoggingIn;
+    final busy = login.isLoggingIn || _advancing;
     InputDecoration input(String label, String hint) => InputDecoration(
         labelText: label,
         hintText: hint,
@@ -245,15 +268,17 @@ class _ZhengFangJwxtLoginPageViewState
         symbol: MiuixSymbol.person,
         subtitle: '连接湘潭大学教务系统',
         busy: busy,
-        action: ProvisionButton(
-            key: const ValueKey('provisionLogin'),
-            label: widget.onboarding ? '登录并继续' : '登录',
-            loading: busy,
-            onPressed: busy ? null : () => _pressLoginButton(context)),
+        action: ExpansionAnchor(
+            key: _nextKey,
+            child: ProvisionButton(
+                key: const ValueKey('provisionLogin'),
+                label: widget.onboarding ? '登录并继续' : '登录',
+                loading: busy,
+                onPressed: busy ? null : () => _pressLoginButton(context))),
         secondaryAction: widget.onboarding
             ? TextButton(
                 key: const ValueKey('onboardLoginSkip'),
-                onPressed: busy ? null : () => Navigator.pop(context, true),
+                onPressed: busy ? null : _finishLogin,
                 style: TextButton.styleFrom(
                     foregroundColor: colors.onSurfaceVariant),
                 child: const Text('稍后登录'))

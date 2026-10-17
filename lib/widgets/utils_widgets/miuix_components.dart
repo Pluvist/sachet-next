@@ -1,6 +1,7 @@
 import 'package:sachet/utils/miuix_shapes.dart';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:sachet/widgets/utils_widgets/top_edge_mask.dart';
 
 /// Shared HyperOS-style surfaces, headers and preference rows. Kept compatible
 /// with Flutter 3.24 so presentation changes do not replace the data layer.
@@ -89,11 +90,12 @@ class MiuixAppBar extends StatelessWidget implements PreferredSizeWidget {
           centerTitle: centerTitle ?? false,
           automaticallyImplyLeading: automaticallyImplyLeading,
           titleSpacing: titleSpacing ?? 18,
-          backgroundColor: backgroundColor ?? colors.surface,
+          backgroundColor: backgroundColor ?? Colors.transparent,
           foregroundColor: foregroundColor,
           elevation: 0,
           scrolledUnderElevation: 0,
-          surfaceTintColor: Colors.transparent);
+          surfaceTintColor: Colors.transparent,
+          flexibleSpace: FadingHeaderSurface(child: flexibleSpace));
     }
     // Actions and back navigation stay in a 56dp toolbar. The large title lives
     // below it, so long labels and accessibility scaling cannot cover controls.
@@ -101,55 +103,59 @@ class MiuixAppBar extends StatelessWidget implements PreferredSizeWidget {
       bottom: bottom,
       toolbarHeight: height,
       automaticallyImplyLeading: false,
-      backgroundColor: backgroundColor ?? colors.surface,
+      backgroundColor: backgroundColor ?? Colors.transparent,
       foregroundColor: foregroundColor ?? colors.onSurface,
       elevation: 0,
       scrolledUnderElevation: 0,
       surfaceTintColor: Colors.transparent,
-      flexibleSpace: SafeArea(
-          bottom: false,
-          child: Padding(
-              padding:
-                  EdgeInsets.only(bottom: bottom?.preferredSize.height ?? 0),
-              child: Column(children: [
-                SizedBox(
-                    height: 56,
-                    child: Row(children: [
-                      const SizedBox(width: 12),
-                      if (leading != null)
-                        SizedBox(width: 48, child: leading)
-                      else if (automaticallyImplyLeading &&
-                          Navigator.of(context).canPop())
-                        const BackButton(),
-                      if (leading == null &&
-                          automaticallyImplyLeading &&
-                          !Navigator.of(context).canPop() &&
-                          Scaffold.of(context).hasDrawer)
-                        IconButton(
-                            tooltip: '导航菜单',
-                            icon: const Icon(Icons.menu),
-                            onPressed: () => Scaffold.of(context).openDrawer()),
-                      const Spacer(),
-                      ...?actions,
-                      const SizedBox(width: 12),
-                    ])),
-                Expanded(
-                    child: Align(
-                        alignment: Alignment.bottomLeft,
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(26, 0, 26, 18),
-                          child: DefaultTextStyle.merge(
-                              style: TextStyle(
-                                  fontSize: 34,
-                                  fontWeight: FontWeight.w400,
-                                  height: 1.16,
-                                  color: colors.onSurface),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              child: MediaQuery.withClampedTextScaling(
-                                  maxScaleFactor: 1.4, child: title!)),
-                        ))),
-              ]))),
+      flexibleSpace: FadingHeaderSurface(
+          child: flexibleSpace ??
+              SafeArea(
+                  bottom: false,
+                  child: Padding(
+                      padding: EdgeInsets.only(
+                          bottom: bottom?.preferredSize.height ?? 0),
+                      child: Column(children: [
+                        SizedBox(
+                            height: 56,
+                            child: Row(children: [
+                              const SizedBox(width: 12),
+                              if (leading != null)
+                                SizedBox(width: 48, child: leading)
+                              else if (automaticallyImplyLeading &&
+                                  Navigator.of(context).canPop())
+                                const BackButton(),
+                              if (leading == null &&
+                                  automaticallyImplyLeading &&
+                                  !Navigator.of(context).canPop() &&
+                                  Scaffold.of(context).hasDrawer)
+                                IconButton(
+                                    tooltip: '导航菜单',
+                                    icon: const Icon(Icons.menu),
+                                    onPressed: () =>
+                                        Scaffold.of(context).openDrawer()),
+                              const Spacer(),
+                              ...?actions,
+                              const SizedBox(width: 12),
+                            ])),
+                        Expanded(
+                            child: Align(
+                                alignment: Alignment.bottomLeft,
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(26, 0, 26, 18),
+                                  child: DefaultTextStyle.merge(
+                                      style: TextStyle(
+                                          fontSize: 34,
+                                          fontWeight: FontWeight.w400,
+                                          height: 1.16,
+                                          color: colors.onSurface),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      child: MediaQuery.withClampedTextScaling(
+                                          maxScaleFactor: 1.4, child: title!)),
+                                ))),
+                      ])))),
     );
   }
 }
@@ -412,43 +418,45 @@ class MiuixSliverAppBar extends StatelessWidget {
         expandedHeight: height,
         collapsedHeight: collapsedHeight,
         centerTitle: centerTitle,
-        backgroundColor: backgroundColor,
+        backgroundColor: backgroundColor ?? Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
         forceElevated: forceElevated,
-        flexibleSpace: flexibleSpace ??
-            (large
-                ? LayoutBuilder(builder: (context, constraints) {
-                    final top = MediaQuery.paddingOf(context).top;
-                    final progress =
-                        ((constraints.maxHeight - top - toolbarHeight) /
-                                math.max(1, height - toolbarHeight))
-                            .clamp(0.0, 1.0);
-                    return SafeArea(
-                      bottom: false,
-                      child: Align(
-                          alignment: Alignment.bottomLeft,
-                          child: Padding(
-                              padding: EdgeInsets.fromLTRB(
-                                  26,
-                                  0,
-                                  26 +
-                                      (1 - progress) *
-                                          ((actions?.length ?? 0) * 48 + 28),
-                                  14 + progress * 4),
-                              child: MediaQuery.withClampedTextScaling(
-                                  maxScaleFactor: 1.4,
-                                  child: DefaultTextStyle.merge(
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                          fontSize: 20 + progress * 14,
-                                          fontWeight: FontWeight.w400,
-                                          height: 1.1),
-                                      child: title!)))),
-                    );
-                  })
-                : null));
+        flexibleSpace: FadingHeaderSurface(
+            child: flexibleSpace ??
+                (large
+                    ? LayoutBuilder(builder: (context, constraints) {
+                        final top = MediaQuery.paddingOf(context).top;
+                        final progress =
+                            ((constraints.maxHeight - top - toolbarHeight) /
+                                    math.max(1, height - toolbarHeight))
+                                .clamp(0.0, 1.0);
+                        return SafeArea(
+                          bottom: false,
+                          child: Align(
+                              alignment: Alignment.bottomLeft,
+                              child: Padding(
+                                  padding: EdgeInsets.fromLTRB(
+                                      26,
+                                      0,
+                                      26 +
+                                          (1 - progress) *
+                                              ((actions?.length ?? 0) * 48 +
+                                                  28),
+                                      14 + progress * 4),
+                                  child: MediaQuery.withClampedTextScaling(
+                                      maxScaleFactor: 1.4,
+                                      child: DefaultTextStyle.merge(
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                              fontSize: 20 + progress * 14,
+                                              fontWeight: FontWeight.w400,
+                                              height: 1.1),
+                                          child: title!)))),
+                        );
+                      })
+                    : null)));
   }
 }

@@ -1,3 +1,5 @@
+import 'package:sachet/pages/intro_screen/background_setup_page.dart';
+import 'package:sachet/widgets/utils_widgets/ios_page_route.dart';
 import 'package:sachet/utils/miuix_shapes.dart';
 import 'package:sachet/pages/settings_child_pages/course_live_activity_settings_page.dart';
 import 'package:sachet/widgets/utils_widgets/miuix_components.dart';
@@ -13,7 +15,6 @@ import 'package:sachet/providers/settings_provider.dart';
 import 'package:sachet/pages/settings_child_pages/dev_settings_page.dart';
 import 'package:sachet/pages/settings_child_pages/theme_settings_page.dart';
 import 'package:sachet/pages/settings_child_pages/advanced_settings_page.dart';
-import 'package:sachet/pages/settings_child_pages/experimental_settings_page.dart';
 import 'package:sachet/pages/settings_child_pages/customize_settings_page.dart';
 import 'package:sachet/utils/custom_route.dart';
 import 'package:sachet/utils/utils_functions.dart';
@@ -125,7 +126,7 @@ class _SettingsPageState extends State<SettingsPage> {
               trailing: Icon(Icons.arrow_forward),
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(
+                IOSPageRoute(
                   builder: (context) => const ThemeSettingsPage(),
                 ),
               ),
@@ -144,7 +145,7 @@ class _SettingsPageState extends State<SettingsPage> {
               trailing: Icon(Icons.arrow_forward),
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(
+                IOSPageRoute(
                   builder: (context) => const CustomizeSettingsPage(),
                 ),
               ),
@@ -187,9 +188,17 @@ class _SettingsPageState extends State<SettingsPage> {
                 trailing: const Icon(Icons.arrow_forward),
                 onTap: () => Navigator.push(
                     context,
-                    MaterialPageRoute(
+                    IOSPageRoute(
                         builder: (_) =>
                             const CourseLiveActivitySettingsPage()))),
+
+            MiuixListTile(
+                leading: const Icon(Icons.battery_saver_outlined),
+                title: const Text('后台与桌面'),
+                subtitle: const Text('后台运行、自启动和桌面课程小组件'),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => Navigator.push(context,
+                    IOSPageRoute(builder: (_) => const BackgroundSetupPage()))),
 
             // 高级设置
             MiuixListTile(
@@ -203,49 +212,10 @@ class _SettingsPageState extends State<SettingsPage> {
               trailing: Icon(Icons.arrow_forward),
               onTap: () => Navigator.push(
                 context,
-                MaterialPageRoute(
+                IOSPageRoute(
                   builder: (context) => const AdvancedSettingsPage(),
                 ),
               ),
-            ),
-
-            // 实验性功能 Experimental features
-            MiuixListTile(
-              leading: const Align(
-                widthFactor: 1,
-                alignment: Alignment.centerLeft,
-                child: Icon(Icons.science_outlined),
-              ),
-              title: const Text('实验性功能'),
-              trailing: Icon(Icons.arrow_forward),
-              onTap: () async {
-                await showDialog<void>(
-                  context: context,
-                  builder: (BuildContext context) => AlertDialog(
-                    title: Text('⚠️注意'),
-                    content: Text(
-                      '实验性的功能可能不稳定',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                    actions: <Widget>[
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context)
-                            ..pop()
-                            ..push(
-                              MaterialPageRoute(
-                                builder: (BuildContext context) {
-                                  return const ExperimentalSettingsPage();
-                                },
-                              ),
-                            );
-                        },
-                        child: const Text('确认'),
-                      ),
-                    ],
-                  ),
-                );
-              },
             ),
 
             // 开发者设置
@@ -341,7 +311,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   child: FilledButton.tonalIcon(
                     onPressed: () => Navigator.push(
                       context,
-                      MaterialPageRoute(
+                      IOSPageRoute(
                         builder: (context) => ZhengFangJwxtLoginPage(),
                       ),
                     ),
@@ -421,7 +391,7 @@ class _SettingsPageState extends State<SettingsPage> {
               child: FilledButton.icon(
                 onPressed: () => Navigator.push(
                   context,
-                  MaterialPageRoute(
+                  IOSPageRoute(
                     builder: (context) => ZhengFangJwxtLoginPage(),
                   ),
                 ),

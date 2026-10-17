@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/ios_page_route.dart';
 import 'package:flutter/material.dart';
 import 'package:sachet/models/nav_destination.dart';
 import 'package:sachet/models/user.dart';
@@ -68,7 +69,7 @@ class MyUserAccountDrawerHeader extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(
-          MaterialPageRoute(
+          IOSPageRoute(
             builder: (BuildContext context) {
               return ZhengFangJwxtLoginPage();
             },

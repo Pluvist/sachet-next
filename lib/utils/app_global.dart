@@ -36,6 +36,12 @@ class AppGlobal {
       saveAppSettings();
     }
 
+    // Drop retired reminder settings when upgrading an existing installation.
+    if (prefsAppSettings != null &&
+        (prefsAppSettings.contains('"isEnableCourseNotification"') ||
+            prefsAppSettings.contains('"isSilentNotification"'))) {
+      await persistAppSettings();
+    }
     startupPage = appSettings.startupPage ?? '/class';
     // Apply this release's blue palette once, including existing installations.
     if (_prefs.getBool('sachetNextBlueThemeV1') != true) {
@@ -124,8 +130,6 @@ const defaultAppSettingsConfig = {
   // [添加对预测性返回手势的支持  |  App architecture  |  Android Developers](https://developer.android.com/guide/navigation/custom-back/predictive-back-gesture?hl=zh-cn)
   "isPredictiveBack": true,
   "isFreeClassroomUseLegacyStyle": true, // 空闲教室页面是否使用旧的「今日/明日」的样式
-  "isEnableCourseNotification": false, // 是否启用课程通知
-  "isSilentNotification": false, // 课程通知是否是静默通知
   "freeClassroomSections": [
     [1, 2],
     [3, 4],

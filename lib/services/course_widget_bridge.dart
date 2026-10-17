@@ -119,8 +119,16 @@ class CourseWidgetBridge {
     }
   }
 
-  static Future<bool> pin() async {
+  static Future<bool> pin({bool wide = false}) async {
     if (kIsWeb || !Platform.isAndroid) return false;
-    return await channel.invokeMethod<bool>('pin') ?? false;
+    try {
+      return await channel.invokeMethod<bool>(
+              'pin', wide ? 'wide' : 'compact') ??
+          false;
+    } on PlatformException {
+      return false;
+    } on MissingPluginException {
+      return false;
+    }
   }
 }

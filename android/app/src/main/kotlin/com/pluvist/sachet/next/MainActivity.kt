@@ -59,9 +59,12 @@ class MainActivity: FlutterActivity() {
     }
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        widgetExecutor.execute { LegacyReminderCleanup.run(applicationContext) }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "sachet_next/course_widget")
             .setMethodCallHandler { call, result ->
                 when (call.method) {
+                    "backgroundStatus" -> result.success(BackgroundSetupSettings.status(this))
+                    "backgroundSettings" -> result.success(BackgroundSetupSettings.open(this, call.arguments as? String ?: "battery"))
                     "sync" -> {
                         val context = applicationContext
                         val data = call.arguments as String
@@ -87,7 +90,8 @@ class MainActivity: FlutterActivity() {
                         result.success(android.os.Build.VERSION.SDK_INT >= 26 &&
                             manager.isRequestPinAppWidgetSupported &&
                             manager.requestPinAppWidget(ComponentName(this,
-                                CourseWidgetProvider::class.java), null, null))
+                                if (call.arguments == "wide") CourseWidgetWideProvider::class.java
+                                else CourseWidgetProvider::class.java), null, null))
                     }
                     else -> result.notImplemented()
                 }

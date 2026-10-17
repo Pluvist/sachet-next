@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:sachet/models/course_schedule.dart';
 import 'package:sachet/utils/time_manager.dart';
@@ -18,6 +19,7 @@ class SingleMonthPage extends StatefulWidget {
     required this.courseColorData,
     required this.cardHeight,
     required this.pointerCount,
+    this.fitToViewport = false,
   });
   final int month;
   final DateTime monthDate;
@@ -27,6 +29,7 @@ class SingleMonthPage extends StatefulWidget {
   final List? classSessionWinterDataList;
   final double cardHeight;
   final int pointerCount;
+  final bool fitToViewport;
   @override
   State<SingleMonthPage> createState() => _SingleMonthPageState();
 }
@@ -100,6 +103,12 @@ class _SingleMonthPageState extends State<SingleMonthPage> {
   }
 
   @override
+  void didUpdateWidget(covariant SingleMonthPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.monthDate != widget.monthDate) _buildCalendarDays();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -124,25 +133,48 @@ class _SingleMonthPageState extends State<SingleMonthPage> {
           ),
         ),
         Expanded(
-          child: SingleChildScrollView(
-            physics: widget.pointerCount >= 2
-                ? const NeverScrollableScrollPhysics()
-                : const AlwaysScrollableScrollPhysics(),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(4.0, 0.0, 4.0, 20.0),
-              child: Column(
-                children: [
-                  for (int i = 0; i < _calendarDays.length; i += 7)
-                    _buildWeekRow(
-                      _calendarDays.sublist(i, i + 7),
-                      widget.month,
-                      context,
-                      colorScheme,
+          child: widget.fitToViewport
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Column(children: [
+                    for (int i = 0; i < _calendarDays.length; i += 7)
+                      Expanded(
+                        child: LayoutBuilder(builder: (context, constraints) {
+                          // Eleven actual sections fit below each date. Keep
+                          // all weeks and courses visible in both calendars;
+                          // the outer pager owns every one-finger vertical drag.
+                          final sectionHeight = math.min(widget.cardHeight,
+                              math.max(0.5, (constraints.maxHeight - 22) / 11));
+                          return _buildWeekRow(
+                            _calendarDays.sublist(i, i + 7),
+                            widget.month,
+                            context,
+                            colorScheme,
+                            sectionHeight: sectionHeight,
+                          );
+                        }),
+                      ),
+                  ]),
+                )
+              : SingleChildScrollView(
+                  physics: widget.pointerCount >= 2
+                      ? const NeverScrollableScrollPhysics()
+                      : const AlwaysScrollableScrollPhysics(),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(4.0, 0.0, 4.0, 20.0),
+                    child: Column(
+                      children: [
+                        for (int i = 0; i < _calendarDays.length; i += 7)
+                          _buildWeekRow(
+                            _calendarDays.sublist(i, i + 7),
+                            widget.month,
+                            context,
+                            colorScheme,
+                          ),
+                      ],
                     ),
-                ],
-              ),
-            ),
-          ),
+                  ),
+                ),
         ),
       ],
     );
@@ -152,10 +184,13 @@ class _SingleMonthPageState extends State<SingleMonthPage> {
     List<DateTime> days,
     int month,
     BuildContext context,
-    ColorScheme colorScheme,
-  ) {
+    ColorScheme colorScheme, {
+    double? sectionHeight,
+  }) {
     return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      for (final day in days) _buildDayCell(day, month, context, colorScheme)
+      for (final day in days)
+        _buildDayCell(day, month, context, colorScheme,
+            sectionHeight: sectionHeight)
     ]);
   }
 
@@ -163,8 +198,10 @@ class _SingleMonthPageState extends State<SingleMonthPage> {
     DateTime date,
     int month,
     BuildContext context,
-    ColorScheme colorScheme,
-  ) {
+    ColorScheme colorScheme, {
+    double? sectionHeight,
+  }) {
+    final height = sectionHeight ?? widget.cardHeight;
     // ignore: no_leading_underscores_for_local_identifiers
     final _isToday = isToday(date);
 
@@ -183,11 +220,11 @@ class _SingleMonthPageState extends State<SingleMonthPage> {
     return Expanded(
       flex: 5,
       child: Padding(
-        padding: EdgeInsets.fromLTRB(0, 4, 0, 4),
+        padding: EdgeInsets.symmetric(vertical: widget.fitToViewport ? 1 : 4),
         child: Column(
           children: [
             Container(
-              padding: EdgeInsets.all(8.0),
+              padding: EdgeInsets.all(widget.fitToViewport ? 3 : 8),
               decoration: _isToday
                   ? BoxDecoration(
                       color: colorScheme.primary,
@@ -197,7 +234,7 @@ class _SingleMonthPageState extends State<SingleMonthPage> {
               child: Text(
                 "${date.day}",
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: widget.fitToViewport ? 11 : 13,
                   height: 1.0,
                   color: _isToday
                       ? colorScheme.onPrimary
@@ -208,7 +245,10 @@ class _SingleMonthPageState extends State<SingleMonthPage> {
                 ),
               ),
             ),
-            if (widget.courseScheduleItemsList != null) ...[
+            if (widget.courseScheduleItemsList != null &&
+                isInCurrentMonth &&
+                weekCount >= 1 &&
+                weekCount <= 20) ...[
               for (int classCount = 0; classCount < 5; classCount++)
                 Builder(builder: (context) {
                   int item = (date.weekday - 1) * 5 + classCount;
@@ -245,17 +285,17 @@ class _SingleMonthPageState extends State<SingleMonthPage> {
                     }
                   }
                   return CourseSectionDividers(
-                    sectionHeight: widget.cardHeight,
+                    sectionHeight: height,
                     firstSection: classCount * 2 + 1,
                     child: SizedBox(
                       height: isNightCourse
-                          ? (widget.cardHeight * courseLength)
-                          : (widget.cardHeight * 2),
+                          ? (height * courseLength)
+                          : (height * 2),
                       child: OverflowBox(
                         alignment: Alignment.topCenter,
-                        maxHeight: (widget.cardHeight) * 11,
+                        maxHeight: height * 11,
                         child: CourseCard.compact(
-                          cardHeight: widget.cardHeight,
+                          cardHeight: height,
                           weekCount: weekCount,
                           weekday: date.weekday,
                           classCount: classCount,

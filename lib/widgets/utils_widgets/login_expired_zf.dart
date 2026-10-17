@@ -1,3 +1,4 @@
+import 'package:sachet/widgets/utils_widgets/ios_page_route.dart';
 import 'package:flutter/material.dart';
 import 'package:sachet/pages/utilspages/zhengfang_jwxt_login_page.dart';
 
@@ -75,7 +76,7 @@ class LoginExpiredZF extends StatelessWidget {
                 ),
                 onPressed: () {
                   Navigator.of(context, rootNavigator: true).push(
-                    MaterialPageRoute(
+                    IOSPageRoute(
                       builder: (BuildContext context) {
                         return const ZhengFangJwxtLoginPage();
                       },

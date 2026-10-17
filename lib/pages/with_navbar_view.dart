@@ -1,3 +1,4 @@
+import 'package:sachet/utils/ios_motion.dart';
 import 'package:sachet/widgets/utils_widgets/glass_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -48,23 +49,24 @@ class _WithNavigationBarViewState extends State<WithNavigationBarView> {
       return false;
     }
 
-    // 课程表水平滑动翻页时隐藏 NavBottom, 翻页结束显示 NavBottom
-    if (notification.metrics.axis == Axis.horizontal) {
-      if (currentPageIndex == 1) {
-        if (notification is ScrollStartNotification) {
+    // Week pages move horizontally; paired month pages move vertically. Both
+    // temporarily hide the pill while paging and restore it once settled.
+    if (currentPageIndex == 1 && notification.metrics is PageMetrics) {
+      if (notification is ScrollStartNotification) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) context.read<ScreenNavProvider>().hideNavBottom();
+        });
+      } else if (notification is ScrollEndNotification) {
+        if (_wasNavBottomVisibleBeforeHorizontalScroll) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) context.read<ScreenNavProvider>().hideNavBottom();
+            if (mounted) context.read<ScreenNavProvider>().showNavBottom();
           });
-        } else if (notification is ScrollEndNotification) {
-          if (_wasNavBottomVisibleBeforeHorizontalScroll) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (mounted) context.read<ScreenNavProvider>().showNavBottom();
-            });
-          }
         }
       }
       return false;
     }
+
+    if (notification.metrics.axis == Axis.horizontal) return false;
 
     if (notification.metrics.axis != Axis.vertical) {
       return false;
@@ -169,7 +171,7 @@ class _WithNavigationBarViewState extends State<WithNavigationBarView> {
                     duration: MediaQuery.disableAnimationsOf(context)
                         ? Duration.zero
                         : const Duration(milliseconds: 300),
-                    curve: Curves.easeOutCubic,
+                    curve: IOSMotion.opening,
                     child: NavBottom(
                       destinations: _destinations,
                       routeNames: _routeNames,

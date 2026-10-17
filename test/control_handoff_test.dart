@@ -75,6 +75,19 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  testWidgets('Profile offers both compact and horizontal course widgets',
+      (tester) async {
+    await app(tester, const ProfilePage());
+    await tester.tap(find.text('桌面课程小组件'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('widgetLayoutCompact')), findsOneWidget);
+    expect(find.byKey(const ValueKey('widgetLayoutWide')), findsOneWidget);
+    expect(find.text('4×2 横向课程概览'), findsOneWidget);
+    Navigator.of(tester.element(find.text('选择小组件布局'))).pop();
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('Profile circle is 44dp and the entire circle expands',
       (tester) async {
     await app(tester, const HomePage());

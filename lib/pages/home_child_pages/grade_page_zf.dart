@@ -122,55 +122,53 @@ class _QueryViewState extends State<_QueryView> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          FutureBuilder(
-            future: getDataFuture,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator();
-              }
+    // The loading state fills the remaining page, outside the stretched form.
+    // Keeping both axes bounded prevents a wide oval/strip instead of a ring.
+    return FutureBuilder(
+      future: getDataFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+              child: SizedBox.square(
+                  dimension: 36, child: CircularProgressIndicator()));
+        }
 
-              if (snapshot.hasError) {
-                if (snapshot.error ==
-                    "获取可查询学期数据失败: Http status code = 302, 可能需要重新登录") {
-                  return LoginExpiredZF(onRetry: _onRetry);
-                }
+        if (snapshot.hasError) {
+          if (snapshot.error ==
+              "获取可查询学期数据失败: Http status code = 302, 可能需要重新登录") {
+            return LoginExpiredZF(onRetry: _onRetry);
+          }
 
-                return ErrorWithRetryWidget(
-                  text: '${snapshot.error}',
-                  onRetry: _onRetry,
-                );
-              }
+          return ErrorWithRetryWidget(
+            text: '${snapshot.error}',
+            onRetry: _onRetry,
+          );
+        }
 
-              return Column(
-                children: [
-                  SizedBox(height: 20),
-                  const SemesterYearSelectorZF(),
-                  const SizedBox(height: 10),
-                  const SemesterIndexSelectorZF(),
-                  SizedBox(height: 10),
-                  MiuixButton(
-                    style: MiuixButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                    ),
-                    onPressed: () {
-                      context
-                          .read<GradePageZFProvider>()
-                          .setIsSelectingSemester(false);
-                    },
-                    child: Text('查询'),
-                  )
-                ],
-              );
-            },
-          ),
-        ],
-      ),
+        return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                SizedBox(height: 20),
+                const SemesterYearSelectorZF(),
+                const SizedBox(height: 10),
+                const SemesterIndexSelectorZF(),
+                SizedBox(height: 10),
+                MiuixButton(
+                  style: MiuixButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                  onPressed: () {
+                    context
+                        .read<GradePageZFProvider>()
+                        .setIsSelectingSemester(false);
+                  },
+                  child: Text('查询'),
+                )
+              ],
+            ));
+      },
     );
   }
 }
@@ -391,7 +389,8 @@ class _GradeViewState extends State<_GradeView> {
           return Center(
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 32.0),
-              child: CircularProgressIndicator(),
+              child: SizedBox.square(
+                  dimension: 36, child: CircularProgressIndicator()),
             ),
           );
         }

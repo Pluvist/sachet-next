@@ -1,3 +1,4 @@
+import 'package:sachet/utils/ios_motion.dart';
 import 'package:sachet/utils/miuix_shapes.dart';
 // HyperCeiler source-view capture/foreground expansion adaptation, AGPL-3.0.
 // Copyright (C) 2023-2026 HyperCeiler Contributions; adaptation Pluvist.
@@ -18,13 +19,16 @@ class ExpansionAnchor extends StatefulWidget {
 class _ExpansionAnchorState extends State<ExpansionAnchor> {
   final boundaryKey = GlobalKey();
   bool hidden = false;
-  void hide() {
+  int _generation = 0;
+  SourceExpandRoute<dynamic>? _route;
+  int hide() {
     if (mounted) setState(() => hidden = true);
+    return ++_generation;
   }
 
-  void restore() {
+  void restore(int generation) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) setState(() => hidden = false);
+      if (mounted && generation == _generation) setState(() => hidden = false);
     });
     WidgetsBinding.instance.ensureVisualUpdate();
   }
@@ -57,7 +61,8 @@ class _IconSnapshotRenderBox extends RenderRepaintBoundary {
 /// HyperCeiler delegates this to fan.transition.ActivityOptionsHelper (102).
 /// Flutter cannot execute that system Activity animation; this implements the
 /// source bitmap, foreground expansion and destination reveal within one route.
-class SourceExpandRoute<T> extends PageRouteBuilder<T> {
+class SourceExpandRoute<T> extends PageRouteBuilder<T>
+    implements DepthExpansionRoute {
   SourceExpandRoute({
     required WidgetBuilder builder,
     required Rect source,
@@ -69,62 +74,110 @@ class SourceExpandRoute<T> extends PageRouteBuilder<T> {
     VoidCallback? onExpanded,
     this.homeHandoff = false,
     super.settings,
-  })  : _sourceImage = sourceImage,
+  })  : _source = source,
+        _sourceRadius = sourceRadius,
+        _sourceColor = sourceColor,
+        _sourceImage = sourceImage,
         _restoreSource = restoreSource,
         _onExpanded = onExpanded,
         super(
             opaque: true,
-            transitionDuration: Duration(
-                milliseconds: reduceMotion
-                    ? 0
-                    : homeHandoff
-                        ? 600
-                        : 400),
+            transitionDuration: reduceMotion
+                ? Duration.zero
+                : homeHandoff
+                    ? IOSMotion.homeDuration
+                    : IOSMotion.duration,
             reverseTransitionDuration:
-                Duration(milliseconds: reduceMotion ? 0 : 280),
-            pageBuilder: (context, animation, secondary) => builder(context),
-            transitionsBuilder: (context, animation, secondary, child) {
-              final size = MediaQuery.sizeOf(context);
-              final progress = animation.value;
-              final t = const Cubic(.2, .8, .2, 1).transform(progress);
-              final color = Theme.of(context).scaffoldBackgroundColor;
-              return IgnorePointer(
-                ignoring: animation.status != AnimationStatus.completed,
-                child: ClipPath(
-                  key: const ValueKey('sourceExpansionMask'),
-                  clipper: ControlExpansionClipper(
-                    source: source,
-                    sourceRadius: sourceRadius ?? MiuixRadii.control,
-                    progress: t,
-                  ),
-                  child: Stack(fit: StackFit.expand, children: [
-                    Opacity(
-                        opacity: sourceImage == null
-                            ? 1
-                            : (progress / .12).clamp(0.0, 1.0),
-                        child: ColoredBox(
-                            color: Color.lerp(sourceColor ?? color, color,
-                                ((progress - .25) / .75).clamp(0.0, 1.0))!)),
-                    Opacity(
-                        opacity: Curves.easeOut.transform(
-                            ((progress - .10) / .75).clamp(0.0, 1.0)),
-                        child: RepaintBoundary(child: child)),
-                    if (sourceImage != null && progress < .22)
-                      Positioned.fromRect(
-                          rect: Rect.fromCenter(
-                              center: ControlExpansionClipper.bounds(
-                                      source, size, t)
-                                  .center,
-                              width: source.width,
-                              height: source.height),
-                          child: Opacity(
-                              opacity: (1 - progress / .22).clamp(0.0, 1.0),
-                              child: RawImage(
-                                  image: sourceImage, fit: BoxFit.fill))),
-                  ]),
-                ),
-              );
-            });
+                reduceMotion ? Duration.zero : IOSMotion.closingDuration,
+            pageBuilder: (context, animation, secondary) => builder(context));
+  final Rect _source;
+  final double? _sourceRadius;
+  final Color? _sourceColor;
+  @override
+  AnimationController createAnimationController() => IOSRouteController(
+      vsync: navigator!,
+      duration: transitionDuration,
+      reverseDuration: reverseTransitionDuration,
+      debugLabel: debugLabel);
+  @override
+  Widget buildModalBarrier() => AnimatedBuilder(
+      animation: animation!,
+      child: super.buildModalBarrier(),
+      builder: (_, child) => IgnorePointer(
+          ignoring:
+              !homeHandoff && animation!.status != AnimationStatus.completed,
+          child: child));
+  DepthExpansionRoute? _expansionAbove;
+  @override
+  void didChangeNext(Route<dynamic>? nextRoute) {
+    _expansionAbove = nextRoute is DepthExpansionRoute
+        ? nextRoute as DepthExpansionRoute
+        : null;
+    if (_expansionAbove != null && nextRoute is TransitionRoute<dynamic>) {
+      final above = _expansionAbove;
+      nextRoute.completed.then((_) {
+        if (navigator != null && identical(_expansionAbove, above)) {
+          _expansionAbove = null;
+          changedInternalState();
+        }
+      });
+    }
+    super.didChangeNext(nextRoute);
+    changedInternalState();
+  }
+
+  @override
+  Widget buildTransitions(BuildContext context, Animation<double> animation,
+      Animation<double> secondaryAnimation, Widget child) {
+    final size = MediaQuery.sizeOf(context);
+    final progress = animation.value;
+    final t = depthProgressAnimation.value;
+    final color = Theme.of(context).scaffoldBackgroundColor;
+    final foreground = IgnorePointer(
+      ignoring: homeHandoff
+          ? animation.status != AnimationStatus.completed
+          : animation.status == AnimationStatus.reverse || progress < .22,
+      child: ClipPath(
+        key: const ValueKey('sourceExpansionMask'),
+        clipper: ControlExpansionClipper(
+          source: _source,
+          sourceRadius: _sourceRadius ?? MiuixRadii.control,
+          progress: t,
+        ),
+        child: Stack(fit: StackFit.expand, children: [
+          Opacity(
+              opacity:
+                  _sourceImage == null ? 1 : (progress / .12).clamp(0.0, 1.0),
+              child: ColoredBox(
+                  color: Color.lerp(_sourceColor ?? color, color,
+                      ((progress - .25) / .75).clamp(0.0, 1.0))!)),
+          Opacity(
+              opacity: Curves.easeOut
+                  .transform(((progress - .10) / .75).clamp(0.0, 1.0)),
+              child: RepaintBoundary(child: child)),
+          if (_sourceImage != null && progress < .22)
+            Positioned.fromRect(
+                rect: Rect.fromCenter(
+                    center:
+                        ControlExpansionClipper.bounds(_source, size, t).center,
+                    width: _source.width,
+                    height: _source.height),
+                child: Opacity(
+                    opacity: (1 - progress / .22).clamp(0.0, 1.0),
+                    child: RawImage(image: _sourceImage, fit: BoxFit.fill))),
+        ]),
+      ),
+    );
+
+    final above = _expansionAbove;
+    return above == null
+        ? foreground
+        : PageDepthTransition(
+            animation: above.depthProgressAnimation, child: foreground);
+  }
+
+  @override
+  Animation<double> get depthProgressAnimation => expansionAnimation;
   final ui.Image? _sourceImage;
   final VoidCallback? _restoreSource;
   final VoidCallback? _onExpanded;
@@ -150,6 +203,7 @@ class SourceExpandRoute<T> extends PageRouteBuilder<T> {
 
   // ModalRoute.animation temporarily reports completed during the offstage
   // measurement pass. External handoff must watch the real controller instead.
+  @override
   Animation<double> get expansionAnimation => controller!;
   @override
   void dispose() {
@@ -170,12 +224,22 @@ class ControlExpansionClipper extends CustomClipper<Path> {
   final double sourceRadius, progress;
   static Rect bounds(Rect source, Size size, double progress) =>
       Rect.lerp(source, Offset.zero & size, progress)!;
+  double get radius => ui.lerpDouble(
+      sourceRadius.clamp(0, source.shortestSide / 2),
+      IOSMotion.windowRadius,
+      Curves.easeOut.transform((progress / .6).clamp(0.0, 1.0)))!;
   @override
-  Path getClip(Size size) => Path()
-    ..addRRect(RRect.fromRectAndRadius(
-        bounds(source, size, progress),
-        Radius.circular(
-            sourceRadius.clamp(0, source.shortestSide / 2) * (1 - progress))));
+  Path getClip(Size size) {
+    if (progress >= 1) return Path()..addRect(Offset.zero & size);
+    final settle =
+        Curves.easeIn.transform(((progress - .9) / .1).clamp(0.0, 1.0));
+    return Path()
+      ..addRRect(RRect.fromRectAndRadius(
+          bounds(source, size, progress)
+              .inflate(IOSMotion.windowRadius * settle),
+          Radius.circular(radius)));
+  }
+
   @override
   bool shouldReclip(ControlExpansionClipper oldClipper) =>
       source != oldClipper.source ||
@@ -195,59 +259,62 @@ Rect expansionSource(BuildContext context) {
       center: size.center(Offset.zero), width: 70, height: 70);
 }
 
-final _opening = <NavigatorState>{};
 SourceExpandRoute<T>? _captureRoute<T>(BuildContext context, Widget page,
     GlobalKey? sourceKey, double? radius, Color? color,
     {bool homeHandoff = false,
     VoidCallback? onExpanded,
     RouteSettings? settings}) {
   final navigator = Navigator.of(context);
-  if (!_opening.add(navigator)) return null;
-  try {
-    final origin = sourceKey?.currentContext ?? context;
-    final source = expansionSource(origin);
-    final reduce = MediaQuery.disableAnimationsOf(context);
-    ui.Image? image;
-    final anchor = sourceKey?.currentState;
-    final anchorState = anchor is _ExpansionAnchorState ? anchor : null;
-    if (!reduce && sourceKey != null) {
-      final boundary =
-          anchorState?.boundaryKey.currentContext?.findRenderObject() ??
-              origin.findRenderObject();
-      // InkWell can dirty its boundary on pointer-up. Capture the last painted
-      // layer (the original icon), without waiting for a splash/repaint frame.
-      if (boundary is _IconSnapshotRenderBox) {
-        try {
-          final pixels =
-              math.max(1.0, boundary.size.width * boundary.size.height);
-          final ratio = math.min(
-              MediaQuery.devicePixelRatioOf(context).clamp(1.0, 2.0),
-              math.sqrt(200000 / pixels));
-          image = boundary.captureLastPaint(ratio);
-        } catch (_) {
-          // A missing snapshot must never prevent navigation.
-        }
+  final origin = sourceKey?.currentContext ?? context;
+  final source = expansionSource(origin);
+  final reduce = MediaQuery.disableAnimationsOf(context);
+  ui.Image? image;
+  final anchor = sourceKey?.currentState;
+  final anchorState = anchor is _ExpansionAnchorState ? anchor : null;
+  final active = anchorState?._route;
+  if (active?.navigator != null &&
+      active!.expansionAnimation.status != AnimationStatus.reverse) return null;
+  if (!reduce && sourceKey != null) {
+    final boundary =
+        anchorState?.boundaryKey.currentContext?.findRenderObject() ??
+            origin.findRenderObject();
+    // InkWell can dirty its boundary on pointer-up. Capture the last painted
+    // layer (the original icon), without waiting for a splash/repaint frame.
+    if (boundary is _IconSnapshotRenderBox) {
+      try {
+        final pixels =
+            math.max(1.0, boundary.size.width * boundary.size.height);
+        final ratio = math.min(
+            MediaQuery.devicePixelRatioOf(context).clamp(1.0, 1.5),
+            math.sqrt(64000 / pixels));
+        image = boundary.captureLastPaint(ratio);
+      } catch (_) {
+        // A missing snapshot must never prevent navigation.
       }
     }
-    if (!context.mounted || !navigator.mounted) {
-      image?.dispose();
-      return null;
-    }
-    anchorState?.hide();
-    return SourceExpandRoute<T>(
-        restoreSource: anchorState?.restore,
-        onExpanded: onExpanded,
-        homeHandoff: homeHandoff,
-        settings: settings,
-        builder: (_) => page,
-        source: source,
-        sourceRadius: radius,
-        sourceColor: color,
-        sourceImage: image,
-        reduceMotion: reduce);
-  } finally {
-    _opening.remove(navigator);
   }
+  if (!context.mounted || !navigator.mounted) {
+    image?.dispose();
+    return null;
+  }
+  final generation = anchorState?.hide();
+  late final SourceExpandRoute<T> route;
+  route = SourceExpandRoute<T>(
+      restoreSource: () {
+        if (identical(anchorState?._route, route)) anchorState?._route = null;
+        if (generation != null) anchorState?.restore(generation);
+      },
+      onExpanded: onExpanded,
+      homeHandoff: homeHandoff,
+      settings: settings,
+      builder: (_) => page,
+      source: source,
+      sourceRadius: radius,
+      sourceColor: color,
+      sourceImage: image,
+      reduceMotion: reduce);
+  anchorState?._route = route;
+  return route;
 }
 
 Future<T?> expandPage<T>(BuildContext context, Widget page,
@@ -299,7 +366,11 @@ Future<void> expandAction(BuildContext context, VoidCallback action,
   status(animation.status);
   final completed = await finished.future;
   animation.removeStatusListener(status);
-  if (!completed || !context.mounted || !route.isCurrent) return;
+  if (!completed || !context.mounted) return;
+  if (!route.isCurrent) {
+    if (route.isActive) navigator.removeRoute(route);
+    return;
+  }
   try {
     action();
   } finally {
@@ -312,9 +383,11 @@ class HomeEntrance extends StatelessWidget {
       {super.key,
       required this.animation,
       required this.index,
+      this.hasCurvedClock = false,
       required this.child});
   final Animation<double> animation;
   final int index;
+  final bool hasCurvedClock;
   final Widget child;
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
@@ -322,8 +395,10 @@ class HomeEntrance extends StatelessWidget {
       child: child,
       builder: (_, child) {
         final start = (index * .022).clamp(0.0, .28);
-        final t = Curves.easeOutCubic.transform(
-            ((animation.value - start) / (1 - start)).clamp(0.0, 1.0));
+        final progress =
+            ((animation.value - start) / (1 - start)).clamp(0.0, 1.0);
+        final t =
+            hasCurvedClock ? progress : IOSMotion.opening.transform(progress);
         return Opacity(
             opacity: t,
             child: Transform.translate(

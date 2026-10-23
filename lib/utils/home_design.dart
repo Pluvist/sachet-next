@@ -11,6 +11,7 @@ abstract final class HomeDesign {
   static const padding = 18.0;
   static const gap = 13.0;
   static const columns = 2;
+  static const minFeatureCardWidth = 132.0;
   static const cardHeight = 76.0;
   static const cardRadius = MiuixRadii.panel;
   static const cardSize = 15.0;

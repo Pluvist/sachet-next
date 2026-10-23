@@ -1,3 +1,4 @@
+import 'package:sachet/services/zhengfang_jwxt/authenticated_http.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sachet/utils/transform.dart';
@@ -14,7 +15,7 @@ Future fetchReserveTextbookInfoZF({
   /// xqm 学期名，"3"=> 第1学期，"12"=>第二学期，""=> 全部
   required String semesterIndex,
 }) async {
-  final dio = Dio(BaseOptions(
+  final dio = createZhengFangDio(BaseOptions(
     validateStatus: (_) => true,
     followRedirects: false,
   ));

@@ -88,11 +88,16 @@ class ClassScheduleService {
   /// return (\<String>开学日期，\<DateTime>开学日期)
   Future<(String, DateTime)> getSemesterStartDate({
     required String cookie,
+    ZhengFangUserProvider? zhengFangUserProvider,
   }) async {
-    final html = await fetchSemesterStartDate(cookie: cookie);
-    final (String, DateTime) semesterStartDate =
-        parseSemesterStartDateFromHtml(html);
-    return semesterStartDate;
+    return withAutoLoginRetry(
+      initialCookie: cookie,
+      zhengFangUserProvider: zhengFangUserProvider,
+      action: (activeCookie) async {
+        final html = await fetchSemesterStartDate(cookie: activeCookie);
+        return parseSemesterStartDateFromHtml(html);
+      },
+    );
   }
 
   /// 获取指定学年的课表。
@@ -114,11 +119,16 @@ class ClassScheduleService {
     required String cookie,
     required String semesterYear, // 学年，如 '2025'=> 指 2025-2026 学年
     required String semesterIndex, // 学期编号，1=> 第1学期，2=>第二学期，3=>第三学期
+    ZhengFangUserProvider? zhengFangUserProvider,
   }) async {
-    final jsonData = await fetchClassScheduleZF(
-      cookie: cookie,
-      semesterYear: semesterYear,
-      semesterIndex: semesterIndex,
+    final jsonData = await withAutoLoginRetry(
+      initialCookie: cookie,
+      zhengFangUserProvider: zhengFangUserProvider,
+      action: (activeCookie) => fetchClassScheduleZF(
+        cookie: activeCookie,
+        semesterYear: semesterYear,
+        semesterIndex: semesterIndex,
+      ),
     );
     final scheduleList = await parseClassScheduleZF(jsonData);
     final semester = ClassScheduleDataParserZF.parseSemester(jsonData);

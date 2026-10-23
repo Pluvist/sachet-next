@@ -3,83 +3,140 @@ import 'package:sachet/providers/zhengfang_user_provider.dart';
 
 import 'login/zhengfang_login_service.dart';
 
-/// 默认的 Cookie/Session 失效检查逻辑。
-///
-/// 匹配正方教务系统常见的重定向 (302) 与 验证失败 (901) 状态码。
-bool _defaultSessionCheck(Object error) {
+bool isZhengFangSessionExpired(Object error) {
   final errorStr = error.toString();
   return errorStr.contains('Http status code = 302') ||
       errorStr.contains('Http status code = 901');
 }
 
-/// 自动登录与重试封装
-///
-/// 用于教务系统请求的统一拦截处理：
-///
-/// 当检测到 Cookie/Session 失效时，自动使用保存的学号和密码（如果有）重新登录，并用新 Cookie 重试原请求。
-///
-/// 实现无感重登录和重试。
-///
-/// 示例：
-/// ```dart
-/// return withAutoLoginRetry(
-///   initialCookie: cookie,
-///   zhengFangUserProvider: zhengFangUserProvider,
-///   action: (activeCookie) async {
-///     final result = await fetchGrade(cookie: activeCookie);
-///     return parseGrade(result);
-///   },
-/// );
-/// ```
+final _sharedRecovery = ZhengFangSessionRecovery();
+
+/// All authenticated features share one login for an expired account session.
+/// Dependencies can be supplied for deterministic tests without real logins.
+class ZhengFangSessionRecovery {
+  ZhengFangSessionRecovery({
+    Future<String?> Function()? readPassword,
+    Future<String> Function(String username, String password)? login,
+  })  : _readPassword = readPassword ?? ZhengFangUserProvider.readPassword,
+        _login = login ?? _loginWithPassword;
+
+  final Future<String?> Function() _readPassword;
+  final Future<String> Function(String username, String password) _login;
+  final _pending = <(ZhengFangUserProvider, int), Future<String>>{};
+
+  static Future<String> _loginWithPassword(
+      String username, String password) async {
+    final service = ZhengFangLoginService();
+    await service.login(username: username, password: password);
+    return service.cookie;
+  }
+
+  Future<String> recover({
+    required ZhengFangUserProvider provider,
+    required String account,
+    required int revision,
+    required String failedCookie,
+  }) async {
+    void checkCurrent() {
+      if (!provider.isLogin ||
+          provider.user.studentID != account ||
+          provider.sessionRevision != revision) {
+        throw StateError('登录账号已变化');
+      }
+    }
+
+    checkCurrent();
+    if ((provider.user.cookie ?? '').isNotEmpty &&
+        provider.user.cookie != failedCookie) {
+      return provider.user.cookie!;
+    }
+
+    final key = (provider, revision);
+    final pending = _pending[key];
+    if (pending != null) return pending;
+
+    Future<String> login() async {
+      final password = await _readPassword();
+      checkCurrent();
+      // A request may finish recovering while the saved password is read.
+      if ((provider.user.cookie ?? '').isNotEmpty &&
+          provider.user.cookie != failedCookie) {
+        return provider.user.cookie!;
+      }
+      if (password == null || password.isEmpty) {
+        throw StateError('未保存教务系统密码');
+      }
+      final cookie = await _login(account, password);
+      checkCurrent();
+      if (cookie.isEmpty) throw StateError('登录未返回有效 Cookie');
+      if (provider.user.cookie != failedCookie) {
+        return provider.user.cookie!;
+      }
+      await provider.setCookie(cookie, expectedSessionRevision: revision);
+      checkCurrent();
+      return provider.user.cookie!;
+    }
+
+    final recovery = login();
+    _pending[key] = recovery;
+    try {
+      return await recovery;
+    } finally {
+      if (identical(_pending[key], recovery)) _pending.remove(key);
+    }
+  }
+}
+
+/// Retry one expired request after a shared silent login or Cookie rotation.
 Future<T> withAutoLoginRetry<T>({
   required String initialCookie,
   required ZhengFangUserProvider? zhengFangUserProvider,
-  bool Function(Object error) isSessionExpired = _defaultSessionCheck,
+  bool Function(Object error) isSessionExpired = isZhengFangSessionExpired,
   required Future<T> Function(String activeCookie) action,
+  @visibleForTesting ZhengFangSessionRecovery? recovery,
 }) async {
-  final requestedAccount = zhengFangUserProvider?.user.studentID;
-  try {
-    // 首次尝试：使用初始 Cookie 发起请求
-    return await action(initialCookie);
-  } catch (e) {
-    // 判断是否是登录失效
-    if (!isSessionExpired(e)) rethrow;
+  final provider = zhengFangUserProvider;
+  await provider?.init();
+  final requestedAccount = provider?.user.studentID;
+  final requestedRevision = provider?.sessionRevision;
+  final activeCookie = provider != null && provider.isLogin
+      ? provider.user.cookie ?? initialCookie
+      : initialCookie;
 
-    // 检查是否具备自动登录的条件
-    if (zhengFangUserProvider == null) rethrow;
-    if (!zhengFangUserProvider.isLogin ||
-        zhengFangUserProvider.user.studentID != requestedAccount) {
-      rethrow;
+  void checkCurrent() {
+    if (provider != null &&
+        requestedAccount != null &&
+        (!provider.isLogin ||
+            provider.user.studentID != requestedAccount ||
+            provider.sessionRevision != requestedRevision)) {
+      throw StateError('登录账号已变化');
     }
+  }
 
-    final studentID = zhengFangUserProvider.user.studentID;
-    if (studentID == null) rethrow;
-
-    final password = await ZhengFangUserProvider.readPassword();
-    if (password == null) rethrow;
-
-    // 尝试静默重新登录
-    final zhengFangLoginService = ZhengFangLoginService();
+  try {
+    final result = await action(activeCookie);
+    checkCurrent();
+    return result;
+  } catch (e) {
+    if (!isSessionExpired(e)) rethrow;
+    if (provider == null ||
+        requestedAccount == null ||
+        requestedAccount.trim().isEmpty) rethrow;
+    String newCookie;
     try {
-      await zhengFangLoginService.login(
-        username: studentID,
-        password: password,
+      newCookie = await (recovery ?? _sharedRecovery).recover(
+        provider: provider,
+        account: requestedAccount,
+        revision: requestedRevision!,
+        failedCookie: activeCookie,
       );
-      if (!zhengFangUserProvider.isLogin ||
-          zhengFangUserProvider.user.studentID != requestedAccount) {
-        throw StateError('登录账号已变化');
-      }
-      await zhengFangUserProvider.setCookie(zhengFangLoginService.cookie);
-    } catch (reLoginError) {
-      if (kDebugMode) {
-        print('教务系统自动重新登录失败: $reLoginError');
-      }
-      // 登录失败，抛出首次请求抓到的错误（仍提示登录失效，需要用户手动去登录）
+      checkCurrent();
+    } catch (_) {
+      // Preserve the request's expiry error for existing UI error handling.
       throw e;
     }
-
-    // 登录成功，拿到新 Cookie 进行重试
-    final newCookie = ZhengFangUserProvider.cookie;
-    return await action(newCookie);
+    final result = await action(newCookie);
+    checkCurrent();
+    return result;
   }
 }

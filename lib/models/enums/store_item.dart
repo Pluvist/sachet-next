@@ -26,7 +26,10 @@ enum StoreItem {
   passwordZF('passwordZF'),
 
   /// 用户登录成功的 cookie（正方教务系统）
-  cookieZF('cookieZF');
+  cookieZF('cookieZF'),
+
+  /// Atomic encrypted account snapshot; legacy fields remain for migration.
+  sessionZF('sessionZF');
 
   const StoreItem(this.keyName);
   final String keyName;

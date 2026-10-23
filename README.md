@@ -12,11 +12,11 @@
 
 | Android 架构 | 适用设备 | 下载 |
 | --- | --- | --- |
-| arm64-v8a | 多数现代安卓手机选择此版本 | [ARM64 APK](https://github.com/Pluvist/sachet-next/releases/download/v0.19.74/sachet-next-v0.19.74-arm64-v8a.apk) |
-| armeabi-v7a | 32 位 ARM 安卓设备 | [ARM v7a APK](https://github.com/Pluvist/sachet-next/releases/download/v0.19.74/sachet-next-v0.19.74-armeabi-v7a.apk) |
-| x86_64 | 64 位 x86 安卓设备或兼容模拟器 | [x86_64 APK](https://github.com/Pluvist/sachet-next/releases/download/v0.19.74/sachet-next-v0.19.74-x86_64.apk) |
+| arm64-v8a | 多数现代安卓手机选择此版本 | [ARM64 APK](https://github.com/Pluvist/sachet-next/releases/download/v0.19.75/sachet-next-v0.19.75-arm64-v8a.apk) |
+| armeabi-v7a | 32 位 ARM 安卓设备 | [ARM v7a APK](https://github.com/Pluvist/sachet-next/releases/download/v0.19.75/sachet-next-v0.19.75-armeabi-v7a.apk) |
+| x86_64 | 64 位 x86 安卓设备或兼容模拟器 | [x86_64 APK](https://github.com/Pluvist/sachet-next/releases/download/v0.19.75/sachet-next-v0.19.75-x86_64.apk) |
 
-当前正式版 **0.19.74** 使用独立 Android 包名 `com.pluvist.sachet.next` 和 Pluvist 的专用发布签名，提供三种架构的 release/AOT 安装包。UI 采用 Miuix 风格，适配平板与横屏双周布局，包含课程实时活动、2×2 / 4×2 桌面组件、双月视图和新版启动引导。可直接覆盖升级 0.19.59、原 0.19.60 及其同签名测试版。
+当前正式版 **0.19.75** 修复登录恢复、部分登录失败及窄屏主页快捷方式布局。使用独立 Android 包名 `com.pluvist.sachet.next` 和 Pluvist 的专用发布签名，提供三种架构的 release/AOT 安装包。保留 Miuix 界面、平板横屏双周布局、课程实时活动、双尺寸桌面组件和双月视图，可覆盖升级 0.19.74 及同签名旧版。详见 [发布说明](docs/releases/0.19.75.md) 与 [会话恢复说明](docs/session-recovery.md)。
 
 **从旧版迁移：** 0.19.58 及此前测试版使用不同包名，因此新版会独立安装，不能覆盖旧应用，也不会自动继承登录、课表和小组件配置。请在新版重新登录并同步课表，需要时重新添加桌面组件和授予通知权限；旧应用可保留，数据不会被本次安装删除。今后相同包名且相同发布签名的版本可正常覆盖升级。安装包校验见 Release 中的 `SHA256SUMS.txt`。
 

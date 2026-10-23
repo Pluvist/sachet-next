@@ -1,10 +1,11 @@
+import 'package:sachet/services/zhengfang_jwxt/authenticated_http.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sachet/utils/transform.dart';
 
 /// 获取成绩查询的当前学年，可选学年，当前学期和页面显示的红色提醒文字(Danger Text)
 Future fetchGradeSemetersAndAlertTextZF({required String cookie}) async {
-  final dio = Dio(BaseOptions(
+  final dio = createZhengFangDio(BaseOptions(
     validateStatus: (_) => true,
     followRedirects: false,
   ));

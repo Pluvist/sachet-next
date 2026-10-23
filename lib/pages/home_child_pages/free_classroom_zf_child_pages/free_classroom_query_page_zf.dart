@@ -32,9 +32,9 @@ class _FreeClassroomQueryPageZFState extends State<FreeClassroomQueryPageZF> {
   }
 
   Future<List<FreeClassroomDataResponseZF>> getFreeClassroomData() async {
-    final result = await context
-        .read<FreeClassroomPageZFProvider>()
-        .getData(cookie: ZhengFangUserProvider.cookie);
+    final result = await context.read<FreeClassroomPageZFProvider>().getData(
+        cookie: ZhengFangUserProvider.cookie,
+        zhengFangUserProvider: context.read<ZhengFangUserProvider>());
 
     return result;
   }

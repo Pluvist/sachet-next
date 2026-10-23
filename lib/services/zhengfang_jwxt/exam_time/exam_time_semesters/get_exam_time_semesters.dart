@@ -1,8 +1,5 @@
-import 'package:flutter/foundation.dart';
 import 'package:sachet/providers/zhengfang_user_provider.dart';
-import 'package:sachet/services/zhengfang_jwxt/exam_time/exam_time_semesters/fetch_exam_time_semesters.dart';
-import 'package:sachet/services/zhengfang_jwxt/exam_time/exam_time_semesters/parse_exam_time_semesters.dart';
-import 'package:sachet/services/zhengfang_jwxt/login/zhengfang_login_service.dart';
+import 'package:sachet/services/zhengfang_jwxt/exam_time/exam_time_service.dart';
 
 /// 从正方教务系统获取考试时间查询页面当前学年，可选学年和当前学期
 ///
@@ -62,48 +59,8 @@ Future<
   required String cookie,
   required ZhengFangUserProvider? zhengFangUserProvider,
 }) async {
-  try {
-    final html = await fetchExamTimeSemetersZF(cookie: cookie);
-    return parseExamTimeSemestersFromHtmlZF(html);
-  } catch (e) {
-    if (e == '获取可查询学期数据失败: Http status code = 302, 可能需要重新登录') {
-      if (zhengFangUserProvider == null) {
-        rethrow;
-      }
-
-      final studentID = zhengFangUserProvider.user.studentID;
-      if (studentID == null) {
-        rethrow;
-      }
-
-      final password = await ZhengFangUserProvider.readPassword();
-      if (password == null) {
-        rethrow;
-      }
-
-      final zhengFangLoginService = ZhengFangLoginService();
-      try {
-        await zhengFangLoginService.login(
-          username: studentID,
-          password: password,
-        );
-        String cookie = zhengFangLoginService.cookie;
-        await zhengFangUserProvider.setCookie(cookie);
-      } catch (reLoginError) {
-        if (kDebugMode) {
-          print(reLoginError);
-        }
-        // 登录失败，重新抛出 fetchExamTimeSemetersZF() 的 error，（仍提示登录失效，需要用户手动去登录）
-        throw e;
-      }
-      // 登录成功
-      // 重新读取最新 cookie
-      final newCookie = ZhengFangUserProvider.cookie;
-      // 重新加载数据
-      final html = await fetchExamTimeSemetersZF(cookie: newCookie);
-      return parseExamTimeSemestersFromHtmlZF(html);
-    } else {
-      rethrow;
-    }
-  }
+  return const ExamTimeService().getExamTimeSemesters(
+    cookie: cookie,
+    zhengFangUserProvider: zhengFangUserProvider,
+  );
 }

@@ -1,10 +1,11 @@
+import 'package:sachet/services/zhengfang_jwxt/authenticated_http.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sachet/utils/transform.dart';
 
 /// 获取教材预订的可选学年，当前学年和当前学期
 Future fetchReserveTextbookSemetersZF({required String cookie}) async {
-  final dio = Dio(BaseOptions(
+  final dio = createZhengFangDio(BaseOptions(
     validateStatus: (_) => true,
     followRedirects: false,
   ));

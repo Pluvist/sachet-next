@@ -84,16 +84,23 @@ class _ZhengFangJwxtLoginPageViewState
 
   /// 获取储存的 学号和密码
   Future loadDataFromSecureStorage() async {
-    String? studentIDText =
-        context.read<ZhengFangUserProvider>().user.studentID;
-    String? passwordText = await ZhengFangUserProvider.readPassword();
-    if (!mounted) return;
-    usernameTextController.text = studentIDText ?? '';
-    passwordTextController.text = passwordText ?? '';
-
-    // 如果存在保存的数据，更改 是否记住 的状态 = true
-    if (passwordText != null) {
-      context.read<LoginPageProvider>().setIsRememberPassword(true);
+    try {
+      final user = context.read<ZhengFangUserProvider>();
+      await user.init();
+      final studentIDText = user.user.studentID;
+      final passwordText = await ZhengFangUserProvider.readPassword();
+      if (!mounted) return;
+      // Slow storage reads must not replace text or the remember choice that
+      // the user has already changed while the form was being restored.
+      if (usernameTextController.text.isEmpty) {
+        usernameTextController.text = studentIDText ?? '';
+      }
+      if (passwordTextController.text.isEmpty) {
+        passwordTextController.text = passwordText ?? '';
+      }
+    } catch (_) {
+      // Manual login remains usable if secure storage is temporarily unavailable.
+      // A failed save is still reported by the login operation itself.
     }
   }
 
@@ -102,21 +109,19 @@ class _ZhengFangJwxtLoginPageViewState
     if (_loginFormKey.currentState!.validate()) {
       FocusScope.of(context).unfocus();
       context.read<LoginPageProvider>().setIsLoggingIn(true);
+      final username = usernameTextController.text;
+      final password = passwordTextController.text;
+      final remember = context.read<LoginPageProvider>().isRememberPassword;
 
       try {
-        final user = await widget.authenticator.passwordLogin(
-            usernameTextController.text, passwordTextController.text);
+        final user =
+            await widget.authenticator.passwordLogin(username, password);
 
         if (!context.mounted) return;
 
-        await context.read<ZhengFangUserProvider>().setUser(user);
-
-        if (!context.mounted) return;
-
-        // 如果选择记住密码，储存至 secureStorage
-        if (context.read<LoginPageProvider>().isRememberPassword == true) {
-          await ZhengFangUserProvider.savePassword(passwordTextController.text);
-        }
+        await context
+            .read<ZhengFangUserProvider>()
+            .setUser(user, password: password, rememberPassword: remember);
 
         if (!context.mounted) return;
 

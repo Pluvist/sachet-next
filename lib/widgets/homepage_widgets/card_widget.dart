@@ -14,12 +14,14 @@ class CardWidget extends StatefulWidget {
     this.page,
     this.onTap,
     this.link,
+    this.compact = false,
   });
   final String title;
   final IconData icon;
   final String? link;
   final Widget? page;
   final VoidCallback? onTap;
+  final bool compact;
 
   @override
   State<CardWidget> createState() => _CardWidgetState();
@@ -63,10 +65,12 @@ class _CardWidgetState extends State<CardWidget> {
                       constraints: const BoxConstraints(
                           minHeight: HomeDesign.cardHeight),
                       child: Padding(
-                          padding: const EdgeInsets.all(16),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: widget.compact ? 12 : 16,
+                              vertical: 16),
                           child: Row(children: [
                             MiuixIconBadge(icon, size: 34),
-                            const SizedBox(width: 12),
+                            SizedBox(width: widget.compact ? 10 : 12),
                             Expanded(
                                 child: Text(title,
                                     style: TextStyle(

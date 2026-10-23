@@ -1,9 +1,10 @@
+import 'package:sachet/services/zhengfang_jwxt/authenticated_http.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sachet/utils/transform.dart';
 
 Future fetchClassScheduleSemetersZF({required String cookie}) async {
-  final dio = Dio(BaseOptions(
+  final dio = createZhengFangDio(BaseOptions(
     connectTimeout: const Duration(seconds: 10),
     receiveTimeout: const Duration(seconds: 15),
     sendTimeout: const Duration(seconds: 10),

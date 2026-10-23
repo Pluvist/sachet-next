@@ -57,6 +57,7 @@ class AutomaticCourseRefresh {
     await user.init();
     if (!isAlive() || !user.isLogin) return false;
     final account = user.user.studentID;
+    final sessionRevision = user.sessionRevision;
     final previousPath = settings.classScheduleFilePath;
     final previousColorPath = settings.courseColorFilePath;
     final previousDate = SettingsProvider.semesterStartDate;
@@ -64,6 +65,7 @@ class AutomaticCourseRefresh {
         isAlive() &&
         user.isLogin &&
         user.user.studentID == account &&
+        user.sessionRevision == sessionRevision &&
         settings.classScheduleFilePath == previousPath &&
         settings.courseColorFilePath == previousColorPath &&
         SettingsProvider.semesterStartDate == previousDate;
@@ -92,7 +94,8 @@ class AutomaticCourseRefresh {
         if (previousPath.isEmpty ||
             !path.basename(previousPath).contains(semester)) {
           start = (await service.getSemesterStartDate(
-                  cookie: ZhengFangUserProvider.cookie))
+                  cookie: ZhengFangUserProvider.cookie,
+                  zhengFangUserProvider: user))
               .$1;
         }
         return RefreshedCourseData(courses, semester, start);

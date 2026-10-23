@@ -1,3 +1,4 @@
+import 'package:sachet/services/zhengfang_jwxt/authenticated_http.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sachet/utils/transform.dart';
@@ -15,7 +16,7 @@ Future fetchCultivationQueryableMajorsZF({
   /// 专业代码
   required String majorId,
 }) async {
-  final dio = Dio(BaseOptions(
+  final dio = createZhengFangDio(BaseOptions(
     validateStatus: (_) => true,
     followRedirects: false,
   ));

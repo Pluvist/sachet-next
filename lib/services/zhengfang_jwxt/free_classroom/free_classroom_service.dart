@@ -48,33 +48,40 @@ class FreeClassroomService {
 
     /// xqm 学期名，"3"=> 第1学期，"12"=>第二学期，"16"=>第三学期
     required String semesterIndex,
+    ZhengFangUserProvider? zhengFangUserProvider,
   }) async {
-    final List result = await fetchTeachingBuildingsZF(
-      cookie: cookie,
-      semesterYear: semesterYear,
-      semesterIndex: semesterIndex,
+    return withAutoLoginRetry(
+      initialCookie: cookie,
+      zhengFangUserProvider: zhengFangUserProvider,
+      action: (activeCookie) async {
+        final List result = await fetchTeachingBuildingsZF(
+          cookie: activeCookie,
+          semesterYear: semesterYear,
+          semesterIndex: semesterIndex,
+        );
+        return <String, String>{
+          for (final e in result) e['JXLMC'] as String: e['JXLDM'] as String,
+        };
+      },
     );
-    Map<String, String> teachingBuildingMap = {};
-    for (final e in result) {
-      String teachingBuildingName = e['JXLMC'];
-      String teachingBuildingValue = e['JXLDM'];
-      teachingBuildingMap.addAll({teachingBuildingName: teachingBuildingValue});
-    }
-    return teachingBuildingMap;
   }
 
   Future<List<FreeClassroomDataResponseZF>> getFreeClassroom({
     required String cookie,
     required Map data,
+    ZhengFangUserProvider? zhengFangUserProvider,
   }) async {
-    final List result = await fetchFreeClassroomZF(cookie: cookie, data: data);
-    List<FreeClassroomDataResponseZF> dataList = [];
-    for (final element in result) {
-      FreeClassroomDataResponseZF classroomData =
-          FreeClassroomDataResponseZF.fromJson(element);
-      dataList.add(classroomData);
-    }
-    return dataList;
+    return withAutoLoginRetry(
+      initialCookie: cookie,
+      zhengFangUserProvider: zhengFangUserProvider,
+      action: (activeCookie) async {
+        final List result =
+            await fetchFreeClassroomZF(cookie: activeCookie, data: data);
+        return result
+            .map((element) => FreeClassroomDataResponseZF.fromJson(element))
+            .toList();
+      },
+    );
   }
 
   /// 获取今日或明日的空闲教室数据（正方教务）
@@ -190,7 +197,11 @@ class FreeClassroomService {
 
       /// 一个时间段([1, 2]/[3, 4]/[5, 6]/[7, 8]/[9, 10, 11]) 的空闲教室数据(只返回空闲的教室)
       final List<FreeClassroomDataResponseZF> freeClassroomPerItem =
-          await getFreeClassroom(cookie: cookie, data: data);
+          await getFreeClassroom(
+        cookie: cookie,
+        data: data,
+        zhengFangUserProvider: zhengFangUserProvider,
+      );
 
       for (final classroom in freeClassroomPerItem) {
         final classroomName = classroom.classroomName;
@@ -317,7 +328,11 @@ class FreeClassroomService {
 
       /// 一个时间段([1, 2]/[3, 4]/[5, 6]/[7, 8]/[9, 10, 11]) 的空闲教室数据(只返回空闲的教室)
       final List<FreeClassroomDataResponseZF> freeClassroomPerItem =
-          await getFreeClassroom(cookie: cookie, data: data);
+          await getFreeClassroom(
+        cookie: cookie,
+        data: data,
+        zhengFangUserProvider: zhengFangUserProvider,
+      );
 
       for (final classroom in freeClassroomPerItem) {
         final classroomName = classroom.classroomName;

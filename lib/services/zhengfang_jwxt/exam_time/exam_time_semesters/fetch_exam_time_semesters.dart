@@ -1,10 +1,11 @@
+import 'package:sachet/services/zhengfang_jwxt/authenticated_http.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sachet/utils/transform.dart';
 
 /// 获取考试时间查询的当前学年，可选学年和当前学期
 Future fetchExamTimeSemetersZF({required String cookie}) async {
-  final dio = Dio(BaseOptions(
+  final dio = createZhengFangDio(BaseOptions(
     validateStatus: (_) => true,
     followRedirects: false,
   ));

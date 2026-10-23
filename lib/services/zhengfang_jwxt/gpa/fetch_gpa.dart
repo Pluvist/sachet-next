@@ -1,3 +1,4 @@
+import 'package:sachet/services/zhengfang_jwxt/authenticated_http.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sachet/utils/transform.dart';
@@ -14,7 +15,7 @@ Future<Map> fetchGPAZF({
   /// 课程属性. 全部: "", 必修: "bx", 选修: "xx"
   required String courseType,
 }) async {
-  final dio = Dio(BaseOptions(validateStatus: (_) => true));
+  final dio = createZhengFangDio(BaseOptions(validateStatus: (_) => true));
   try {
     final String nd = DateTime.now().millisecondsSinceEpoch.toString();
 

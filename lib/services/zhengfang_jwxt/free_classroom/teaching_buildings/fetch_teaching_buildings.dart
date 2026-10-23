@@ -1,3 +1,4 @@
+import 'package:sachet/services/zhengfang_jwxt/authenticated_http.dart';
 import 'package:dio/dio.dart';
 
 /// return
@@ -52,7 +53,7 @@ Future<List> fetchTeachingBuildingsZF({
   /// xqm 学期名，"3"=> 第1学期，"12"=>第二学期，"16"=>第三学期
   required String semesterIndex,
 }) async {
-  final dio = Dio(BaseOptions(validateStatus: (_) => true));
+  final dio = createZhengFangDio(BaseOptions(validateStatus: (_) => true));
   try {
     Response response = await dio.get(
       'https://jw.xtu.edu.cn/jwglxt/cdjy/cdjy_cxXqjc.html',

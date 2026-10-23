@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:sachet/providers/zhengfang_user_provider.dart';
 
 import 'package:sachet/services/zhengfang_jwxt/free_classroom/free_classroom_service.dart';
 import 'package:sachet/services/zhengfang_jwxt/free_classroom/models/free_classroom_filter_options.dart';
@@ -316,6 +317,7 @@ class FreeClassroomPageZFProvider extends ChangeNotifier {
 
   Future<List<FreeClassroomDataResponseZF>> getData({
     required String cookie,
+    ZhengFangUserProvider? zhengFangUserProvider,
   }) async {
     final String zcd =
         calculateZcdOrJcd(_selectedWeekCounts.toList()).toString();
@@ -342,9 +344,11 @@ class FreeClassroomPageZFProvider extends ChangeNotifier {
       nd: nd,
     ).toJson();
 
-    final List<FreeClassroomDataResponseZF> result = await ZhengFangJwxt
-        .freeClassroom
-        .getFreeClassroom(cookie: cookie, data: data);
+    final List<FreeClassroomDataResponseZF> result =
+        await ZhengFangJwxt.freeClassroom.getFreeClassroom(
+            cookie: cookie,
+            data: data,
+            zhengFangUserProvider: zhengFangUserProvider);
     return result;
   }
 }

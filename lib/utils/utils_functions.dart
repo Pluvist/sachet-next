@@ -36,7 +36,7 @@ Future showLogoutDialog(BuildContext context) async {
   if (result == null) return;
 
   if (result == true) {
-    context.read<ZhengFangUserProvider>().deleteUser();
+    await context.read<ZhengFangUserProvider>().deleteUser();
   }
 }
 

@@ -1,10 +1,11 @@
+import 'package:sachet/services/zhengfang_jwxt/authenticated_http.dart';
 import 'package:dio/dio.dart';
 
 Future<List> fetchFreeClassroomZF({
   required String cookie,
   required Map data,
 }) async {
-  final dio = Dio(BaseOptions(
+  final dio = createZhengFangDio(BaseOptions(
     validateStatus: (_) => true,
   ));
   try {

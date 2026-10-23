@@ -95,62 +95,90 @@ class _HomePageState extends State<HomePage>
       child: child);
 
   Widget _buildFeatureCards(BuildContext context) {
-    final cards = <Widget>[
-      CardWidget(
-          title: '培养方案',
-          icon: Icons.school_rounded,
-          page: CultivationPlanPageZF()),
-      CardWidget(
-          title: '教材预订', icon: Icons.book, page: ReserveTextbookPageZF()),
-      CardWidget(
-          title: '考试时间', icon: Icons.schedule_rounded, page: ExamTimePageZF()),
-      CardWidget(
-          title: '成绩查询', icon: Icons.history_edu_outlined, page: GradePageZF()),
-      CardWidget(
-          title: '绩点排名', icon: Icons.leaderboard_rounded, page: GPAPageZF()),
-      CardWidget(
-          title: '成绩单',
-          icon: Icons.description_rounded,
-          page: ScorePdfPageZF()),
-      CardWidget(
-          title: '馆藏检索', icon: Icons.local_library, link: libraryLookUpUrl),
-      const CardWidget(
-          title: '大物实验',
-          icon: Icons.science,
-          link: collegePhysicsExperimentUrl),
-      const CardWidget(
-          title: '校园网认证', icon: Icons.wifi, link: campusNetworkAuthUrl),
-    ];
-    final columns = MediaQuery.textScalerOf(context).scale(15) > 22 ||
-            MediaQuery.sizeOf(context).width < 350
-        ? 1
-        : HomeDesign.columns;
-    return Column(
-      children: [
-        for (int start = 0; start < cards.length; start += columns) ...[
-          if (start > 0) const SizedBox(height: HomeDesign.gap),
-          IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                for (int column = 0;
-                    column <
-                        (cards.length - start < columns
-                            ? cards.length - start
-                            : columns);
-                    column++) ...[
-                  if (column > 0) const SizedBox(width: HomeDesign.gap),
-                  Expanded(
-                      child: start + column < cards.length
-                          ? _fly(start + column + 3, cards[start + column])
-                          : const SizedBox()),
+    return LayoutBuilder(builder: (context, constraints) {
+      final columns = MediaQuery.textScalerOf(context).scale(15) > 22 ||
+              constraints.maxWidth <
+                  HomeDesign.columns * HomeDesign.minFeatureCardWidth +
+                      (HomeDesign.columns - 1) * HomeDesign.gap
+          ? 1
+          : HomeDesign.columns;
+      final compact =
+          (constraints.maxWidth - (columns - 1) * HomeDesign.gap) / columns <
+              160;
+      final cards = <Widget>[
+        CardWidget(
+            compact: compact,
+            title: '培养方案',
+            icon: Icons.school_rounded,
+            page: CultivationPlanPageZF()),
+        CardWidget(
+            compact: compact,
+            title: '教材预订',
+            icon: Icons.book,
+            page: ReserveTextbookPageZF()),
+        CardWidget(
+            compact: compact,
+            title: '考试时间',
+            icon: Icons.schedule_rounded,
+            page: ExamTimePageZF()),
+        CardWidget(
+            compact: compact,
+            title: '成绩查询',
+            icon: Icons.history_edu_outlined,
+            page: GradePageZF()),
+        CardWidget(
+            compact: compact,
+            title: '绩点排名',
+            icon: Icons.leaderboard_rounded,
+            page: GPAPageZF()),
+        CardWidget(
+            compact: compact,
+            title: '成绩单',
+            icon: Icons.description_rounded,
+            page: ScorePdfPageZF()),
+        CardWidget(
+            compact: compact,
+            title: '馆藏检索',
+            icon: Icons.local_library,
+            link: libraryLookUpUrl),
+        CardWidget(
+            compact: compact,
+            title: '大物实验',
+            icon: Icons.science,
+            link: collegePhysicsExperimentUrl),
+        CardWidget(
+            compact: compact,
+            title: '校园网认证',
+            icon: Icons.wifi,
+            link: campusNetworkAuthUrl),
+      ];
+      return Column(
+        children: [
+          for (int start = 0; start < cards.length; start += columns) ...[
+            if (start > 0) const SizedBox(height: HomeDesign.gap),
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (int column = 0;
+                      column <
+                          (cards.length - start < columns
+                              ? cards.length - start
+                              : columns);
+                      column++) ...[
+                    if (column > 0) const SizedBox(width: HomeDesign.gap),
+                    Expanded(
+                        child: start + column < cards.length
+                            ? _fly(start + column + 3, cards[start + column])
+                            : const SizedBox()),
+                  ],
                 ],
-              ],
+              ),
             ),
-          ),
+          ],
         ],
-      ],
-    );
+      );
+    });
   }
 
   @override

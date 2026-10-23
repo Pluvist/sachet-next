@@ -1,3 +1,4 @@
+import 'package:sachet/services/zhengfang_jwxt/authenticated_http.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sachet/utils/transform.dart';
@@ -12,7 +13,7 @@ import 'package:sachet/utils/transform.dart';
 /// <option value="10530-zw-zgbjf">中文主修成绩单（最高不考虑加分）</option>
 /// ```
 Future fetchScorePdfTypesZF({required String cookie}) async {
-  final dio = Dio(BaseOptions(validateStatus: (_) => true));
+  final dio = createZhengFangDio(BaseOptions(validateStatus: (_) => true));
   final params = {
     "mapper[jg_id]": "jg_id",
     "mapper[zyh_id]": "zyh_id",

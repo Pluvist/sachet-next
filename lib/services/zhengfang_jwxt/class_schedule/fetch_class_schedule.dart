@@ -1,3 +1,4 @@
+import 'package:sachet/services/zhengfang_jwxt/authenticated_http.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sachet/utils/transform.dart';
@@ -16,7 +17,7 @@ Future<Map> fetchClassScheduleZF({
   //   '2': '12',
   //   '3': '16',
   // };
-  final dio = Dio(BaseOptions(
+  final dio = createZhengFangDio(BaseOptions(
     connectTimeout: const Duration(seconds: 10),
     receiveTimeout: const Duration(seconds: 15),
     sendTimeout: const Duration(seconds: 10),

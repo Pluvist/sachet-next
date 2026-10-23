@@ -25,9 +25,10 @@ void main() {
     AppGlobal.startupPage = '/class';
   });
 
-  Future<void> pumpHome(WidgetTester tester, double width, double scale) async {
-    tester.view.physicalSize = Size(width, 900);
-    tester.view.devicePixelRatio = 1;
+  Future<void> pumpHome(WidgetTester tester, double width, double scale,
+      {double pixelRatio = 1}) async {
+    tester.view.physicalSize = Size(width * pixelRatio, 900 * pixelRatio);
+    tester.view.devicePixelRatio = pixelRatio;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     await tester.pumpWidget(MultiProvider(
@@ -163,9 +164,34 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  for (final width in [320.0, 1216 / 3.5, 360.0]) {
+    testWidgets('Phone shortcuts retain two columns at logical width $width',
+        (tester) async {
+      await pumpHome(tester, width, 1, pixelRatio: 3.5);
+      final cards = find.byType(CardWidget);
+      final first = tester.getRect(cards.at(0));
+      final second = tester.getRect(cards.at(1));
+      final third = tester.getRect(cards.at(2));
+      expect(first.top, second.top);
+      expect(first.width, closeTo(second.width, 0.01));
+      expect(second.left, greaterThan(first.right));
+      expect(third.top, greaterThan(first.bottom));
+      expect(cards, findsNWidgets(9));
+      expect(tester.takeException(), isNull);
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -400));
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   testWidgets('Narrow large-text homepage remains scrollable without overflow',
       (tester) async {
     await pumpHome(tester, 320, 2);
+    final cards = find.byType(CardWidget);
+    final first = tester.getRect(cards.at(0));
+    final second = tester.getRect(cards.at(1));
+    expect(second.left, first.left);
+    expect(second.top, greaterThan(first.bottom));
     expect(tester.takeException(), isNull);
     await tester.drag(find.byType(CustomScrollView), const Offset(0, -800));
     await tester.pumpAndSettle();

@@ -7,6 +7,7 @@ import 'package:sachet/constants/url_constants.dart';
 import 'package:sachet/models/enums/update_class_schedule_state.dart';
 import 'package:sachet/providers/settings_provider.dart';
 import 'package:sachet/providers/zhengfang_user_provider.dart';
+import 'package:sachet/services/zhengfang_jwxt/auto_login_retry.dart';
 import 'package:sachet/services/zhengfang_jwxt/zhengfang_jwxt.dart';
 import 'package:sachet/utils/utils_functions.dart';
 import 'package:sachet/widgets/utils_widgets/error_with_retry_widget.dart';
@@ -50,6 +51,7 @@ class _UpdateClassScheduleZFDialogState
         cookie: ZhengFangUserProvider.cookie,
         zhengFangUserProvider: zhengFangUserProvider,
       );
+      if (!mounted) return;
       _selectedSemesterYear = result.$1;
       semestersYears = result.$2;
       _selectedSemesterIndex = result.$3;
@@ -57,7 +59,8 @@ class _UpdateClassScheduleZFDialogState
         currentState = UpdateClassScheduleState.selectSemester;
       });
     } catch (e) {
-      if (e == '获取课表学期数据失败: Http status code = 302, 可能需要重新登录') {
+      if (!mounted) return;
+      if (isZhengFangSessionExpired(e)) {
         setState(() {
           currentState = UpdateClassScheduleState.loginExpired;
         });
@@ -74,6 +77,7 @@ class _UpdateClassScheduleZFDialogState
   }
 
   Future _updateClassSchedule(BuildContext context) async {
+    final user = context.read<ZhengFangUserProvider>();
     if (_selectedSemesterYear == null || _selectedSemesterIndex == null) {
       setState(() {
         _isShowSemesterYearDropDownMenuError = (_selectedSemesterYear == null);
@@ -89,6 +93,7 @@ class _UpdateClassScheduleZFDialogState
           cookie: ZhengFangUserProvider.cookie,
           semesterYear: _selectedSemesterYear!,
           semesterIndex: _selectedSemesterIndex!,
+          zhengFangUserProvider: user,
         );
 
         if (!context.mounted) return;
@@ -106,7 +111,7 @@ class _UpdateClassScheduleZFDialogState
         if (kDebugMode) {
           print(e);
         }
-        if (e == '获取课表数据失败: Http status code = 901, 验证身份信息失败') {
+        if (isZhengFangSessionExpired(e)) {
           setState(() {
             currentState = UpdateClassScheduleState.loginExpired;
           });
@@ -122,8 +127,9 @@ class _UpdateClassScheduleZFDialogState
       // 获取开学日期
       try {
         // 如果从教务系统获取当前开学日期成功，更改默认开学日期
-        final result = await ZhengFangJwxt.classSchedule
-            .getSemesterStartDate(cookie: ZhengFangUserProvider.cookie);
+        final result = await ZhengFangJwxt.classSchedule.getSemesterStartDate(
+            cookie: ZhengFangUserProvider.cookie,
+            zhengFangUserProvider: user);
 
         if (!context.mounted) return;
 
@@ -148,7 +154,7 @@ class _UpdateClassScheduleZFDialogState
     setState(() {
       currentState = UpdateClassScheduleState.gettingSemester;
     });
-    _getSemesters(null);
+    _getSemesters(context.read<ZhengFangUserProvider>());
   }
 
   @override
@@ -400,7 +406,7 @@ class _UpdateClassScheduleZFDialogState
                 setState(() {
                   currentState = UpdateClassScheduleState.gettingSemester;
                 });
-                await _getSemesters(null);
+                await _getSemesters(context.read<ZhengFangUserProvider>());
               },
               child: const Text('重试'),
             ),

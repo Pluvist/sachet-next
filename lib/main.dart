@@ -64,7 +64,13 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => SettingsProvider()),
-        ChangeNotifierProvider(create: (_) => ZhengFangUserProvider()..init()),
+        ChangeNotifierProvider(create: (_) {
+          final user = ZhengFangUserProvider();
+          // Requests await/retry init themselves. A failed startup prefetch
+          // must not become an uncaught asynchronous error on app re-entry.
+          user.init().catchError((Object _) {});
+          return user;
+        }),
         ChangeNotifierProvider(create: (_) => CourseCardSettingsProvider()),
         ChangeNotifierProvider(create: (_) => ScreenNavProvider()),
       ],

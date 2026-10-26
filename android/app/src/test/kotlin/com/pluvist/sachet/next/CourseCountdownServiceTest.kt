@@ -104,4 +104,38 @@ class CourseCountdownServiceTest {
         controller.destroy()
         assertFalse(manager.activeNotifications.any { it.id == CourseLiveActivity.ID })
     }
+
+    @Test fun waitingActivityMovesStartAndPlaceToTheTitleAndDurationToContent() {
+        android.os.SystemClock.setCurrentTimeMillis(Instant.parse("2026-10-16T00:55:00Z").toEpochMilli())
+        cache(Instant.parse("2026-10-16T01:05:00Z").toEpochMilli(),
+            Instant.parse("2026-10-16T02:40:00Z").toEpochMilli())
+        CourseLiveActivity.refresh(app)
+        val extras = active().extras
+        assertEquals("09:05 · 逸夫楼201", extras.getCharSequence(Notification.EXTRA_TITLE).toString())
+        assertEquals("09:05 · 逸夫楼201", extras.getCharSequence(Notification.EXTRA_TITLE_BIG).toString())
+        assertEquals("数学 · 09:05–10:40 · 95分钟", extras.getCharSequence(Notification.EXTRA_TEXT).toString())
+        assertEquals("下一堂课：数学\n时间：09:05–10:40\n持续时间：95分钟",
+            extras.getCharSequence(Notification.EXTRA_BIG_TEXT).toString())
+        assertFalse(extras.getBoolean(Notification.EXTRA_SHOW_CHRONOMETER))
+    }
+
+    @Test fun breakActivityUsesTheNextLessonLengthRatherThanTheBreakLength() {
+        android.os.SystemClock.setCurrentTimeMillis(Instant.parse("2026-10-16T00:55:00Z").toEpochMilli())
+        cache(Instant.parse("2026-10-16T02:30:00Z").toEpochMilli(),
+            Instant.parse("2026-10-16T03:15:00Z").toEpochMilli())
+        val prefs = app.getSharedPreferences("course_widget", Context.MODE_PRIVATE)
+        val data = JSONObject(prefs.getString("data", "{}")!!)
+        val next = data.getJSONArray("lessons").getJSONObject(0)
+            .put("title", "物理").put("place", "信息科技大楼204")
+        data.put("lessons", JSONArray().put(JSONObject().put("title", "数学")
+            .put("place", "逸夫楼201")
+            .put("start", Instant.parse("2026-10-16T00:10:00Z").toEpochMilli())
+            .put("end", Instant.parse("2026-10-16T00:55:00Z").toEpochMilli())).put(next))
+        prefs.edit().putString("data", data.toString()).commit()
+        CourseLiveActivity.refresh(app)
+        val extras = active().extras
+        assertEquals("10:30 · 信息科技大楼204", extras.getCharSequence(Notification.EXTRA_TITLE).toString())
+        assertEquals("物理 · 10:30–11:15 · 45分钟", extras.getCharSequence(Notification.EXTRA_TEXT).toString())
+        assertTrue(extras.getCharSequence(Notification.EXTRA_BIG_TEXT).toString().contains("持续时间：45分钟"))
+    }
 }

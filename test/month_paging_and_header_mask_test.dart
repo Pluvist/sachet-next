@@ -198,7 +198,8 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('Month swipes restore floating navigation when paging finishes',
+  testWidgets(
+      'Month swipes keep navigation visible without changing the viewport',
       (tester) async {
     size(tester, const Size(400, 860));
     final nav = ScreenNavProvider()..setCurrentPage('/class');
@@ -223,14 +224,20 @@ void main() {
         tester.element(find.byType(MonthView)).read<ClassPageProvider>();
     model.monthPageController.jumpToPage(0);
     await tester.pumpAndSettle();
+    final viewport = tester.getSize(pager);
     await tester.fling(pager, const Offset(0, -500), 900);
+    await tester.pump(const Duration(milliseconds: 16));
+    expect(find.byKey(const ValueKey('floatingNavToolbar')).hitTestable(),
+        findsOneWidget);
+    expect(tester.getSize(pager), viewport);
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 180));
     await tester.pumpAndSettle();
     expect(model.monthPageController.page, 1);
-    expect(nav.isNavBottomVisible, isTrue);
-    final pill =
-        tester.getRect(find.byKey(const ValueKey('floatingNavToolbar')));
+    expect(find.byKey(const ValueKey('floatingNavToolbar')).hitTestable(),
+        findsOneWidget);
     final calendars = find.byType(SingleMonthPage);
-    expect(tester.getRect(calendars.last).bottom, lessThanOrEqualTo(pill.top));
+    expect(tester.getRect(calendars.last).bottom, lessThanOrEqualTo(860));
     expect(tester.takeException(), isNull);
   });
 

@@ -124,9 +124,7 @@ void main() {
   testWidgets('Page viewport continues behind floating bottom navigation',
       (tester) async {
     setPhoneSize(tester);
-    final navigation = ScreenNavProvider()
-      ..setCurrentPage('/home')
-      ..showNavBottom();
+    final navigation = ScreenNavProvider()..setCurrentPage('/home');
     await tester.pumpWidget(MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: navigation),

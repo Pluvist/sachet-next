@@ -1,7 +1,5 @@
-import 'package:sachet/utils/ios_motion.dart';
 import 'package:sachet/widgets/utils_widgets/glass_backdrop.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 import 'package:sachet/models/nav_destination.dart';
 import 'package:sachet/pages/class_page.dart';
@@ -29,169 +27,60 @@ const List<NavDestination> _destinations = <NavDestination>[
       routeName: '/class'),
 ];
 
-class WithNavigationBarView extends StatefulWidget {
-  /// 使用 NavigationBar 时的 View, 几个一级页面作为 body, 底部 bottomNavigationBar 用于导航
+/// Persistent navigation overlays the page without changing its viewport.
+class WithNavigationBarView extends StatelessWidget {
   const WithNavigationBarView({super.key});
 
   @override
-  State<WithNavigationBarView> createState() => _WithNavigationBarViewState();
-}
-
-class _WithNavigationBarViewState extends State<WithNavigationBarView> {
-  double? _scrollStartOffset;
-
-  /// 水平滑动前，NavBottom 是否是可见的状态
-  bool _wasNavBottomVisibleBeforeHorizontalScroll = true;
-
-  bool _onScrollNotification(ScrollNotification notification,
-      bool isWideScreenMode, int currentPageIndex) {
-    if (isWideScreenMode) {
-      return false;
-    }
-
-    // Week pages move horizontally; paired month pages move vertically. Both
-    // temporarily hide the pill while paging and restore it once settled.
-    if (currentPageIndex == 1 && notification.metrics is PageMetrics) {
-      if (notification is ScrollStartNotification) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) context.read<ScreenNavProvider>().hideNavBottom();
-        });
-      } else if (notification is ScrollEndNotification) {
-        if (_wasNavBottomVisibleBeforeHorizontalScroll) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) context.read<ScreenNavProvider>().showNavBottom();
-          });
-        }
-      }
-      return false;
-    }
-
-    if (notification.metrics.axis == Axis.horizontal) return false;
-
-    if (notification.metrics.axis != Axis.vertical) {
-      return false;
-    }
-
-    if (notification is UserScrollNotification) {
-      if (notification.direction == ScrollDirection.reverse) {
-        // 向下滚动立即隐藏 NavBottom
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) context.read<ScreenNavProvider>().hideNavBottom();
-          _wasNavBottomVisibleBeforeHorizontalScroll = false;
-        });
-        _scrollStartOffset = null;
-      } else if (notification.direction == ScrollDirection.forward) {
-        // 开始向上滚动，记录起始位置
-        _scrollStartOffset = notification.metrics.pixels;
-
-        // 如果已经滚动到顶部，立即显示 NavBottom
-        final bool isAtTop = notification.metrics.pixels <= 0;
-        if (isAtTop) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) context.read<ScreenNavProvider>().showNavBottom();
-            _wasNavBottomVisibleBeforeHorizontalScroll = true;
-          });
-          _scrollStartOffset = null;
-        }
-      }
-    } else if (notification is ScrollUpdateNotification) {
-      // 如果正在向上滚动
-      if (notification.scrollDelta != null && notification.scrollDelta! < 0) {
-        // 如果已经滚动到顶部，或者向上滚动距离超过 30px，则显示 NavBottom
-        final bool isAtTop = notification.metrics.pixels <= 0;
-        double distance = 0;
-        if (_scrollStartOffset != null) {
-          distance = _scrollStartOffset! - notification.metrics.pixels;
-        }
-
-        if (isAtTop || distance >= 30.0) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) context.read<ScreenNavProvider>().showNavBottom();
-            _wasNavBottomVisibleBeforeHorizontalScroll = true;
-          });
-          _scrollStartOffset = null;
-        }
-      }
-    } else if (notification is ScrollEndNotification) {
-      // 滚动结束时清理状态
-      _scrollStartOffset = null;
-      WidgetsBinding.instance
-          .addPostFrameCallback((_) => GlassBackdrop.captureWhenIdle());
-    }
-
-    return false;
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final int currentPageIndex = _routeNames.indexOf(
+    final currentPageIndex = _routeNames.indexOf(
         context.select<ScreenNavProvider, String>(
-            (screenNavProvider) => ScreenNavProvider.currentPage));
-    return LayoutBuilder(builder: (context, BoxConstraints constraints) {
-      final bool isWideScreenMode = constraints.maxWidth > 600 ||
+            (_) => ScreenNavProvider.currentPage));
+    return LayoutBuilder(builder: (context, constraints) {
+      final wide = constraints.maxWidth > 600 ||
           constraints.maxWidth > constraints.maxHeight;
       return Scaffold(
-        // Let page content paint through the transparent space around the pill.
-        extendBody: !isWideScreenMode && Theme.of(context).useMaterial3,
         body: Stack(children: [
           Positioned.fill(
-              child: Padding(
-                  padding: EdgeInsets.only(
-                      top: isWideScreenMode && currentPageIndex >= 0 ? 60 : 0),
-                  child: NotificationListener<ScrollNotification>(
-                    onNotification: (notification) => _onScrollNotification(
-                        notification, isWideScreenMode, currentPageIndex),
-                    child: RepaintBoundary(
-                        key: GlassBackdrop.key,
-                        child: currentPageIndex < 0
-                            ? const ProfilePage()
-                            : RetainedTabBody(
-                                index: currentPageIndex,
-                                children: const [HomePage(), ClassPage()])),
-                  ))),
-          if (isWideScreenMode && currentPageIndex >= 0)
-            Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: NavTop(
-                    destinations: _destinations,
-                    routeNames: _routeNames,
-                    currentPageIndex: currentPageIndex)),
-        ]),
-        bottomNavigationBar: !isWideScreenMode && currentPageIndex >= 0
-            ? Selector<ScreenNavProvider, bool>(
-                selector: (_, provider) => provider.isNavBottomVisible,
-                builder: (_, isNavBottomVisible, __) {
-                  return TweenAnimationBuilder<double>(
-                    tween: Tween<double>(
-                      begin: 0.0,
-                      end: isNavBottomVisible ? 1.0 : 0.0,
-                    ),
-                    duration: MediaQuery.disableAnimationsOf(context)
-                        ? Duration.zero
-                        : const Duration(milliseconds: 300),
-                    curve: IOSMotion.opening,
-                    child: NavBottom(
+            child: Padding(
+              padding:
+                  EdgeInsets.only(top: wide && currentPageIndex >= 0 ? 60 : 0),
+              child: NotificationListener<ScrollEndNotification>(
+                onNotification: (_) {
+                  GlassBackdrop.captureWhenIdle();
+                  return false;
+                },
+                child: RepaintBoundary(
+                  key: GlassBackdrop.key,
+                  child: currentPageIndex < 0
+                      ? const ProfilePage()
+                      : RetainedTabBody(
+                          index: currentPageIndex,
+                          children: const [HomePage(), ClassPage()]),
+                ),
+              ),
+            ),
+          ),
+          if (currentPageIndex >= 0)
+            if (wide)
+              Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: NavTop(
                       destinations: _destinations,
                       routeNames: _routeNames,
-                      currentPageIndex: currentPageIndex,
-                    ),
-                    builder: (context, value, child) {
-                      return ClipRect(
-                        child: Align(
-                          alignment: Alignment.topCenter,
-                          heightFactor: value,
-                          child: FractionalTranslation(
-                            translation: Offset(0, 1 - value),
-                            child: child,
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                })
-            : null,
+                      currentPageIndex: currentPageIndex))
+            else
+              Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: NavBottom(
+                      destinations: _destinations,
+                      routeNames: _routeNames,
+                      currentPageIndex: currentPageIndex)),
+        ]),
       );
     });
   }

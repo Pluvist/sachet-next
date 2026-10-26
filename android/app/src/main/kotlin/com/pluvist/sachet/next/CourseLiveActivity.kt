@@ -113,8 +113,11 @@ object CourseLiveActivity {
                 }
                 LiveCoursePhase.WAITING -> {
                     val next = state.next!!
-                    title = "下一堂课：${next.title}"; compact = "${time(next.start)} · ${next.place}"
-                    body = "下一堂课：${next.title}\n时间：${time(next.start)}–${time(next.end)}\n地点：${next.place}"
+                    val duration = (next.end - next.start + 59_999L) / 60_000L
+                    val period = "${time(next.start)}–${time(next.end)}"
+                    title = "${time(next.start)} · ${next.place}"
+                    compact = "${next.title} · $period · ${duration}分钟"
+                    body = "下一堂课：${next.title}\n时间：$period\n持续时间：${duration}分钟"
                     setShortText(builder, time(next.start) + CourseTimeline.compactPlace(next.place))
                 }
                 else -> {

@@ -84,8 +84,10 @@ void main() {
     provider.pageController.jumpToPage(6);
     await tester.pumpAndSettle();
     for (int i = 0; i < 40; i++) {
-      await tester.tap(find.byTooltip(i.isEven ? '主页' : '课程表'));
+      await tester
+          .tapAt(tester.getCenter(find.byTooltip(i.isEven ? '主页' : '课程表')));
       await tester.pumpAndSettle();
+      expect(ScreenNavProvider.currentPage, i.isEven ? '/home' : '/class');
     }
     expect(identical(week, tester.state(find.byType(WeekView))), isTrue);
     expect(provider.currentWeekCount, 7);

@@ -12,8 +12,10 @@ class MainActivity: FlutterActivity() {
         private val widgetExecutor = Executors.newSingleThreadExecutor()
     }
     private var resumed = false
+    private var setupPermissionResult: MethodChannel.Result? = null
+    private var notificationRequestInFlight = false
     private fun requestLivePermission(force: Boolean = false) {
-        if (!resumed || isFinishing) return
+        if (!resumed || isFinishing || notificationRequestInFlight) return
         if (android.os.Build.VERSION.SDK_INT < 33 ||
             checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
             if (force) openLiveSettings("notifications")
@@ -26,6 +28,7 @@ class MainActivity: FlutterActivity() {
             openLiveSettings("notifications"); return
         }
         prefs.edit().putBoolean("livePermissionAsked", true).apply()
+        notificationRequestInFlight = true
         requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 9904)
     }
     private fun openLiveSettings(kind: String) {
@@ -55,7 +58,12 @@ class MainActivity: FlutterActivity() {
     override fun onPause() { resumed = false; super.onPause() }
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 9904) widgetExecutor.execute { CourseLiveActivity.refresh(applicationContext) }
+        if (requestCode == 9904) {
+            notificationRequestInFlight = false
+            setupPermissionResult?.success(CourseLiveActivity.notificationsAllowed(this))
+            setupPermissionResult = null
+            widgetExecutor.execute { CourseLiveActivity.refresh(applicationContext) }
+        }
     }
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -65,6 +73,27 @@ class MainActivity: FlutterActivity() {
                 when (call.method) {
                     "backgroundStatus" -> result.success(BackgroundSetupSettings.status(this))
                     "backgroundSettings" -> result.success(BackgroundSetupSettings.open(this, call.arguments as? String ?: "battery"))
+                    "setupNotificationPermission" -> {
+                        if (setupPermissionResult != null) {
+                            result.success(false)
+                        } else if (notificationRequestInFlight) {
+                            setupPermissionResult = result
+                        } else if (!resumed || isFinishing || android.os.Build.VERSION.SDK_INT < 33 ||
+                            checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                            result.success(CourseLiveActivity.notificationsAllowed(this))
+                        } else {
+                            val prefs = getSharedPreferences("course_widget", MODE_PRIVATE)
+                            if (prefs.getBoolean("livePermissionAsked", false) &&
+                                !shouldShowRequestPermissionRationale(android.Manifest.permission.POST_NOTIFICATIONS)) {
+                                result.success(false)
+                            } else {
+                                prefs.edit().putBoolean("livePermissionAsked", true).apply()
+                                setupPermissionResult = result
+                                notificationRequestInFlight = true
+                                requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 9904)
+                            }
+                        }
+                    }
                     "sync" -> {
                         val context = applicationContext
                         val data = call.arguments as String

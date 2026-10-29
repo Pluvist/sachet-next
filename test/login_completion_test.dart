@@ -8,6 +8,7 @@ import 'package:sachet/models/user.dart';
 import 'package:sachet/pages/utilspages/zhengfang_jwxt_login_page.dart';
 import 'package:sachet/providers/zhengfang_user_provider.dart';
 import 'package:sachet/services/zhengfang_jwxt/login/account_authenticator.dart';
+import 'package:sachet/services/zhengfang_jwxt/auto_login_retry.dart';
 import 'package:sachet/utils/app_global.dart';
 import 'package:sachet/widgets/intro_widgets/provision_page.dart';
 
@@ -79,6 +80,9 @@ void main() {
         if (!cookie) expect(stored['passwordZF'], 'test-only-password');
         returned = true;
       });
+      final userProvider = tester
+          .element(find.byType(ZhengFangJwxtLoginPageView))
+          .read<ZhengFangUserProvider>();
       if (cookie) {
         await tester
             .ensureVisible(find.byKey(const ValueKey('otherLoginMethods')));
@@ -118,6 +122,27 @@ void main() {
           studentID: '202600000001'));
       await tester.pumpAndSettle();
       expect(returned, true);
+      if (!cookie) {
+        var loginCount = 0;
+        final result = await withAutoLoginRetry<String>(
+          initialCookie: 'password-session',
+          zhengFangUserProvider: userProvider,
+          recovery: ZhengFangSessionRecovery(login: (account, password) async {
+            loginCount++;
+            expect(account, '202600000001');
+            expect(password, 'test-only-password');
+            return 'renewed-session';
+          }),
+          action: (session) async {
+            if (session == 'password-session') {
+              throw 'Http status code = 302';
+            }
+            return session;
+          },
+        );
+        expect(result, 'renewed-session');
+        expect(loginCount, 1);
+      }
       expect(find.text('Caller'), findsOneWidget);
       expect(find.byType(AlertDialog), findsNothing);
       expect(tester.takeException(), isNull);

@@ -311,7 +311,8 @@ class _ZhengFangJwxtLoginPageViewState
                                 key: const ValueKey('loginPasswordField'),
                                 controller: passwordTextController,
                                 enabled: !busy,
-                                decoration: input('密码', '请输入教务系统密码'),
+                                decoration: input(
+                                    '密码', '默认密码为 Xtu@身份证后六位'),
                                 onSubmitted: (_) => _pressLoginButton(context)),
                           ])),
                       const SizedBox(height: 8),

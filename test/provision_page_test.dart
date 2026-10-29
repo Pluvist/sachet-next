@@ -81,6 +81,16 @@ void main() {
       'Redesigned login validates locally, retains visibility, remember and alternate methods',
       (tester) async {
     await pump(tester, const ZhengFangJwxtLoginPage(onboarding: true));
+    final passwordField = tester.widget<TextField>(find.descendant(
+        of: find.byKey(const ValueKey('loginPasswordField')),
+        matching: find.byType(TextField)));
+    expect(passwordField.decoration?.hintText, '默认密码为 Xtu@身份证后六位');
+    expect(
+        tester
+            .element(find.byType(ZhengFangJwxtLoginPageView))
+            .read<LoginPageProvider>()
+            .isRememberPassword,
+        isTrue);
     await tester.tap(find.byKey(const ValueKey('provisionLogin')));
     await tester.pumpAndSettle();
     expect(find.text('请填入您的学号'), findsOneWidget);

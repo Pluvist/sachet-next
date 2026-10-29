@@ -73,6 +73,7 @@ class OnboardingSettingsTest {
         shadowOf(power).setIgnoringBatteryOptimizations(app.packageName, true)
         val status = BackgroundSetupSettings.status(app)
         assertEquals(true, status["batteryUnrestricted"])
+        assertEquals(CourseLiveActivity.status(app), status["live"])
         assertFalse(status.containsKey("autostartGranted"))
         assertEquals(0, status["widgetCount"])
         val fallback = BackgroundSetupSettings.candidates(app, "autostart").last()

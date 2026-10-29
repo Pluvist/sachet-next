@@ -9,6 +9,8 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <queries>
         <package android:name="com.miui.securitycenter" />
+        <package android:name="com.coloros.safecenter" />
+        <package android:name="com.oplus.safecenter" />
         <package android:name="com.android.settings" />
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT" />

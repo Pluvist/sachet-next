@@ -16,7 +16,13 @@ internal object BackgroundSetupSettings {
         Uri.parse("package:${context.packageName}"))
     internal fun candidates(context: Context, kind: String): List<Intent> = when (kind) {
         "autostart" -> listOf(Intent().setComponent(ComponentName("com.miui.securitycenter",
-            "com.miui.permcenter.autostart.AutoStartManagementActivity")), details(context))
+            "com.miui.permcenter.autostart.AutoStartManagementActivity")),
+            Intent().setComponent(ComponentName("com.coloros.safecenter",
+                "com.coloros.safecenter.permission.startup.StartupAppListActivity")),
+            Intent().setComponent(ComponentName("com.oplus.safecenter",
+                "com.oplus.safecenter.permission.startup.StartupAppListActivity")),
+            Intent().setComponent(ComponentName("com.coloros.safecenter",
+                "com.coloros.safecenter.startupapp.StartupAppListActivity")), details(context))
         "battery" -> listOf(Intent("android.settings.APP_BATTERY_SETTINGS",
             Uri.parse("package:${context.packageName}")),
             Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS), details(context))
@@ -39,7 +45,9 @@ internal object BackgroundSetupSettings {
         val manager = AppWidgetManager.getInstance(context)
         return mapOf(
             "batteryUnrestricted" to (Build.VERSION.SDK_INT < 23 || power.isIgnoringBatteryOptimizations(context.packageName)),
-            "autostartAvailable" to (candidates(context, "autostart").first().resolveActivity(context.packageManager) != null),
+            "autostartAvailable" to candidates(context, "autostart").dropLast(1)
+                .any { it.resolveActivity(context.packageManager) != null },
+            "live" to CourseLiveActivity.status(context),
             // There is no public API to read a vendor's auto-start permission.
             "widgetCount" to (manager.getAppWidgetIds(ComponentName(context, CourseWidgetProvider::class.java)).size +
                 manager.getAppWidgetIds(ComponentName(context, CourseWidgetWideProvider::class.java)).size))

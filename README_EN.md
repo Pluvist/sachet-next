@@ -8,11 +8,11 @@ A modified version of [Sachet](https://github.com/wyvern1723/sachet) for Xiangta
 
 [Latest release](https://github.com/Pluvist/sachet-next/releases/latest)
 
-- [ARM64 v8a](https://github.com/Pluvist/sachet-next/releases/download/v0.19.76/sachet-next-v0.19.76-arm64-v8a.apk): most modern Android phones, including Xiaomi 17.
-- [ARM v7a](https://github.com/Pluvist/sachet-next/releases/download/v0.19.76/sachet-next-v0.19.76-armeabi-v7a.apk): 32-bit ARM devices.
-- [x86_64](https://github.com/Pluvist/sachet-next/releases/download/v0.19.76/sachet-next-v0.19.76-x86_64.apk): compatible 64-bit x86 Android devices/emulators.
+- [ARM64 v8a](https://github.com/Pluvist/sachet-next/releases/download/v0.19.77/sachet-next-v0.19.77-arm64-v8a.apk): most modern Android phones, including Xiaomi 17.
+- [ARM v7a](https://github.com/Pluvist/sachet-next/releases/download/v0.19.77/sachet-next-v0.19.77-armeabi-v7a.apk): 32-bit ARM devices.
+- [x86_64](https://github.com/Pluvist/sachet-next/releases/download/v0.19.77/sachet-next-v0.19.77-x86_64.apk): compatible 64-bit x86 Android devices/emulators.
 
-Stable **0.19.76** keeps the floating navigation capsule visible and reorganizes between-class Live Update details. It uses the independent Android package ID `com.pluvist.sachet.next` and Pluvist's dedicated release signing key, with release/AOT APKs for all three architectures. Miuix styling, tablet/two-week landscape layouts, course live activities, dual widget sizes and paired-month paging remain available. It supports in-place upgrades from 0.19.75 and older identically signed builds. See the [release notes](docs/releases/0.19.76.md).
+Stable **0.19.77** improves permission onboarding and status display, and adds an initial password hint. It uses the independent Android package ID `com.pluvist.sachet.next` and Pluvist's dedicated release signing key, with release/AOT APKs for all three architectures. Miuix styling, tablet/two-week landscape layouts, course live activities, dual widget sizes and paired-month paging remain available. It supports in-place upgrades from 0.19.75 and older identically signed builds. See the [release notes](docs/releases/0.19.77.md).
 
 **Migration:** 0.19.58 and earlier releases used a different package ID. This version installs separately from those versions and does not automatically inherit their login, timetable, widget settings or permissions. Sign in and sync the timetable in the new app, then re-add widgets and enable notifications as needed. The old app and its data are retained. Versions with the same package and release signature support in-place updates. SHA-256 checksums are attached to the release.
 

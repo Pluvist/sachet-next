@@ -1,7 +1,7 @@
 /// Product disclosures, bundled for reading before any account login.
 const usageNotice = """
 ### 项目与来源
-Sachet Next 是 Pluvist 基于开源项目 [Sachet](https://github.com/wyvern1723/sachet) 二次开发的独立版本，感谢上游作者 wyvern1723。本项目与学校官方机构无隶属关系。
+Xachet 是 Pluvist 基于开源项目 [Sachet](https://github.com/wyvern1723/sachet) 二次开发的独立版本，感谢上游作者 wyvern1723。本项目与学校官方机构无隶属关系。
 
 ### 使用账号与数据
 请使用您有权使用的教务账号。登录及查询会连接学校提供的服务，实际可用性取决于账号状态、网络和学校系统。
@@ -12,7 +12,7 @@ Sachet Next 是 Pluvist 基于开源项目 [Sachet](https://github.com/wyvern172
 您可以稍后登录，或在设置中管理课程提醒、课程实时活动及相关系统权限。没有登录或尚未导入课程时，部分功能无法提供对应数据。
 
 ### 开源说明
-本修改版本整体按 [AGPL-3.0](https://github.com/Pluvist/sachet-next/blob/main/LICENSE) 发布，保留上游的 MIT 许可证与版权声明。使用、修改或分发时请遵守对应许可。软件的担保与责任范围以许可证原文为准。
+本修改版本整体按 [AGPL-3.0](https://github.com/Pluvist/Xachet/blob/main/LICENSE) 发布，保留上游的 MIT 许可证与版权声明。使用、修改或分发时请遵守对应许可。软件的担保与责任范围以许可证原文为准。
 """;
 
 const privacyNotice = """

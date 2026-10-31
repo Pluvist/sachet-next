@@ -68,7 +68,7 @@ void main() {
     expect(
         titleText.style!.fontSize, (design['headingSize'] as num).toDouble());
     expect(titleText.style!.fontFamily, isNot('Anthropic Serif'));
-    expect(titleText.data, 'Sachet Next');
+    expect(titleText.data, 'Xachet');
     final heroFinder = find.byKey(const ValueKey('homeHeroCard'));
     final status = find.byKey(const ValueKey('homeCourseStatusCard'));
     final next = find.byKey(const ValueKey('homeNextCourseCard'));

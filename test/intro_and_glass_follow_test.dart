@@ -99,7 +99,7 @@ void main() {
           'Agreement and account onboarding precede completion $brightness $scale',
           (tester) async {
         final settings = await intro(tester, brightness, scale);
-        expect(find.text('Sachet Next'), findsOneWidget);
+        expect(find.text('Xachet'), findsOneWidget);
         expect(find.text('登录账号'), findsNothing);
         expect(find.text('主题颜色'), findsNothing);
         expect(find.byType(PageView), findsNothing);

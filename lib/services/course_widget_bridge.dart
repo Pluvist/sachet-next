@@ -61,7 +61,7 @@ String _encodeWidgetData(
     jsonEncode(buildCourseWidgetData(input.settings, input.courses));
 
 class CourseWidgetBridge {
-  static const channel = MethodChannel('sachet_next/course_widget');
+  static const channel = MethodChannel('xachet/course_widget');
   static int _generation = 0;
   static AppSettings? _settings;
   static String? _lastKey;

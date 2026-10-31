@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 /// Values approved in assets/json/HomeDesign.json, exported from the editor.
 abstract final class HomeDesign {
-  static const title = 'Sachet Next';
+  static const title = 'Xachet';
   static const headingSize = 34.0;
   static const headingFont = 'sans';
   static const headingHeight = 144.0;

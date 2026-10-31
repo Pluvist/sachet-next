@@ -13,6 +13,7 @@ import org.json.JSONArray
  */
 internal object LegacyReminderCleanup {
     @Synchronized fun run(context: Context) {
+        // This persisted identifier must survive product-name changes.
         val migration = context.getSharedPreferences("sachet_next_migrations", Context.MODE_PRIVATE)
         if (migration.getBoolean("legacyRemindersRemoved", false)) return
         val cache = context.getSharedPreferences("scheduled_notifications", Context.MODE_PRIVATE)

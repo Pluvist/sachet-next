@@ -52,7 +52,7 @@ const String disclaimer = """
 2. 教务登录请求直接发送至学校服务，已保存的登录信息使用设备安全存储，课程缓存与组件快照保存在本机。
 3. 本软件**提供的信息仅供参考，不保证实时性或准确性**，请以官方平台的数据为准。
 4. 桌面组件、提醒与课程实时活动会向系统传递必要的课程内容；您可以通过应用与系统设置管理这些功能。
-5. Sachet Next 由 Pluvist 基于开源项目 [Sachet](https://github.com/wyvern1723/sachet) 二次修改，感谢上游作者 wyvern1723。本修改版本整体遵循 [AGPL-3.0 协议](https://github.com/Pluvist/sachet-next/blob/main/LICENSE)，保留上游 MIT 许可证与版权声明，**对应用的运行情况不作任何形式的担保**。
+5. Xachet 由 Pluvist 基于开源项目 [Sachet](https://github.com/wyvern1723/sachet) 二次修改，感谢上游作者 wyvern1723。本修改版本整体遵循 [AGPL-3.0 协议](https://github.com/Pluvist/Xachet/blob/main/LICENSE)，保留上游 MIT 许可证与版权声明，**对应用的运行情况不作任何形式的担保**。
 
 PS: 本软件只整合了教务系统的部分常用功能，完整功能请使用教务系统。
 

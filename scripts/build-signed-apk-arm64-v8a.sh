@@ -77,11 +77,11 @@ build_apk() {
 
     # 检查返回状态码
     if [ $exit_code -eq 0 ]; then
-        mv $PROJECT_ROOT/build/app/outputs/flutter-apk/app-release.apk $PROJECT_ROOT/build/app/outputs/flutter-apk/sachet-$abi.apk
-        mv $PROJECT_ROOT/build/app/outputs/flutter-apk/app-release.apk.sha1 $PROJECT_ROOT/build/app/outputs/flutter-apk/sachet-$abi.apk.sha1
-        echo "成功: 已生成 sachet-$abi.apk"
+        mv $PROJECT_ROOT/build/app/outputs/flutter-apk/app-release.apk $PROJECT_ROOT/build/app/outputs/flutter-apk/xachet-$abi.apk
+        mv $PROJECT_ROOT/build/app/outputs/flutter-apk/app-release.apk.sha1 $PROJECT_ROOT/build/app/outputs/flutter-apk/xachet-$abi.apk.sha1
+        echo "成功: 已生成 xachet-$abi.apk"
     else
-        echo "错误: sachet-$abi.apk 构建过程出错"
+        echo "错误: xachet-$abi.apk 构建过程出错"
         rm $PROJECT_ROOT/android/key.properties
         exit 1
     fi

@@ -6,8 +6,8 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 version: 0.19.77+52
 
-homepage: https://github.com/Pluvist/sachet-next
-repository: https://github.com/Pluvist/sachet-next
+homepage: https://github.com/Pluvist/Xachet
+repository: https://github.com/Pluvist/Xachet
 
 environment:
   sdk: '>=3.2.2 <4.0.0'

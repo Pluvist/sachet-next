@@ -28,6 +28,6 @@ Future<void> showCourseWidgetPicker(BuildContext context) async {
   final supported = await CourseWidgetBridge.pin(wide: wide);
   if (!supported && context.mounted) {
     ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('请长按桌面，在小组件列表中添加 Sachet Next')));
+        const SnackBar(content: Text('请长按桌面，在小组件列表中添加 Xachet')));
   }
 }

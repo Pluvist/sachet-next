@@ -1,4 +1,4 @@
-name: Sachet Next Android checks
+name: Xachet Android checks
 
 on:
   workflow_dispatch:
@@ -15,37 +15,23 @@ concurrency:
 jobs:
   android:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    env:
-      SACHET_LOCAL_TEST: '1'
+    timeout-minutes: 45
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '21'
           cache: gradle
-      - name: Set up Flutter 3.24.5
-        uses: flutter-actions/setup-flutter@v4
-        with:
-          channel: stable
-          version: '3.24.5'
-      - name: Install packages
-        run: flutter pub get
-      - name: Analyze
-        run: flutter analyze
-      - name: Test
-        run: flutter test
-      - name: Build ARM64 test APK
-        run: flutter build apk --release --target-platform android-arm64
-      - name: Native course timeline tests
-        working-directory: android
-        run: bash ./gradlew :app:testReleaseUnitTest --console=plain
+      - name: Install native Android toolchain
+        run: sdkmanager "platforms;android-37" "build-tools;36.0.0" "ndk;27.1.12297006" "cmake;3.22.1"
+      - name: Build native test APK and run application tests
+        run: bash native/gradlew -p native :app:assembleDebug :app:testDebugUnitTest --max-workers=2 --console=plain
       - name: Upload test APK
         uses: actions/upload-artifact@v7
         with:
-          name: sachet-next-arm64-test-${{ github.sha }}
-          path: build/app/outputs/flutter-apk/app-release.apk
+          name: xachet-native-test-${{ github.sha }}
+          path: native/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error

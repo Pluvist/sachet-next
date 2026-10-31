@@ -1,0 +1,9 @@
+<resources><style name="NativeTheme" parent="android:style/Theme.Material.Light.NoActionBar">
+    <item name="android:windowActionModeOverlay">true</item>
+    <item name="android:windowLightStatusBar">true</item>
+    <item name="android:windowLightNavigationBar">true</item>
+    <item name="android:statusBarColor">@android:color/transparent</item>
+    <item name="android:navigationBarColor">@android:color/transparent</item>
+    <item name="android:windowFullscreen">false</item>
+    <item name="android:windowBackground">#F2F2F7</item>
+</style></resources>

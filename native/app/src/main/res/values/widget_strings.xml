@@ -1,0 +1,6 @@
+<resources>
+    <string name="course_widget_name">Xachet · 今日课程</string>
+    <string name="course_widget_description">共享主页课表，显示当前或下一节课、真实上课时间和地点</string>
+    <string name="course_widget_wide_name">Xachet · 课程概览 4×2</string>
+    <string name="course_widget_wide_description">左侧显示当前课程状态，右侧显示下一节课的时间和地点</string>
+</resources>

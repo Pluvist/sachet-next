@@ -115,7 +115,7 @@ class _BackgroundSetupPageState extends State<BackgroundSetupPage>
   }
 
   void _manualHelp() => ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('请在系统应用设置中，找到 Sachet Next 的后台运行和自启动设置')));
+      const SnackBar(content: Text('请在系统应用设置中，找到 Xachet 的后台运行和自启动设置')));
   Future<void> _continue() async {
     if (_opening) return;
     if (widget.completionBuilder == null) {

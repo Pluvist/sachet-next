@@ -33,7 +33,7 @@ void main() {
       await rootBundle.loadString('LICENSE-MIT'),
     );
     yield LicenseEntryWithLineBreaks(
-        ['Sachet Next', 'NexioSchedule', 'HyperCeiler onboarding'],
+        ['Xachet', 'NexioSchedule', 'HyperCeiler onboarding'],
         await rootBundle.loadString('LICENSE'));
     yield LicenseEntryWithLineBreaks([
       'Kyant Backdrop'
@@ -105,7 +105,7 @@ class MyApp extends StatelessWidget {
     required ThemeProvider themeProvider,
   }) {
     return MaterialApp(
-      title: 'Sachet Next',
+      title: 'Xachet',
       scaffoldMessengerKey: SnackbarGlobal.key,
       navigatorKey: NavigatorGlobal.navigatorKey,
       localizationsDelegates: const [

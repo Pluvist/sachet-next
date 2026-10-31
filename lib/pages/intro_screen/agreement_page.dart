@@ -64,7 +64,7 @@ class _AgreementPageState extends State<AgreementPage> {
             Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           ProvisionPanel(
               child: Text.rich(TextSpan(style: style, children: [
-            const TextSpan(text: '使用 Sachet Next 前，请阅读并了解 '),
+            const TextSpan(text: '使用 Xachet 前，请阅读并了解 '),
             WidgetSpan(
                 alignment: PlaceholderAlignment.middle, child: link(false)),
             const TextSpan(text: ' 与 '),

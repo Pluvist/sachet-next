@@ -1,64 +1,71 @@
-# Sachet Next 构建说明
+# Xachet 构建说明
+
+0.19.78 起正式 APK 使用独立的 `native/` Kotlin / Jetpack Compose 工程。根目录 Flutter 工程保留为历史与行为对照。
 
 ## 环境
 
-- Flutter 3.24.5，Dart 3.5.4（仓库提供 `.fvmrc`）。
-- JDK 17、Android SDK 35，安装 Android command-line tools、platform-tools 和所需 NDK。
-- 构建前运行 `flutter doctor`，确认 Android 工具链及 SDK 许可。
-- Windows 建议将仓库放在不含中文或空格的路径，以避免 Android Gradle 路径兼容问题。
+- JDK 21+，本地使用 Android Studio JBR。
+- Android SDK 37、platform-tools、build-tools 36.0.0。
+- NDK 27.1.12297006、CMake 3.22.1。
+- 工程固定 Gradle 9.6.0、AGP 9.4.1、Compose 插件 2.4.21；最低系统 Android 13 / API 33。
+- 首次构建需联网获取依赖并接受 Android SDK 许可。
 
-## 本地检查
+## 测试构建
 
-```sh
-flutter pub get
-flutter analyze
-flutter test
-```
-
-需要真实教务账号的联网测试默认跳过，测试文件不包含真实账号或密码。
-
-## Android 测试构建
-
-PowerShell：
+Windows，在仓库根目录：
 
 ```powershell
-$env:SACHET_LOCAL_TEST = '1'
-flutter build apk --release --target-platform android-arm64
+.\native\build-native.ps1
 ```
+
+脚本将源码暂存到 ASCII 路径，规避 Windows CMake 中文路径问题。默认构建 debug 并运行应用 JVM 测试；可用 `-BuildDirectory`、`-JavaDirectory`、`-Tasks` 覆盖。仅当依赖齐备时使用 `-Offline`。`SACHET_LOCAL_MAVEN` 可选指向本地 Maven 仓库，不是构建必需项。
 
 Linux/macOS：
 
 ```sh
-SACHET_LOCAL_TEST=1 flutter build apk --release --target-platform android-arm64
+bash native/gradlew -p native :app:assembleDebug :app:testDebugUnitTest --console=plain
 ```
 
-输出：`build/app/outputs/flutter-apk/app-release.apk`。
+测试包名 `com.pluvist.sachet.next.localtest`，输出在所用构建目录的 `native/app/build/outputs/apk/debug/`。优化预览可运行 `:app:assemblePreview`；`.benchmark` 供合成数据性能测试。它们均不与正式版共享私有数据。
 
-测试包 ID 为 `com.pluvist.sachet.next.localtest`。没有配置签名密钥时使用本机开发签名，CI 使用运行环境的开发签名；不同机器或 CI 运行产生的签名可能不同，不能据此保证覆盖安装。
+## 正式签名与三架构构建
 
-## 自行签名
-
-创建自己的签名密钥，在本机 `android/key.properties` 中配置：
+在仓库外创建自己的签名配置，替换占位值：
 
 ```properties
-storeFile=/absolute/path/to/your-release-key.jks
+storeFile=/absolute/path/to/your-release-key.p12
 storePassword=YOUR_STORE_PASSWORD
 keyAlias=YOUR_KEY_ALIAS
 keyPassword=YOUR_KEY_PASSWORD
 ```
 
-请勿提交该文件、密钥或实际密码；它们已加入忽略规则。也不需要上游作者的签名密钥。
+Windows：
 
-未设置 `SACHET_LOCAL_TEST=1` 的 release 构建使用独立包名 `com.pluvist.sachet.next`。官方 Release 自 0.19.59 起使用专用发布密钥；仓库不包含该密钥。旧版 `io.github.wyvern1723.sachet.localtest` 与新版是两个应用，已有数据不会自动迁移。今后的覆盖升级必须保持包名和签名一致。
+```powershell
+$env:XACHET_SIGNING_PROPERTIES = 'C:/private/xachet-key.properties'
+.\native\build-native.ps1 -Tasks ':app:assembleRelease',':app:testDebugUnitTest','-PxachetReleaseAbis=arm64-v8a,armeabi-v7a,x86_64'
+```
 
-可使用 `flutter build apk --release --split-per-abi` 生成多架构构建。正式发布前会验证三种 APK 的包名、架构、版本和签名，并运行 Flutter 与原生测试；其他平台的工程文件来自上游，新增桌面课程组件仅支持 Android。
+Linux/macOS：
 
-## GitHub Actions
+```sh
+XACHET_SIGNING_PROPERTIES=/private/xachet-key.properties bash native/gradlew -p native :app:assembleRelease :app:testDebugUnitTest -PxachetReleaseAbis=arm64-v8a,armeabi-v7a,x86_64 --console=plain
+```
 
-本仓库的 Android workflow 在手动触发或针对 main 的 Pull Request 时执行依赖安装、静态分析、自动测试与 ARM64 测试构建。只需要仓库读取权限，不读取上游签名密钥，不自动创建 Release。
+输出在 `native/app/build/outputs/apk/release/`；Windows 脚本输出在暂存目录。正式打包缺少签名配置时停止，避免误发开发签名包。不要提交密码、配置、账号或私钥。发布前检查包名、版本、标签、最低系统、架构、签名和校验和。
+
+正式包继续使用 `com.pluvist.sachet.next`；覆盖升级必须保持包名与签名一致。维护者发布私钥不在仓库中，自行构建的不同签名版本不能覆盖官方版。
+
+## CI 与验证范围
+
+GitHub Actions 在手动触发或 main 的 Pull Request 时构建原生 debug APK、运行应用单元测试并上传测试产物，不读取发布密钥，不自动创建正式 Release。
+
+真实教务查询、系统权限、桌面组件及实时活动需分别验证，单元测试或编译不能代替真实账号与厂商系统验证。参考 [原生说明](native/README.md)、[教务实测](docs/native-academic-repair-2026-10-31.md) 及 [迁移计划](docs/meilox-migration-plan.md)。
+
+## 历史 Flutter 工程
+
+`lib/`、`android/`、`test/` 使用 Flutter 3.24.5 / Dart 3.5.4，可对照旧版行为。本次正式发布不执行 Flutter 打包。历史版本号保留，当前版本以 `native/app/build.gradle.kts` 为准。其他平台旧工程未完成原生迁移。
 
 ## 分发许可
 
-请同时保留根目录 `LICENSE`、`LICENSE-MIT`、`third_party/nexio/`、`THIRD_PARTY_NOTICES.md` 与字体许可证。构建将项目 AGPL、上游 MIT 和衍生着色器 Apache-2.0 文本和 Noto 字体 OFL 文本作为资源打包，并在应用关于对话框的“查看许可”中展示。
-
-公开构建使用 Noto Serif SC，不需要早期本地试验的 Anthropic 字体文件。上游地址与作者说明见 [README](README.md)。
+保留 `LICENSE`、`LICENSE-MIT`、`THIRD_PARTY_NOTICES.md` 及 `third_party/` 的来源与独立许可证。原生 APK 打包项目和上游许可、Cresto 及 MiSans 字体许可；第三方资源继续遵循各自许可。

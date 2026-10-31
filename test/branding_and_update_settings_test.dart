@@ -19,7 +19,7 @@ void main() {
       'isAutoCheckUpdate': true,
     });
     PackageInfo.setMockInitialValues(
-        appName: 'Sachet Next',
+        appName: 'Xachet',
         packageName: 'com.pluvist.sachet.next.localtest',
         version: '0.10.1',
         buildNumber: '17',
@@ -41,7 +41,7 @@ void main() {
   testWidgets('About credits distinguish current author and upstream',
       (tester) async {
     await pumpPage(tester, const AboutPage());
-    expect(find.text('Sachet Next'), findsOneWidget);
+    expect(find.text('Xachet'), findsOneWidget);
     expect(find.text('Pluvist'), findsOneWidget);
     expect(find.textContaining('基于开源上游项目 Sachet 二次修改'), findsOneWidget);
     expect(find.text('wyvern1723'), findsOneWidget);
@@ -51,7 +51,7 @@ void main() {
     await tester.ensureVisible(find.text('关于应用'));
     await tester.tap(find.text('关于应用'));
     await tester.pumpAndSettle();
-    expect(find.text('Sachet Next'), findsNWidgets(2));
+    expect(find.text('Xachet'), findsNWidgets(2));
     expect(find.textContaining('上游版权：©2025 wyvern1723'), findsOneWidget);
     expect(find.textContaining('MIT 许可证'), findsOneWidget);
     expect(tester.takeException(), isNull);

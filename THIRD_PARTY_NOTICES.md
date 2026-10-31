@@ -1,5 +1,11 @@
 # 第三方资源与上游声明
 
+## 原生 Compose 迁移
+
+`native/` 使用 MeiloX 所引用的 Glasmio 六个开源组件模块。Glasmio 源码按 Apache-2.0 分发，版本、集成修改及原始第三方声明见 [Glasmio 来源](third_party/glasmio/SOURCES.md)。MeiloX 是 GPL-3.0 的界面与交互参考项目：https://github.com/NEORUAA/MeiloX 。未复制其 Apple 字体资源。
+
+旧账号兼容复用 flutter_secure_storage 9.2.4 的 MIT Java 存储与加密实现，见 [来源与许可](third_party/flutter_secure_storage/SOURCES.md)。
+
 ## Sachet
 
 - 来源：https://github.com/wyvern1723/sachet
@@ -7,7 +13,7 @@
 - 许可证：MIT
 - 上游版权：Copyright (c) 2025 wyvern1723
 - 原有代码、图标与工程资源来源于 Sachet，保留上游版权及许可全文，见 [LICENSE-MIT](LICENSE-MIT)。
-- Sachet Next 修改版权：Copyright (c) 2026 Pluvist (Sachet Next modifications)。
+- Xachet 修改版权：Copyright (c) 2026 Pluvist (Xachet modifications)。
 
 ## Noto Serif SC 标题字体
 
@@ -28,4 +34,18 @@ Flutter 及 pubspec.yaml 中的依赖遵循各自许可证；Flutter 构建生�
 
 ## HyperCeiler
 
-首次账号引导布局转写自 ReChronoRain/HyperCeiler，Copyright (C) 2023-2026 HyperCeiler Contributions，AGPL-3.0。原始XML、固定提交和适配说明保存在 [来源目录](third_party/hyperceiler/SOURCES.md)。品牌改为Sachet Next，仅保留账号步骤，保留原glow.glsl与GlowPainter默认参数，转写为Flutter着色器；未包含其系统专属活动动画库。来源控件捕获与展开入口另参考同一提交的 StartupFragment.java / ViewUtils.java；Flutter 版本保持目标页面原尺寸，通过完整控件边缘揭示下一页，时长和曲线为本项目适配参数。
+首次账号引导布局转写自 ReChronoRain/HyperCeiler，Copyright (C) 2023-2026 HyperCeiler Contributions，AGPL-3.0。原始XML、固定提交和适配说明保存在 [来源目录](third_party/hyperceiler/SOURCES.md)。品牌改为Xachet，仅保留账号步骤，保留原glow.glsl与GlowPainter默认参数，转写为Flutter着色器；未包含其系统专属活动动画库。来源控件捕获与展开入口另参考同一提交的 StartupFragment.java / ViewUtils.java；Flutter 版本保持目标页面原尺寸，通过完整控件边缘揭示下一页，时长和曲线为本项目适配参数。
+
+## MeiloX 原生底栏滚动逻辑
+
+原生版的滚动收纳驱动适配自 NEORUAA/MeiloX（GPL-3.0），保留来源、版本与许可全文，见 [来源说明](third_party/meilox/SOURCES.md)。修改者 Pluvist；音乐活动内容替换为课程状态。
+
+## Kyant0/Shapes
+
+原生界面的窗口、卡片、菜单与 bar 使用 Kyant0/Shapes 1.2.1 的连续圆角轮廓，按 Apache-2.0 分发。依赖坐标和适配说明见 [Shapes 来源](third_party/shapes/SOURCES.md)。
+
+## Cresto and MiSans (native app)
+
+Page motion is adapted from Nevodev/Cresto (Apache-2.0), revision 74564563a686106d76d7d9a403dd994a4fbcb6a7. Its guide layout is used as a design reference with Sachet-specific content. See third_party/cresto/SOURCES.md and LICENSE. The app includes the Apache license and credits in About.
+
+This application uses MiSans fonts. Copyright © 2020–2025 Beijing Xiaomi Mobile Software Co., Ltd. All Rights Reserved. The unmodified official MiSansVF.ttf (4.009) is included as an app resource under Xiaomi's MiSans Font Intellectual Property License Agreement, not the application's source license. The license is retained in third_party/misans/LICENSE.pdf and app legal assets. Source, checksum and weight-axis details: third_party/misans/SOURCES.md. The About page explicitly credits MiSans.

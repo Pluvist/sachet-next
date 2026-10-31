@@ -68,7 +68,7 @@ class MainActivity: FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         widgetExecutor.execute { LegacyReminderCleanup.run(applicationContext) }
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "sachet_next/course_widget")
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "xachet/course_widget")
             .setMethodCallHandler { call, result ->
                 when (call.method) {
                     "backgroundStatus" -> result.success(BackgroundSetupSettings.status(this))

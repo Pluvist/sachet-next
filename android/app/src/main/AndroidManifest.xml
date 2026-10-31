@@ -18,7 +18,7 @@
         </intent>
     </queries>
     <application
-        android:label="Sachet Next"
+        android:label="Xachet"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon"
         android:enableOnBackInvokedCallback="true"

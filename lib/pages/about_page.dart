@@ -100,7 +100,7 @@ class _AboutPageState extends State<AboutPage> {
             '底栏与菜单：NexioSchedule（HaoZai000），AGPL-3.0；折射着色器：Kyant Backdrop，Apache-2.0。引导布局：HyperCeiler Contributions，AGPL-3.0。源码移植与适配：Pluvist。'),
         const SizedBox(height: 12),
         const Text(
-            'Sachet Next 遵循 AGPL-3.0 许可证，Sachet 上游代码保留 MIT 许可证声明，以免费软件形式提供，不作任何担保。'),
+            'Xachet 遵循 AGPL-3.0 许可证，Sachet 上游代码保留 MIT 许可证声明，以免费软件形式提供，不作任何担保。'),
       ],
       context: context,
     );
@@ -164,11 +164,11 @@ class _AboutPageState extends State<AboutPage> {
           ),
           MiuixListTile(
             leading: const Icon(Icons.code),
-            title: const Text('Sachet Next 源代码'),
-            subtitle: const Text(sachetNextRepoUrl),
-            onTap: () => openLink(sachetNextRepoUrl),
+            title: const Text('Xachet 源代码'),
+            subtitle: const Text('GitHub · Pluvist'),
+            onTap: () => openLink(xachetRepoUrl),
             onLongPress: () =>
-                copyToClipboard(context, sachetNextRepoUrl, prefix: '链接'),
+                copyToClipboard(context, xachetRepoUrl, prefix: '链接'),
           ),
           MiuixListTile(
             leading: const Align(

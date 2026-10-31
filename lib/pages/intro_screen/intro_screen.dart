@@ -162,7 +162,7 @@ class _IntroScene extends StatelessWidget {
                                       padding: const EdgeInsets.symmetric(
                                           vertical: 6),
                                       child: Text(
-                                          completed ? '设置完成' : 'Sachet Next',
+                                          completed ? '设置完成' : 'Xachet',
                                           style: TextStyle(
                                               fontSize: completed ? 32 : 38,
                                               fontWeight: FontWeight.w700,

@@ -44,6 +44,7 @@ class AppGlobal {
     }
     startupPage = appSettings.startupPage ?? '/class';
     // Apply this release's blue palette once, including existing installations.
+    // Keep the persisted migration key across display-name changes.
     if (_prefs.getBool('sachetNextBlueThemeV1') != true) {
       appSettings.themeColor = '#FF3482FF';
       await persistAppSettings();
@@ -102,7 +103,7 @@ const defaultAppSettingsConfig = {
   "themeMode": 0, // 主题模式（0: system, 1: light, 2: dark）
   "themeColor": "#FF3482FF", // 主题色(ARGB)
   "startupPage": "/class", // 启动页
-  "isAutoCheckUpdate": false, // Sachet Next 不使用上游更新渠道
+  "isAutoCheckUpdate": false, // Xachet 不使用上游更新渠道
   "isShowAllCheckUpdateResult": false, // 是否显示检查更新所有结果（检查更新失败和已是最新版）
   "isShowPageTurnArrow": true, // 是否显示课程表上一周下一周的翻页箭头
   "classScheduleFilePath": "", // 当前使用的课程表文件路径

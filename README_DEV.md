@@ -5,7 +5,7 @@
 ## 环境
 
 - JDK 21+，本地使用 Android Studio JBR。
-- Android SDK 37、platform-tools、build-tools 36.0.0。
+- Android SDK 37（SDK Manager 包名 `platforms;android-37.0`）、platform-tools、build-tools 36.0.0。
 - NDK 27.1.12297006、CMake 3.22.1。
 - 工程固定 Gradle 9.6.0、AGP 9.4.1、Compose 插件 2.4.21；最低系统 Android 13 / API 33。
 - 首次构建需联网获取依赖并接受 Android SDK 许可。

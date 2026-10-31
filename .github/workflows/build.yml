@@ -30,7 +30,7 @@ jobs:
         with:
           log-accepted-android-sdk-licenses: 'false'
       - name: Install native Android toolchain
-        run: sdkmanager "platforms;android-37" "build-tools;36.0.0" "ndk;27.1.12297006" "cmake;3.22.1"
+        run: sdkmanager "platforms;android-37.0" "build-tools;36.0.0" "ndk;27.1.12297006" "cmake;3.22.1"
       - name: Build native test APK and run application tests
         run: bash native/gradlew -p native :app:assembleDebug :app:testDebugUnitTest --max-workers=2 --console=plain
       - name: Upload test APK
